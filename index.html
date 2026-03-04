@@ -187,7 +187,8 @@
   .tag { padding: 9px 15px; border-radius: 20px; border: 2px solid var(--border); background: transparent; color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.18s; font-family: 'Noto Sans SC', sans-serif; user-select: none; }
   .tag:hover { border-color: #bbb; color: var(--text); }
   .tag.selected { border-color: var(--text); background: var(--text); color: var(--yellow); font-weight: 700; box-shadow: 0 4px 14px rgba(0,0,0,0.18); transform: translateY(-2px); }
-  .tag.rest-tag.selected { border-color: var(--blue) !important; background: rgba(74,144,217,0.15) !important; color: var(--blue) !important; box-shadow: 0 4px 12px rgba(74,144,217,0.2) !important; }
+  .tag.rest-tag { font-weight: 800; border: 2px solid var(--blue) !important; color: var(--blue) !important; }
+  .tag.rest-tag.selected { background: var(--blue) !important; color: #fff !important; box-shadow: 0 4px 16px rgba(74,144,217,0.4) !important; font-weight: 800; }
   .food-tag.selected { border-color: var(--green) !important; background: var(--green) !important; color: white !important; }
   .add-tag-row { display: flex; gap: 8px; margin-top: 10px; }
   .add-tag-input { flex: 1; padding: 9px 14px; border-radius: 20px; border: 2px dashed var(--border); background: transparent; color: var(--text); font-size: 13px; font-family: 'Noto Sans SC', sans-serif; outline: none; }
@@ -318,6 +319,32 @@
   .gym-done-btn { width:100%; padding:14px; border-radius:12px; border:none; background:var(--green); color:white; font-size:15px; font-weight:700; font-family:'Noto Sans SC',sans-serif; cursor:pointer; margin-top:14px; transition:all 0.2s; }
   .gym-done-btn:active { transform:scale(0.98); }
   .gym-done-tag { display:inline-flex; align-items:center; gap:5px; padding:6px 12px; border-radius:10px; background:var(--text); color:var(--yellow); font-size:13px; font-weight:700; margin:3px; }
+  /* ── 重要日程 banner ── */
+  .events-banner { background: var(--text); overflow: hidden; width:100%; border-top: 2px solid rgba(240,165,0,0.4); }
+  .events-bar { display:flex; align-items:center; gap:10px; padding: 10px 20px; cursor:pointer; }
+  .events-bar-icon { font-size:13px; flex-shrink:0; }
+  .events-ticker-wrap { flex:1; overflow:hidden; height:22px; position:relative; }
+  .events-ticker { display:inline-flex; position:absolute; left:4px; top:0; white-space:nowrap; animation: tickerScroll 12s linear infinite; }
+  .events-ticker:hover { animation-play-state:paused; }
+  .events-ticker-item { font-family:'Noto Sans SC',sans-serif; font-size:13px; color:#fff; font-weight:700; padding-right:40px; line-height:22px; }
+  .events-ticker-item .date-tag { font-family:'Montserrat',sans-serif; font-size:11px; background:var(--yellow); color:#000; font-weight:800; padding:1px 6px; border-radius:4px; margin-right:7px; }
+  .events-empty { font-family:'Noto Sans SC',sans-serif; font-size:12px; color:var(--yellow); line-height:22px; opacity:0.6; }
+  .events-chevron { font-size:12px; color:var(--yellow); transition:transform 0.2s; flex-shrink:0; opacity:0.7; }
+  .events-banner.open .events-chevron { transform:rotate(180deg); }
+  @keyframes tickerScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  .events-panel { max-height:0; overflow:hidden; transition:max-height 0.35s ease; }
+  .events-banner.open .events-panel { max-height:500px; }
+  .events-panel-inner { padding:12px 20px 16px; border-top:1px solid #2a2a2a; }
+  .event-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #222; }
+  .event-item-date { font-family:'Montserrat',sans-serif; font-size:11px; color:var(--yellow); font-weight:700; min-width:44px; }
+  .event-item-text { font-size:13px; color:#f7f4ef; flex:1; }
+  .event-item-del { background:none; border:none; color:#555; font-size:18px; cursor:pointer; padding:2px 6px; line-height:1; }
+  .events-add-row { display:flex; gap:8px; margin-top:12px; }
+  .events-date-btn { padding:9px 12px; border-radius:10px; border:1.5px solid #333; background:#1a1a1a; color:#f0a500; font-size:12px; font-family:'Noto Sans SC',sans-serif; cursor:pointer; white-space:nowrap; min-width:80px; text-align:center; }
+  .events-add-text { flex:1; padding:9px 12px; border-radius:10px; border:1.5px solid #333; background:#1a1a1a; color:#f7f4ef; font-size:13px; font-family:'Noto Sans SC',sans-serif; }
+  .events-add-text::placeholder { color:#555; }
+  .events-add-btn { padding:9px 16px; border-radius:10px; border:none; background:var(--yellow); color:#000; font-size:13px; font-weight:700; cursor:pointer; font-family:'Noto Sans SC',sans-serif; white-space:nowrap; }
+
 </style>
 <!-- flatpickr for consistent date picker across browsers -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -354,13 +381,44 @@
   </div>
 </div>
 
+<!-- ══ 重要日程 banner ══ -->
+<div class="events-banner" id="eventsBanner">
+  <div class="events-bar" onclick="toggleEventsBanner()">
+    <span class="events-bar-icon">📌</span>
+    <div class="events-ticker-wrap">
+      <div class="events-ticker" id="eventsTicker">
+        <span class="events-empty">添加重要日程…</span>
+      </div>
+    </div>
+    <span class="events-chevron">▾</span>
+  </div>
+  <div class="events-panel">
+    <div class="events-panel-inner">
+      <div id="eventsList"></div>
+      <div class="events-add-row">
+        <button class="events-date-btn" id="eventsDateBtn" onclick="toggleEventsCalendar()">选择日期</button>
+        <input class="events-add-text" id="eventsTextInput" placeholder="事项内容…" onkeydown="if(event.key==='Enter')addEvent()">
+        <button class="events-add-btn" onclick="addEvent()">添加</button>
+      </div>
+      <!-- 自定义日历（复用 cal-dropdown 样式）-->
+      <div id="eventsCalendar" class="cal-dropdown closed" style="margin-top:8px;max-width:320px">
+        <div class="cal-header" style="margin-bottom:12px">
+          <button class="cal-nav" onclick="event.stopPropagation();eventsCalPrev()">‹</button>
+          <div class="cal-title" id="eventsCalTitle"></div>
+          <button class="cal-nav" onclick="event.stopPropagation();eventsCalNext()">›</button>
+        </div>
+        <div class="cal-grid" id="eventsCalGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="page-wrapper">
 
   <!-- ══ 今日计划 ══ -->
   <div class="page active" id="page-plan">
 
-    <div class="card" style="margin-bottom:12px">
-      <div class="card-label">📅 正在编辑哪天</div>
+    <div style="margin-bottom:8px;padding:2px 4px">
       <div class="date-row">
         <button class="date-btn active" id="dateBtnToday" onclick="selectPlanDate(this,'today')">今天</button>
         <button class="date-btn" id="dateBtnYesterday" onclick="selectPlanDate(this,'yesterday')">昨天</button>
@@ -394,9 +452,9 @@
       <div class="add-card-title">＋ 添加任务</div>
       <input class="add-input" id="taskInput" placeholder="今天要做什么…" onkeydown="if(event.key==='Enter')addTask()">
       <div class="priority-row">
-        <button class="pri-btn high active" onclick="selectPri(this,'high')">🔴 高</button>
-        <button class="pri-btn mid" onclick="selectPri(this,'mid')">🟡 中</button>
-        <button class="pri-btn low" onclick="selectPri(this,'low')">🟢 低</button>
+        <button class="pri-btn high active" onclick="selectPri(this,'high')">🔴 很重要</button>
+        <button class="pri-btn mid" onclick="selectPri(this,'mid')">🟡 一般吧</button>
+        <button class="pri-btn low" onclick="selectPri(this,'low')">🟢 不着急</button>
       </div>
       <button class="add-btn" onclick="addTask()">添加到今日计划</button>
     </div>
@@ -424,7 +482,7 @@
           <input class="add-tag-input" id="newTagInput" placeholder="自定义动作…" onkeydown="if(event.key==='Enter')addCustomTag()">
           <button class="add-tag-btn" onclick="addCustomTag()">+ 加</button>
         </div>
-        <button class="gym-start-btn" onclick="startWorkout()" style="margin-top:14px">💪 开始训练</button>
+        <button class="gym-start-btn" id="gymStartBtn" onclick="startWorkout()" style="margin-top:14px">💪 开始训练</button>
       </div>
       <!-- 阶段2：训练打卡中 -->
       <div id="gymTrackPhase" style="display:none">
@@ -824,7 +882,7 @@
             if(dayTasks){
               dayTasks.filter(t=>!t.done).forEach(t=>{
                 const oid=t.originId||t.id;
-                if(!seen.has(oid)){ seen.add(oid); carried.push({...t,id:Date.now().toString()+Math.random().toString().slice(2),originId:oid,pri:'high',daysLate:i,done:false}); }
+                if(!seen.has(oid)){ seen.add(oid); const od=new Date(); od.setDate(od.getDate()-i); const originDate=`${od.getFullYear()}-${String(od.getMonth()+1).padStart(2,'0')}-${String(od.getDate()).padStart(2,'0')}`; carried.push({...t,id:Date.now().toString()+Math.random().toString().slice(2),originId:oid,pri:'high',daysLate:(t.daysLate||0)+i,originDate:t.originDate||originDate,done:false}); }
               });
               if(carried.length>0) break; // 找到最近一天有记录的就停
             }
@@ -881,7 +939,7 @@
     else { list.innerHTML=sorted.map(t=>`
       <div class="task-item ${t.done?'done':''}" onclick="toggleTask('${t.id}')">
         <div class="priority-dot ${t.pri}"></div>
-        <div class="task-text">${t.text}${t.daysLate&&!t.done?`<span class="days-late">已拖${t.daysLate}天</span>`:''}</div>
+        <div class="task-text">${t.text}${!t.done&&t.originDate?`<span class="days-late">已拖${Math.max(1,Math.floor((new Date(todayStr())-new Date(t.originDate))/86400000))}天</span>`:t.daysLate&&!t.done?`<span class="days-late">已拖${t.daysLate}天</span>`:''}</div>
         <div class="task-check">${t.done?'✓':''}</div>
       </div>`).join(''); }
     console.log('renderTasks: innerHTML updated, taskList.innerHTML.length=', list.innerHTML.length);
@@ -936,8 +994,20 @@
       loadRecordsPage();
     }
   }
-  function toggleRestOrTag(btn){ if(!btn.classList.contains('selected')){ document.querySelectorAll('#tagsGrid .tag:not(.rest-tag)').forEach(t=>t.classList.remove('selected')); btn.classList.add('selected'); isResting=true; } else { btn.classList.remove('selected'); isResting=false; } }
-  function toggleWorkoutTag(btn){ document.querySelector('.rest-tag').classList.remove('selected'); isResting=false; btn.classList.toggle('selected'); }
+  function toggleRestOrTag(btn){
+    console.log('toggleRestOrTag called, currently selected=', btn.classList.contains('selected'));
+    if(!btn.classList.contains('selected')){
+      document.querySelectorAll('#tagsGrid .tag:not(.rest-tag)').forEach(t=>t.classList.remove('selected'));
+      btn.classList.add('selected'); isResting=true;
+    } else { btn.classList.remove('selected'); isResting=false; }
+    console.log('isResting now=', isResting);
+    updateGymStartBtn();
+  }
+  function toggleWorkoutTag(btn){
+    document.querySelector('.rest-tag').classList.remove('selected'); isResting=false;
+    btn.classList.toggle('selected');
+    updateGymStartBtn();
+  }
   function toggleTag(btn){ btn.classList.toggle('selected'); }
   function addCustomTag(){ const i=document.getElementById('newTagInput'),v=i.value.trim(); if(!v) return; const b=document.createElement('button'); b.className='tag selected'; b.textContent=v; b.onclick=function(){toggleWorkoutTag(this);}; document.getElementById('tagsGrid').appendChild(b); i.value=''; }
   function addCustomFood(){ const i=document.getElementById('newFoodInput'),v=i.value.trim(); if(!v) return; const b=document.createElement('button'); b.className='tag food-tag selected'; b.textContent=v; b.onclick=function(){toggleTag(this);}; document.getElementById('foodGrid').appendChild(b); i.value=''; }
@@ -948,8 +1018,37 @@
   let workoutItems=[]; // [{name, done}]
   let workoutLogged=false;
 
+  function updateGymStartBtn(){
+    const btn=document.getElementById('gymStartBtn');
+    if(!btn){ console.warn('gymStartBtn not found'); return; }
+    console.log('updateGymStartBtn called, isResting=', isResting);
+    if(isResting){
+      btn.textContent='😴 今日休息，记入日记';
+      btn.style.background='#4a90d9';
+      btn.style.color='#ffffff';
+      btn.style.marginTop='14px';
+    } else {
+      btn.textContent='💪 开始训练';
+      btn.style.background='#1a1614';
+      btn.style.color='#f0a500';
+      btn.style.marginTop='14px';
+    }
+  }
+
   function startWorkout(){
-    const selected=isResting?['😴 休息']:[...document.querySelectorAll('#tagsGrid .tag.selected:not(.rest-tag)')].map(t=>t.textContent);
+    if(isResting){
+      // 休息：直接记入日记，不需要打卡
+      workoutItems=[{name:'😴 休息', done:true}];
+      workoutLogged=true;
+      document.getElementById('gymPlanPhase').style.display='none';
+      document.getElementById('gymTrackPhase').style.display='none';
+      document.getElementById('gymDonePhase').style.display='block';
+      const summary=document.getElementById('gymDoneSummary');
+      summary.innerHTML='<span class="gym-done-tag">😴 今日休息</span>';
+      syncWorkoutToLog();
+      return;
+    }
+    const selected=[...document.querySelectorAll('#tagsGrid .tag.selected:not(.rest-tag)')].map(t=>t.textContent);
     if(!selected.length){ alert('请先选择今天要练的内容！'); return; }
     workoutItems=selected.map(name=>({name,done:false}));
     renderGymChecklist();
@@ -1557,6 +1656,121 @@
     const activeNavBtn=document.querySelector('.bottom-nav-btn.active');
     if(activeNavBtn) positionNavActive(activeNavBtn);
   });
+
+  // ══ 重要日程 ══
+  let eventsCalYear=new Date().getFullYear(), eventsCalMonth=new Date().getMonth();
+  let eventsSelectedDate=''; // 'M/D' 格式
+
+  async function loadEvents(){
+    try {
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.__shared_events__`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      const data=await res.json();
+      renderEvents(data.length>0?(data[0].tasks||[]):[]);
+    } catch(e){ console.warn('loadEvents error',e); }
+  }
+
+  async function addEvent(){
+    const textEl=document.getElementById('eventsTextInput');
+    const text=textEl.value.trim();
+    if(!text){ textEl.focus(); return; }
+    try {
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.__shared_events__`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      const data=await res.json();
+      const existing=data.length>0?(data[0].tasks||[]):[];
+      const newEvent={id:Date.now().toString(), date:eventsSelectedDate, text, author:myName||'?', done:false};
+      const updated=[...existing, newEvent];
+      await fetch(`${SUPABASE_URL}/rest/v1/daily_progress`,{method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Prefer':'resolution=merge-duplicates,return=minimal'},
+        body:JSON.stringify({id:'__shared_events__',name:'shared',date:'2099-01-01',tasks:updated})
+      });
+      textEl.value='';
+      eventsSelectedDate='';
+      document.getElementById('eventsDateBtn').textContent='选择日期';
+      const cal=document.getElementById('eventsCalendar');
+      cal.classList.remove('open'); cal.classList.add('closed');
+      renderEvents(updated);
+    } catch(e){ alert('添加失败：'+e.message); }
+  }
+
+  async function deleteEvent(id){
+    try {
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.__shared_events__`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      const data=await res.json();
+      const existing=data.length>0?(data[0].tasks||[]):[];
+      const updated=existing.filter(e=>e.id!==id);
+      await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.__shared_events__`,{method:'PATCH',
+        headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`},
+        body:JSON.stringify({tasks:updated})
+      });
+      renderEvents(updated);
+    } catch(e){}
+  }
+
+  function renderEvents(events){
+    const list=document.getElementById('eventsList');
+    const ticker=document.getElementById('eventsTicker');
+    list.innerHTML=events.length?events.map(e=>`
+      <div class="event-item">
+        ${e.date?`<div class="event-item-date">${e.date}</div>`:'<div class="event-item-date" style="color:#555">—</div>'}
+        <div class="event-item-text">${e.text}${e.author?` <span style="font-size:10px;color:#555">— ${e.author}</span>`:''}</div>
+        <button class="event-item-del" onclick="deleteEvent('${e.id}')">×</button>
+      </div>`).join(''):'<div style="color:#555;font-size:12px;padding:8px 0">还没有日程，添加一个吧</div>';
+    if(events.length===0){
+      ticker.innerHTML='<span class="events-empty">添加重要日程…</span>';
+      ticker.style.animation='none';
+    } else {
+      const items=events.map(e=>`<span class="events-ticker-item">${e.date?`<span class="date-tag">${e.date} </span>`:''}${e.text}</span>`).join('');
+      ticker.innerHTML=items+items;
+      ticker.style.animation='tickerScroll 12s linear infinite';
+    }
+  }
+
+  function toggleEventsBanner(){
+    document.getElementById('eventsBanner').classList.toggle('open');
+  }
+
+  function toggleEventsCalendar(){
+    const cal=document.getElementById('eventsCalendar');
+    const isOpen=cal.classList.contains('open');
+    cal.classList.toggle('open',!isOpen);
+    cal.classList.toggle('closed',isOpen);
+    if(!isOpen) renderEventsCalendar();
+  }
+
+  function renderEventsCalendar(){
+    const months=['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+    document.getElementById('eventsCalTitle').textContent=`${eventsCalYear} · ${months[eventsCalMonth]}`;
+    const grid=document.getElementById('eventsCalGrid'); grid.innerHTML='';
+    ['日','一','二','三','四','五','六'].forEach(d=>{
+      const el=document.createElement('div'); el.className='cal-dow'; el.textContent=d; grid.appendChild(el);
+    });
+    const firstDay=new Date(eventsCalYear,eventsCalMonth,1).getDay();
+    const daysInMonth=new Date(eventsCalYear,eventsCalMonth+1,0).getDate();
+    const todayS=todayStr();
+    for(let i=0;i<firstDay;i++){ const el=document.createElement('div'); el.className='cal-day empty'; grid.appendChild(el); }
+    for(let d=1;d<=daysInMonth;d++){
+      const dateStr=`${eventsCalYear}-${String(eventsCalMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const label=`${eventsCalMonth+1}/${d}`;
+      const el=document.createElement('div'); el.className='cal-day';
+      if(dateStr===todayS) el.classList.add('today');
+      if(label===eventsSelectedDate) el.classList.add('selected');
+      const num=document.createElement('span'); num.textContent=d; el.appendChild(num);
+      el.onclick=()=>{
+        eventsSelectedDate=label;
+        document.getElementById('eventsDateBtn').textContent=label;
+        const cal=document.getElementById('eventsCalendar');
+        cal.classList.remove('open'); cal.classList.add('closed');
+        renderEventsCalendar();
+      };
+      grid.appendChild(el);
+    }
+  }
+
+  function eventsCalPrev(){ eventsCalMonth--; if(eventsCalMonth<0){eventsCalMonth=11;eventsCalYear--;} renderEventsCalendar(); }
+  function eventsCalNext(){ eventsCalMonth++; if(eventsCalMonth>11){eventsCalMonth=0;eventsCalYear++;} renderEventsCalendar(); }
+
+  loadEvents();
+  setInterval(loadEvents, 60000);
 </script>
 </body>
 </html>
