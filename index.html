@@ -24,6 +24,7 @@
     --green-soft: rgba(45,158,107,0.12);
     --done-color: #c5bdb4;
     --blue: #4a90d9;
+    --pink: #f26fa7;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -217,7 +218,7 @@
   .add-tag-input::placeholder { color: var(--muted); }
   .add-tag-btn { padding: 7px 14px; border-radius: 10px; border: none; background: var(--text); color: var(--yellow); font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans SC', sans-serif; white-space:nowrap; }
   .meals-row { display: flex; gap: 8px; margin-bottom: 14px; }
-  .meal-btn { flex: 1; padding: 10px; border-radius: 12px; border: 2px solid var(--border); background: transparent; color: var(--muted); font-size: 13px; font-family: 'Noto Sans SC', sans-serif; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .meal-btn { flex: 1; padding: 10px; border-radius: 12px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); font-size: 13px; font-family: 'Noto Sans SC', sans-serif; cursor: pointer; transition: all 0.2s; text-align: center; }
   .meal-btn.active { border-color: var(--green); background: var(--green-soft); color: var(--green); font-weight: 700; }
   .food-save-btn { width:100%; margin-top:10px; padding:12px; border:none; border-radius:12px; background:var(--text); color:var(--yellow); font-size:14px; font-weight:700; font-family:'Noto Sans SC',sans-serif; cursor:pointer; }
   .food-save-btn.success { background:var(--green); color:#fff; }
@@ -233,11 +234,20 @@
   /* ── Calendar ── */
   .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   /* 折叠控制（默认折叠） */
-  .card.collapsed .cal-body { max-height: 0; overflow: hidden; transition: max-height 0.28s ease; }
-  .card .cal-body { max-height: 1200px; transition: max-height 0.28s ease; }
+  .card .cal-body {
+    display: none;
+  }
+  .card.open .cal-body {
+    display: block;
+    animation: calFadeIn 180ms ease;
+  }
+  @keyframes calFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
   .cal-toggle { display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding: 2px 0; }
-  .cal-toggle-label { font-family:'Noto Sans SC',sans-serif; font-size:15px; font-weight:700; color:var(--text); letter-spacing:0; flex:1; text-align:center; }
-  .cal-toggle .cal-toggle-icon { font-size:20px; color:var(--muted); transition: transform 0.2s, color 0.2s; width:28px; text-align:center; }
+  .cal-toggle-label { font-family:'Noto Sans SC',sans-serif; font-size:14px; font-weight:700; color:var(--text); letter-spacing:0; flex:1; text-align:center; }
+  .cal-toggle .cal-toggle-icon { font-size:16px; color:var(--muted); transition: transform 0.2s, color 0.2s; width:24px; text-align:center; }
   .card.open .cal-toggle-icon { transform: rotate(180deg); color: var(--yellow); }
   .cal-title { font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 700; }
   .cal-nav { background: none; border: 1.5px solid var(--border); border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; color: var(--muted); transition: all 0.2s; }
@@ -259,7 +269,7 @@
   .cal-dots { display: flex; gap: 2px; align-items: center; }
   .cal-dot { width: 5px; height: 5px; border-radius: 50%; }
   .cal-dot.hh { background: var(--green); }
-  .cal-dot.jll { background: var(--blue); }
+  .cal-dot.jll { background: var(--pink); }
   .cal-dot.none { background: var(--border); }
   .cal-day.selected .cal-dot { opacity: 0.8; }
 
@@ -318,6 +328,13 @@
   .loading { text-align: center; color: var(--muted); font-size: 14px; padding: 30px; font-family: 'Montserrat', sans-serif; }
   .export-btn { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); font-size: 13px; font-weight: 700; font-family: 'Noto Sans SC', sans-serif; cursor: pointer; margin-bottom: 12px; }
   .export-btn:hover { border-color: var(--text); color: var(--text); }
+  #page-records #calCard { padding: 10px 14px; }
+  #page-records #calCard .cal-toggle { min-height: 42px; padding: 0; }
+  #page-records #calCard .cal-toggle-label { font-size: 14px; }
+  #page-records #calCard .cal-toggle .cal-toggle-icon { font-size: 16px; width: 24px; }
+  #page-records #calCard.collapsed .cal-toggle { min-height: 42px; padding: 0; }
+  #page-records #calCard.collapsed .cal-toggle-label { font-size: 14px; }
+  #page-records #calCard.collapsed .cal-toggle .cal-toggle-icon { font-size: 16px; width: 24px; }
 
   /* ── Live page ── */
   .live-card { background: var(--surface); border-radius: 18px; padding: 18px; margin-bottom: 12px; border: 1.5px solid var(--border); }
@@ -343,15 +360,148 @@
   .gym-item-text { font-size:15px; font-weight:600; flex:1; }
   .gym-done-btn { width:100%; padding:14px; border-radius:12px; border:none; background:var(--green); color:white; font-size:15px; font-weight:700; font-family:'Noto Sans SC',sans-serif; cursor:pointer; margin-top:14px; transition:all 0.2s; }
   .gym-done-btn:active { transform:scale(0.98); }
+  .gym-plan-list { margin: 10px 0 12px; }
+  .gym-plan-item {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 12px; border:1.25px solid var(--border);
+    border-radius:12px; background:var(--surface); cursor:pointer;
+    margin-bottom:6px;
+    transition: all 0.16s ease;
+    position: relative;
+  }
+  .gym-plan-item:last-child { margin-bottom: 0; }
+  .gym-plan-text { font-size:14px; line-height:1.45; position:relative; z-index:1; }
+  .gym-plan-hint {
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    text-align:center; font-size:11px; font-weight:400; opacity:0.88; white-space:nowrap;
+    pointer-events:none;
+  }
+  .gym-plan-state { font-size:15px; color:var(--muted); font-weight:800; line-height:1; }
+  .gym-plan-item.pending {
+    background: var(--yellow);
+    border-color: var(--yellow);
+  }
+  .gym-plan-item.pending .gym-plan-text { color: var(--text); font-weight: 700; }
+  .gym-plan-item.pending .gym-plan-hint { color: rgba(26,22,20,0.68); }
+  .gym-plan-item.pending .gym-plan-state { color: rgba(26,22,20,0.78); }
+  .gym-plan-item.done {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .gym-plan-item.done .gym-plan-text { color: #ffffff; font-weight: 700; }
+  .gym-plan-item.done .gym-plan-hint { color: rgba(255,255,255,0.9); }
+  .gym-plan-item.done .gym-plan-state { color: rgba(255,255,255,0.96); }
+  .gym-plan-item.rest {
+    background: var(--blue);
+    border-color: var(--blue);
+    cursor: default;
+  }
+  .gym-plan-item.rest .gym-plan-text { color: #ffffff; font-weight: 700; }
+  .gym-plan-item.rest .gym-plan-hint { display: none; }
+  .gym-plan-item.rest .gym-plan-state { display: none; }
+  .tag.custom-workout-tag {
+    position: relative;
+    padding-right: 24px;
+  }
+  .tag.custom-workout-tag::after {
+    content: '×';
+    position: absolute;
+    right: 8px;
+    top: 3px;
+    font-size: 11px;
+    line-height: 1;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  .section-title {
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    color: var(--text) !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    margin-bottom: 10px !important;
+  }
+  .summary-title {
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    color: var(--text) !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    margin-bottom: 10px !important;
+  }
+  #tagsGrid .tag,
+  #foodAllGrid .tag,
+  .meal-btn {
+    border-radius: 12px !important;
+    border-width: 1.5px !important;
+  }
+  #foodAllGrid .tag,
+  .meal-btn {
+    font-weight: 400 !important;
+  }
+  #gymPlanPhase .section-title { margin-bottom: 12px !important; }
+  .tag.gym-pending {
+    border-color: var(--text) !important;
+    background: var(--text) !important;
+    color: var(--yellow) !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .tag.gym-done {
+    border-color: var(--green) !important;
+    background: var(--green-soft) !important;
+    color: var(--green) !important;
+    transform: none !important;
+    box-shadow: none !important;
+    font-weight: 700;
+  }
   /* ── 饮食标签池（两行折叠） ── */
-  .food-tags-wrap { background:var(--surface2); border:1.5px solid var(--border); border-radius:12px; padding:10px; }
+  .food-tags-wrap { background:transparent; border:none; border-radius:0; padding:0; }
   .food-tags-collapsible { overflow:hidden; transition:max-height 0.24s ease; }
   .food-tags-collapsible.collapsed { max-height:var(--food-collapsed-h, 88px); }
   .food-tags-collapsible.expanded { max-height:1000px; }
   .food-all-grid { display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start; }
+  .food-all-grid .tag.selected { transform: none; }
+  .food-selected-tag {
+    position: relative;
+    padding: 6px 20px 6px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--accent-soft);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    cursor: pointer;
+  }
+  .food-selected-x {
+    position: absolute;
+    right: 6px;
+    top: 2px;
+    font-size: 10px;
+    color: var(--accent);
+    opacity: 0.85;
+    pointer-events: none;
+  }
   .food-expand-row { display:flex; justify-content:center; margin-top:8px; }
-  .food-expand-btn { border:none; background:transparent; color:var(--muted); font-size:12px; font-weight:700; font-family:'Noto Sans SC',sans-serif; cursor:pointer; padding:3px 10px; border-radius:999px; }
-  .food-expand-btn:hover { color:var(--text); background:var(--bg); }
+  .food-expand-btn {
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    font-family: 'Noto Sans SC',sans-serif;
+    cursor: pointer;
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+  }
+  .food-expand-btn:hover { color:var(--text); border-color:#d8d1c8; background:transparent; }
   .gym-done-tag { display:inline-flex; align-items:center; gap:5px; padding:6px 12px; border-radius:10px; background:var(--text); color:var(--yellow); font-size:13px; font-weight:700; margin:3px; }
   /* ── 重要日程 banner ── */
   .events-banner {
@@ -409,6 +559,265 @@
     .events-panel-inner { padding: 10px 12px 14px; }
     .bottom-nav-btn { padding: 8px 8px 10px; font-size: 10px; }
     .bottom-nav-btn .icon { font-size: 17px; }
+  }
+
+  /* ── Apple-like typography/layout polish (keep current colors) ── */
+  body, button, input, textarea {
+    font-family: "Montserrat", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC",
+      "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  /* override legacy component-level font declarations */
+  .header-left .sub,
+  .header-left h1,
+  .header-date,
+  .switch-btn,
+  .card-label,
+  .add-card-title,
+  .feed-section-title,
+  .progress-pct-big,
+  .progress-sub,
+  .days-late,
+  .cal-title,
+  .cal-dow,
+  .cal-day,
+  .date-separator-label,
+  .feed-date,
+  .reaction-count,
+  .comment-time,
+  .live-name,
+  .live-pct,
+  .live-refresh,
+  .events-ticker-item .date-tag,
+  .event-item-date {
+    font-family: "Montserrat", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC",
+      "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif !important;
+  }
+  .mono {
+    font-family: "Montserrat", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC",
+      "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .header-left .sub,
+  .header-date,
+  .card-label,
+  .add-card-title,
+  .feed-section-title {
+    letter-spacing: 0.4px;
+    text-transform: none;
+  }
+  .header-left h1,
+  .id-title,
+  .feed-name,
+  .live-name {
+    letter-spacing: 0;
+  }
+
+  .card, .add-card, .gym-section, .live-card, .feed-card {
+    border-radius: 18px;
+    border-width: 1.25px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .progress-card {
+    border-radius: 18px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+
+  .task-item, .gym-item {
+    border-radius: 16px;
+    border-width: 1.25px;
+    padding: 14px 15px;
+  }
+  .task-text, .gym-item-text, .feed-task {
+    line-height: 1.5;
+  }
+
+  .add-input,
+  .add-tag-input,
+  .summary-textarea,
+  .comment-input {
+    border-width: 1.25px;
+    border-radius: 13px;
+  }
+  .summary-textarea { line-height: 1.75; }
+
+  .add-btn,
+  .finish-btn,
+  .food-save-btn,
+  .gym-start-btn,
+  .gym-done-btn,
+  .events-add-btn,
+  .comment-send-btn {
+    border-radius: 12px;
+    font-weight: 650;
+  }
+  .tag,
+  .meal-btn,
+  .pri-btn,
+  .reaction-btn,
+  .date-btn,
+  .date-input-fake,
+  .switch-btn {
+    border-width: 1.5px;
+    font-weight: 600;
+  }
+
+  .feed-summary {
+    border-radius: 14px;
+    border-left-width: 2px;
+  }
+  .feed-tag, .feed-food-tag, .feed-rest-tag, .gym-done-tag {
+    border-radius: 12px;
+  }
+
+  .bottom-nav-btn {
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+  .progress-pct-big, .live-pct {
+    font-weight: 800;
+  }
+
+  /* Chinese-heavy areas: use Apple Chinese font for better readability */
+  .task-text,
+  .days-late,
+  .add-input,
+  .add-input::placeholder,
+  .sub-label,
+  .confirm-title,
+  .confirm-btn,
+  .add-btn,
+  .task-delete,
+  .pri-btn,
+  .date-btn,
+  .date-input-fake,
+  .meal-btn,
+  .tag,
+  .add-tag-input,
+  .add-tag-btn,
+  .food-expand-btn,
+  .food-save-btn,
+  .gym-start-btn,
+  .gym-done-btn,
+  .finish-btn,
+  .summary-textarea,
+  .summary-textarea::placeholder,
+  .feed-task,
+  .feed-task-status,
+  .feed-tag,
+  .feed-food-tag,
+  .feed-rest-tag,
+  .feed-summary,
+  .comment-name,
+  .comment-text,
+  .comment-input,
+  .comment-input::placeholder,
+  .comment-send-btn,
+  .events-ticker-item,
+  .events-empty,
+  .events-date-btn,
+  .events-add-text,
+  .events-add-text::placeholder,
+  .events-add-btn {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei",
+      -apple-system, BlinkMacSystemFont, sans-serif !important;
+  }
+  .task-text {
+    font-size: 16px;
+    line-height: 1.52;
+    letter-spacing: 0.1px;
+    font-weight: 500;
+  }
+  .days-late {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+  .add-input {
+    font-size: 15.5px;
+    font-weight: 450;
+    line-height: 1.42;
+    padding: 13px 15px;
+  }
+  .add-tag-input,
+  .summary-textarea,
+  .comment-input,
+  .events-add-text {
+    font-weight: 450;
+    letter-spacing: 0;
+  }
+  .add-tag-input {
+    font-size: 15px;
+    line-height: 1.4;
+    padding: 10px 14px;
+  }
+  .summary-textarea {
+    padding: 15px 14px;
+  }
+  .add-input::placeholder,
+  .add-tag-input::placeholder,
+  .summary-textarea::placeholder,
+  .comment-input::placeholder,
+  .events-add-text::placeholder {
+    font-weight: 400;
+    color: #b2aaa2;
+    letter-spacing: 0;
+    opacity: 1;
+  }
+  .task-item.done {
+    opacity: 0.78;
+  }
+  .pri-btn,
+  .date-btn,
+  .date-input-fake,
+  .meal-btn,
+  .tag {
+    font-weight: 550;
+    letter-spacing: 0;
+  }
+  .add-btn,
+  .food-save-btn,
+  .gym-start-btn,
+  .gym-done-btn,
+  .finish-btn,
+  .comment-send-btn,
+  .events-add-btn {
+    font-weight: 600;
+    letter-spacing: 0.1px;
+  }
+  .feed-task,
+  .feed-summary,
+  .comment-text,
+  .summary-textarea {
+    line-height: 1.62;
+  }
+
+  /* date controls: keep spacing/height consistent */
+  .date-row {
+    align-items: center;
+    gap: 10px;
+  }
+  .date-btn,
+  .date-input-fake {
+    min-height: 42px;
+    height: 42px;
+    padding: 0 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+  }
+  .date-btn.active,
+  .date-input-fake.active {
+    font-weight: 700;
   }
 
 </style>
@@ -526,9 +935,9 @@
     </div>
 
     <div class="gym-section">
-      <!-- 阶段1：选择训练内容 -->
       <div id="gymPlanPhase">
-        <div class="card-label">🏋️ 今日训练计划</div>
+        <div class="card-label section-title">🏋️ 今日训练计划</div>
+        <div id="gymTaskList" class="gym-plan-list" style="display:none"></div>
         <div class="tags-grid" id="tagsGrid">
           <button class="tag rest-tag" onclick="toggleRestOrTag(this)">😴 休息</button>
           <button class="tag" onclick="toggleWorkoutTag(this)">胸</button>
@@ -548,27 +957,11 @@
           <input class="add-tag-input" id="newTagInput" placeholder="自定义动作…" onkeydown="if(event.key==='Enter')addCustomTag()">
           <button class="add-tag-btn" onclick="addCustomTag()">添加</button>
         </div>
-        <button class="gym-start-btn" id="gymStartBtn" onclick="startWorkout()" style="margin-top:14px">📝 记入日记</button>
       </div>
-      <!-- 阶段2：训练打卡中 -->
-      <div id="gymTrackPhase" style="display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <div class="card-label" style="margin-bottom:0">🏋️ 训练打卡中</div>
-          <button onclick="resetWorkout()" style="font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:'Noto Sans SC',sans-serif">重新选择</button>
-        </div>
-        <div id="gymChecklist"></div>
-        <button class="gym-done-btn" id="gymDoneBtn" onclick="finishWorkout()">✅ 完成训练，记入日记</button>
-      </div>
-      <!-- 阶段3：训练已完成 -->
-      <div id="gymDonePhase" style="display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div class="card-label" style="margin-bottom:0">🏋️ 今日训练</div>
-          <button onclick="resetWorkout()" style="font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:'Noto Sans SC',sans-serif">重新打卡</button>
-        </div>
-        <div id="gymDoneSummary"></div>
-      </div>
-      <div class="card-divider"></div>
-      <div class="sub-label">🍽️ 今日饮食</div>
+    </div>
+
+    <div class="gym-section food-section">
+      <div class="sub-label section-title">🍽️ 今日饮食</div>
       <div class="sub-label" style="margin-top:-4px">吃了几顿？</div>
       <div class="meals-row">
         <button class="meal-btn" onclick="selectMeals(this,1)">1顿</button>
@@ -630,12 +1023,12 @@
           <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:Montserrat,sans-serif;letter-spacing:1px">已选</div>
           <div id="foodSelectedTags" class="tags-grid" style="gap:6px"></div>
         </div>
-        <button class="food-save-btn" id="foodSaveBtn" onclick="saveFoodToDiary()">📝 饮食记入日记</button>
+        <button class="food-save-btn" id="foodSaveBtn" onclick="saveFoodToDiary()">📝 记入日记</button>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-label">💬 今日心得 / 总结</div>
+      <div class="card-label summary-title">💬 今日心得 / 总结</div>
       <textarea class="summary-textarea" id="summaryInput" placeholder="今天怎么样？有什么感受或收获…"></textarea>
     </div>
 
@@ -669,7 +1062,7 @@
             <div style="width:8px;height:8px;border-radius:50%;background:var(--green)"></div>HH打卡
           </div>
           <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-family:'Montserrat',sans-serif">
-            <div style="width:8px;height:8px;border-radius:50%;background:var(--blue)"></div>JLL打卡
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--pink)"></div>JLL打卡
           </div>
           <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-family:'Montserrat',sans-serif">
             <div style="width:8px;height:8px;border-radius:50%;background:var(--border)"></div>未打卡
@@ -680,7 +1073,7 @@
 
     <!-- 选中日期详情已移除：使用下方已发布日记作为详情展示 -->
 
-    <div style="margin-top:16px">
+    <div style="margin-top:12px">
       <button class="export-btn" id="exportBtn" style="display:none" onclick="exportCSV()">📥 导出备份</button>
       <div id="feedList"></div>
     </div>
@@ -757,13 +1150,11 @@
     document.getElementById('finishBtn').textContent='✅ 完成今日任务，点击分享';
     document.getElementById('summaryInput').value='';
     // 重置健身/饮食选项
-    document.querySelectorAll('#tagsGrid .tag.selected').forEach(t=>t.classList.remove('selected'));
+    document.querySelectorAll('#tagsGrid .tag').forEach(t=>t.classList.remove('selected','gym-pending','gym-done'));
     workoutItems=[]; workoutLogged=false;
-    document.getElementById('gymPlanPhase').style.display='block';
-    document.getElementById('gymTrackPhase').style.display='none';
-    document.getElementById('gymDonePhase').style.display='none';
+    renderWorkoutUI();
     document.querySelectorAll('#foodAllGrid .food-tag.selected').forEach(t=>t.classList.remove('selected')); const fss=document.getElementById('foodSelectedSummary'); if(fss) fss.style.display='none'; foodExpanded=false; updateFoodCollapseLayout();
-    const foodSaveBtn=document.getElementById('foodSaveBtn'); if(foodSaveBtn){ foodSaveBtn.disabled=false; foodSaveBtn.classList.remove('success'); foodSaveBtn.textContent='📝 饮食记入日记'; }
+    const foodSaveBtn=document.getElementById('foodSaveBtn'); if(foodSaveBtn){ foodSaveBtn.disabled=false; foodSaveBtn.classList.remove('success'); foodSaveBtn.textContent='📝 记入日记'; }
     document.querySelectorAll('.meal-btn.active').forEach(t=>t.classList.remove('active'));
     selectedMeals=0; isResting=false;
     // 刷新动态和日记（如果当前在这些页面）
@@ -959,7 +1350,7 @@
   }
 
   async function loadTasks() {
-    if(!myName){ renderTasks(); return; }
+    if(!myName){ renderTasks(); workoutItems=[]; renderWorkoutUI(); return; }
     tasks=[];
     try {
       if(planDate===todayStr()) {
@@ -968,14 +1359,14 @@
         const records=await res.json();
         if(records.length>0 && records[0].tasks && records[0].tasks.length>0) {
           tasks=records[0].tasks;
-          renderTasks(); checkTodayPublished(); return;
+          renderTasks(); checkTodayPublished(); await loadWorkoutState(); return;
         }
         // daily_progress 没有，再查 daily_logs（已发布的）
         const res2=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${planDate}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
         const logs=await res2.json();
         if(logs.length>0 && logs[0].tasks && logs[0].tasks.length>0) {
           tasks=logs[0].tasks;
-          renderTasks(); checkTodayPublished(); return;
+          renderTasks(); checkTodayPublished(); await loadWorkoutState(); return;
         }
         // 今天完全没有记录，从过去7天 Supabase 里找未完成任务顺延
         const carried=[], seen=new Set();
@@ -1016,6 +1407,26 @@
     } catch(e){ console.warn('loadTasks error', e); }
     renderTasks();
     checkTodayPublished();
+    await loadWorkoutState();
+  }
+
+  async function loadWorkoutState(){
+    if(!myName){ workoutItems=[]; renderWorkoutUI(); return; }
+    try{
+      let loaded=[];
+      const r1=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${planDate}&select=workout_tags`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      const d1=await r1.json();
+      if(d1.length>0 && d1[0].workout_tags) loaded=normalizeWorkout(d1[0].workout_tags);
+      else {
+        const r2=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${planDate}&select=workout_tags`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+        const d2=await r2.json();
+        if(d2.length>0 && d2[0].workout_tags) loaded=normalizeWorkout(d2[0].workout_tags);
+      }
+      workoutItems=loaded;
+      workoutLogged=workoutItems.some(i=>i.done);
+      isResting=workoutItems.some(i=>i.name==='😴 休息');
+    } catch(e){ console.warn('loadWorkoutState failed',e); workoutItems=[]; }
+    renderWorkoutUI();
   }
 
   function saveTasks() {
@@ -1023,7 +1434,7 @@
   }
 
   async function syncProgress() {
-    const record={id:`${myName}-${planDate}`,name:myName,date:planDate,tasks,workout_tags:workoutItems.length?workoutItems:undefined,updated_at:new Date().toISOString()};
+    const record={id:`${myName}-${planDate}`,name:myName,date:planDate,tasks,workout_tags:workoutItems,updated_at:new Date().toISOString()};
     try { await fetch(`${SUPABASE_URL}/rest/v1/daily_progress`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(record)}); } catch(e){}
   }
 
@@ -1147,115 +1558,107 @@
       loadRecordsPage();
     }
   }
-  function toggleRestOrTag(btn){
-    console.log('toggleRestOrTag called, currently selected=', btn.classList.contains('selected'));
-    if(!btn.classList.contains('selected')){
-      document.querySelectorAll('#tagsGrid .tag:not(.rest-tag)').forEach(t=>t.classList.remove('selected'));
-      btn.classList.add('selected'); isResting=true;
-    } else { btn.classList.remove('selected'); isResting=false; }
-    console.log('isResting now=', isResting);
-    updateGymStartBtn();
+  function toggleRestOrTag(){
+    const restName='😴 休息';
+    const idx=workoutItems.findIndex(i=>i.name===restName);
+    if(idx===-1){
+      workoutItems=[{name:restName,done:false}];
+    } else {
+      workoutItems.splice(idx,1);
+    }
+    onWorkoutChanged();
   }
   function toggleWorkoutTag(btn){
-    document.querySelector('.rest-tag').classList.remove('selected'); isResting=false;
-    btn.classList.toggle('selected');
-    updateGymStartBtn();
+    const name=btn.textContent.trim();
+    workoutItems=workoutItems.filter(i=>i.name!=='😴 休息');
+    const idx=workoutItems.findIndex(i=>i.name===name);
+    if(idx===-1) workoutItems.push({name,done:false});
+    else workoutItems.splice(idx,1);
+    onWorkoutChanged();
   }
   function toggleTag(btn){ btn.classList.toggle('selected'); updateFoodSummary(); }
-  function addCustomTag(){ const i=document.getElementById('newTagInput'),v=i.value.trim(); if(!v) return; const b=document.createElement('button'); b.className='tag selected'; b.textContent=v; b.onclick=function(){toggleWorkoutTag(this);}; document.getElementById('tagsGrid').appendChild(b); i.value=''; }
-  function addCustomFood(){ const i=document.getElementById('newFoodInput'),v=i.value.trim(); if(!v) return; const b=document.createElement('button'); b.className='tag food-tag selected'; b.textContent=v; b.onclick=function(){toggleTag(this); updateFoodSummary();}; document.getElementById('foodAllGrid').appendChild(b); i.value=''; updateFoodSummary(); requestAnimationFrame(updateFoodCollapseLayout); }
+  function removeCustomWorkoutTag(btn){
+    const name=btn.textContent.trim();
+    workoutItems=workoutItems.filter(i=>i.name!==name);
+    btn.remove();
+    onWorkoutChanged();
+  }
+  function addCustomTag(){
+    const i=document.getElementById('newTagInput'),v=i.value.trim();
+    if(!v) return;
+    const b=document.createElement('button');
+    b.className='tag custom-workout-tag';
+    b.textContent=v;
+    b.onclick=function(){ removeCustomWorkoutTag(this); };
+    document.getElementById('tagsGrid').appendChild(b);
+    i.value='';
+    workoutItems=workoutItems.filter(i=>i.name!=='😴 休息');
+    if(!workoutItems.some(w=>w.name===v)) workoutItems.push({name:v,done:false});
+    onWorkoutChanged();
+  }
+  function addCustomFood(){ const i=document.getElementById('newFoodInput'),v=i.value.trim(); if(!v) return; const b=document.createElement('button'); b.className='tag food-tag selected'; b.textContent=v; b.dataset.custom='1'; b.onclick=function(){toggleTag(this); updateFoodSummary();}; document.getElementById('foodAllGrid').appendChild(b); i.value=''; updateFoodSummary(); requestAnimationFrame(updateFoodCollapseLayout); }
   function selectMeals(btn,n){ if(selectedMeals===n){btn.classList.remove('active');selectedMeals=0;} else{document.querySelectorAll('.meal-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selectedMeals=n;} }
   function getSelectedWorkout(){ return workoutItems; } // 返回 [{name, done}]
 
-  // ── 健身打卡 ──
+  // ── 健身打卡（与今日计划同逻辑） ──
   let workoutItems=[]; // [{name, done}]
   let workoutLogged=false;
 
-  function updateGymStartBtn(){
-    const btn=document.getElementById('gymStartBtn');
-    if(!btn){ console.warn('gymStartBtn not found'); return; }
-    console.log('updateGymStartBtn called, isResting=', isResting);
-    if(isResting){
-      btn.textContent='😴 今日休息，记入日记';
-      btn.style.background='#4a90d9';
-      btn.style.color='#ffffff';
-      btn.style.marginTop='14px';
-    } else {
-      btn.textContent='📝 记入日记';
-      btn.style.background='#1a1614';
-      btn.style.color='#f0a500';
-      btn.style.marginTop='14px';
-    }
+  function renderWorkoutUI(){
+    renderWorkoutList();
+    applyWorkoutTagStyles();
   }
 
-  function startWorkout(){
-    if(isResting){
-      // 休息：直接记入日记，不需要打卡
-      workoutItems=[{name:'😴 休息', done:true}];
-      workoutLogged=true;
-      document.getElementById('gymPlanPhase').style.display='none';
-      document.getElementById('gymTrackPhase').style.display='none';
-      document.getElementById('gymDonePhase').style.display='block';
-      const summary=document.getElementById('gymDoneSummary');
-      summary.innerHTML='<span class="gym-done-tag">😴 今日休息</span>';
-      syncWorkoutToLog();
+  function renderWorkoutList(){
+    const list=document.getElementById('gymTaskList');
+    if(!list) return;
+    if(!workoutItems.length){
+      list.style.display='none';
+      list.innerHTML='';
       return;
     }
-    const selected=[...document.querySelectorAll('#tagsGrid .tag.selected:not(.rest-tag)')].map(t=>t.textContent);
-    if(!selected.length){ alert('请先选择今天要练的内容！'); return; }
-    workoutItems=selected.map(name=>({name,done:true}));
-    workoutLogged=true;
-    document.getElementById('gymPlanPhase').style.display='none';
-    document.getElementById('gymTrackPhase').style.display='none';
-    document.getElementById('gymDonePhase').style.display='block';
-    const summary=document.getElementById('gymDoneSummary');
-    summary.innerHTML=workoutItems.map(i=>`<span class="gym-done-tag">✅ ${i.name}</span>`).join('');
-    syncWorkoutToLog();
-  }
-
-  function renderGymChecklist(){
-    const list=document.getElementById('gymChecklist'); list.innerHTML='';
+    list.style.display='block';
+    list.innerHTML='';
     workoutItems.forEach((item,i)=>{
+      const isRest=item.name==='😴 休息';
       const div=document.createElement('div');
-      div.className='gym-item'+(item.done?' done':'');
-      div.onclick=()=>{ workoutItems[i].done=!workoutItems[i].done; renderGymChecklist(); updateGymDoneBtn(); };
-      div.innerHTML=`<div class="gym-item-icon">${item.done?'✓':'🏋️'}</div>
-        <div class="gym-item-text">${item.name}</div>`;
+      div.className='gym-plan-item '+(isRest?'rest':(item.done?'done':'pending'));
+      if(!isRest){
+        div.onclick=()=>{ workoutItems[i].done=!workoutItems[i].done; onWorkoutChanged(); };
+      }
+      div.innerHTML=`<div class="gym-plan-text">${item.name}</div>${isRest?'':`<div class="gym-plan-hint">${item.done?'（点击取消训练）':'（点击完成训练）'}</div><div class="gym-plan-state">${item.done?'已完成':'未完成'}</div>`}`;
       list.appendChild(div);
     });
   }
 
-  function updateGymDoneBtn(){
-    const done=workoutItems.filter(i=>i.done).length;
-    const btn=document.getElementById('gymDoneBtn');
-    if(done===workoutItems.length && workoutItems.length>0){
-      btn.textContent='✅ 全部完成！记入日记';
-      btn.style.background='var(--green)';
-    } else {
-      btn.textContent=`✅ 完成训练（${done}/${workoutItems.length}），记入日记`;
-      btn.style.background='var(--text)';
-      btn.style.color='var(--yellow)';
+  function applyWorkoutTagStyles(){
+    const map={};
+    workoutItems.forEach(i=>{ map[i.name]=i; });
+    document.querySelectorAll('#tagsGrid .tag').forEach(tag=>{
+      const name=tag.textContent.trim();
+      tag.classList.remove('selected','gym-pending','gym-done');
+      const item=map[name];
+      if(!item) return;
+      tag.classList.add('selected');
+    });
+  }
+
+  function onWorkoutChanged(){
+    workoutLogged=workoutItems.length>0;
+    isResting=workoutItems.some(i=>i.name==='😴 休息');
+    renderWorkoutUI();
+    if(planDate===todayStr() && myName){
+      syncProgress();
+      syncWorkoutToLog();
+    }
+    if(document.getElementById('page-records').classList.contains('active')) {
+      loadRecordsPage();
     }
   }
 
-  async function finishWorkout(){
-    if(!workoutItems.length) return;
-    workoutLogged=true;
-    // 显示完成阶段
-    document.getElementById('gymTrackPhase').style.display='none';
-    document.getElementById('gymDonePhase').style.display='block';
-    const summary=document.getElementById('gymDoneSummary');
-    summary.innerHTML=workoutItems.map(i=>`<span class="gym-done-tag">${i.done?'✅':'⬜'} ${i.name}</span>`).join('');
-    // 立即同步到 daily_logs
-    await syncWorkoutToLog();
-  }
-
-  function resetWorkout(){
-    workoutItems=[]; workoutLogged=false;
-    document.getElementById('gymPlanPhase').style.display='block';
-    document.getElementById('gymTrackPhase').style.display='none';
-    document.getElementById('gymDonePhase').style.display='none';
-  }
+  async function startWorkout(){ return; }
+  async function finishWorkout(){ return; }
+  function resetWorkout(){ workoutItems=[]; onWorkoutChanged(); }
 
   async function syncWorkoutToLog(){
     if(!myName) return;
@@ -1264,16 +1667,11 @@
       const getRes=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${logId}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
       const existing=await getRes.json();
       const prev=existing.length>0?existing[0]:null;
-      // 合并训练：按名字去重，用最新的done状态
-      const prevWorkout=normalizeWorkout(prev?prev.workout_tags||[]:[]);
-      const prevMap={}; prevWorkout.forEach(w=>prevMap[w.name]=w);
-      workoutItems.forEach(w=>prevMap[w.name]=w); // 新的覆盖旧的
-      const merged=Object.values(prevMap);
       if(prev){
         await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${logId}`,{
           method:'PATCH',
           headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`},
-          body:JSON.stringify({workout_tags:merged})
+          body:JSON.stringify({workout_tags:workoutItems})
         });
       }
       await syncProgress();
@@ -1339,12 +1737,28 @@
   }
 
   function updateFoodSummary(){
-    const selected=getSelectedFoods();
     const summary=document.getElementById('foodSelectedSummary');
     const tags=document.getElementById('foodSelectedTags');
-    if(selected.length===0){ summary.style.display='none'; return; }
+    const selectedNodes=[...document.querySelectorAll('#foodAllGrid .food-tag.selected')];
+    if(selectedNodes.length===0){ summary.style.display='none'; tags.innerHTML=''; return; }
     summary.style.display='block';
-    tags.innerHTML=selected.map(f=>`<span style="padding:4px 10px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700">${f}</span>`).join('');
+    tags.innerHTML='';
+    selectedNodes.forEach(node=>{
+      const chip=document.createElement('button');
+      chip.type='button';
+      chip.className='food-selected-tag';
+      chip.innerHTML=`<span>${node.textContent}</span><span class="food-selected-x">×</span>`;
+      chip.onclick=()=>{
+        if(node.dataset.custom==='1'){
+          node.remove();
+        } else {
+          node.classList.remove('selected');
+        }
+        updateFoodSummary();
+        requestAnimationFrame(updateFoodCollapseLayout);
+      };
+      tags.appendChild(chip);
+    });
   }
 
   async function saveFoodToDiary(){
@@ -1367,10 +1781,8 @@
       const onlyInPrev=prevTasks.filter(t=>!localIds.has(t.originId||t.id));
       const mergedTasks=[...tasks, ...onlyInPrev];
 
-      const prevWorkoutRaw=normalizeWorkout(prev?prev.workout_tags||[]:[]);
-      const prevWorkoutMap={}; prevWorkoutRaw.forEach(w=>prevWorkoutMap[w.name]=w);
-      normalizeWorkout(getSelectedWorkout()).forEach(w=>prevWorkoutMap[w.name]=w);
-      const mergedWorkout=Object.values(prevWorkoutMap);
+      const currentWorkout=normalizeWorkout(getSelectedWorkout());
+      const mergedWorkout=currentWorkout.length ? currentWorkout : normalizeWorkout(prev?prev.workout_tags||[]:[]);
 
       const mergedFoods=[...new Set([...(prev?prev.food_tags||[]:[]), ...foods])];
       const prevMeals=prev?prev.meals||0:0;
@@ -1400,18 +1812,18 @@
       if(!res.ok) throw new Error(await res.text());
 
       if(btn){
-        btn.textContent='✅ 饮食已记入日记';
+        btn.textContent='✅ 已记入日记';
         btn.classList.add('success');
         setTimeout(()=>{
           btn.classList.remove('success');
           btn.disabled=false;
-          btn.textContent='📝 饮食记入日记';
+          btn.textContent='📝 记入日记';
         },1400);
       }
       if(document.getElementById('page-records').classList.contains('active')) loadRecordsPage();
       checkTodayPublished();
     }catch(e){
-      if(btn){ btn.disabled=false; btn.textContent='📝 饮食记入日记'; }
+      if(btn){ btn.disabled=false; btn.textContent='📝 记入日记'; }
       alert('保存失败，请重试 😢\n'+e.message);
       console.error(e);
     }
@@ -1440,11 +1852,9 @@
       const onlyInPrev=prevTasks.filter(t=>!localIds.has(t.originId||t.id));
       const mergedTasks=[...tasks, ...onlyInPrev];
 
-      // 训练：合并去重（对象格式，按名字去重，用最新done状态）
-      const prevWorkoutRaw=normalizeWorkout(prev?prev.workout_tags||[]:[]);
-      const prevWorkoutMap={}; prevWorkoutRaw.forEach(w=>prevWorkoutMap[w.name]=w);
-      normalizeWorkout(newWorkout).forEach(w=>prevWorkoutMap[w.name]=w);
-      const mergedWorkout=Object.values(prevWorkoutMap);
+      // 训练：以当前页面状态为准（有选择则覆盖，没选择则保留旧记录）
+      const currentWorkout=normalizeWorkout(newWorkout);
+      const mergedWorkout=currentWorkout.length ? currentWorkout : normalizeWorkout(prev ? (prev.workout_tags || []) : []);
 
       // 饮食：合并去重
       const mergedFoods=[...new Set([...(prev?prev.food_tags||[]:[]), ...newFoods])];
@@ -1679,7 +2089,11 @@
     const card = document.getElementById('calCard'); if(!card) return;
     const isOpen = card.classList.contains('open');
     if(isOpen){ card.classList.remove('open'); card.classList.add('collapsed'); }
-    else { card.classList.add('open'); card.classList.remove('collapsed'); renderCalendar(); }
+    else {
+      card.classList.add('open');
+      card.classList.remove('collapsed');
+      renderCalendar();
+    }
   }
 
   // Date selector sliding indicator
