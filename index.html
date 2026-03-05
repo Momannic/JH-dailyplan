@@ -318,18 +318,26 @@
   .gym-item-text { font-size:15px; font-weight:600; flex:1; }
   .gym-done-btn { width:100%; padding:14px; border-radius:12px; border:none; background:var(--green); color:white; font-size:15px; font-weight:700; font-family:'Noto Sans SC',sans-serif; cursor:pointer; margin-top:14px; transition:all 0.2s; }
   .gym-done-btn:active { transform:scale(0.98); }
-  /* ── 饮食标签池（两行折叠） ── */
-  .food-tags-wrap { background:var(--surface2); border:1.5px solid var(--border); border-radius:12px; padding:10px; }
-  .food-tags-collapsible { overflow:hidden; transition:max-height 0.24s ease; }
-  .food-tags-collapsible.collapsed { max-height:var(--food-collapsed-h, 88px); }
-  .food-tags-collapsible.expanded { max-height:1000px; }
-  .food-all-grid { display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start; }
-  .food-expand-row { display:flex; justify-content:center; margin-top:8px; }
-  .food-expand-btn { border:none; background:transparent; color:var(--muted); font-size:12px; font-weight:700; font-family:'Noto Sans SC',sans-serif; cursor:pointer; padding:3px 10px; border-radius:999px; }
-  .food-expand-btn:hover { color:var(--text); background:var(--bg); }
+  /* ── 饮食分类 ── */
+  .food-cats-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px; align-items:flex-start; }
+  .food-cat-wrap { display:flex; flex-direction:column; }
+  .food-cat-btn { padding:8px 14px; border-radius:20px; border:2px solid var(--border); background:transparent; color:var(--muted); font-size:13px; font-weight:700; font-family:'Noto Sans SC',sans-serif; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+  .food-cat-btn.active { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); }
+  .food-sub-panel { max-height:0; overflow:hidden; transition:max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease; opacity:0; margin-top:0; width:max(240px, 100%); background:var(--surface2); border-radius:0 12px 12px 12px; }
+  .food-sub-panel.open { max-height:400px; opacity:1; margin-top:6px; padding:10px 12px; }
+  .food-sub-grid { margin-bottom:0; }
   .gym-done-tag { display:inline-flex; align-items:center; gap:5px; padding:6px 12px; border-radius:10px; background:var(--text); color:var(--yellow); font-size:13px; font-weight:700; margin:3px; }
   /* ── 重要日程 banner ── */
-  .events-banner { background: var(--text); overflow: hidden; width:100%; border-top: 2px solid rgba(240,165,0,0.4); }
+  .events-banner {
+    background: var(--text);
+    overflow: hidden;
+    width:100%;
+    border-top: 2px solid rgba(240,165,0,0.4);
+    position: sticky;
+    top: 0;
+    z-index: 120;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+  }
   .events-bar { display:flex; align-items:center; gap:10px; padding: 10px 20px; cursor:pointer; }
   .events-bar-icon { font-size:13px; flex-shrink:0; }
   .events-ticker-wrap { flex:1; overflow:hidden; height:22px; position:relative; }
@@ -521,51 +529,88 @@
       </div>
       <div class="sub-label">吃了什么？</div>
       <div id="foodCategoryArea">
-        <div class="food-tags-wrap">
-          <div class="food-tags-collapsible collapsed" id="foodTagsCollapsible">
-            <div class="tags-grid food-all-grid" id="foodAllGrid">
-              <button class="tag food-tag" onclick="toggleTag(this)">🍗 鸡胸肉</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍖 鸡腿肉</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥩 牛肉</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🐷 猪肉</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍤 虾</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🐟 鱼肉</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍌 香蕉</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍉 西瓜</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍍 菠萝</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍈 哈密瓜</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍒 荔枝</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🫐 龙眼</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🐉 火龙果</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍒 樱桃</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🫐 黑莓</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🫐 蓝莓</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥦 西兰花</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍅 西红柿</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥬 菠菜</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥬 空心菜</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥬 白菜</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥒 黄瓜</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍚 米饭</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍞 面包</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍝 面条</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥣 燕麦</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥛 牛奶</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🫙 Acai酸奶</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍦 冰淇淋</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🌶️ 辣条</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥔 薯片</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍬 糖果</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍫 巧克力</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🧃 饮料</button>
-            </div>
+        <!-- 大类按钮 -->
+        <div class="food-cats-row" id="foodCatsRow">
+          <div class="food-cat-wrap" id="foodWrap-meat">
+            <button class="food-cat-btn" onclick="toggleFoodCat('meat')">🥩 肉类</button>
+            <div class="food-sub-panel" id="foodSub-meat"><div class="food-sub-inner">
+              <div class="tags-grid food-sub-grid">
+                <button class="tag food-tag" onclick="toggleTag(this)">🍗 鸡胸肉</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🍖 鸡腿肉</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🥩 牛肉</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🐷 猪肉</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🍤 虾</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🐟 鱼肉</button>
+              </div>
+              <div class="add-tag-row"><input class="add-tag-input" placeholder="添加其他…" onkeydown="if(event.key==='Enter')addFoodFromInput(this,'meat')"><button class="add-tag-btn" onclick="addFoodFromInput(this.previousElementSibling,'meat')">添加</button></div>
+            </div></div>
           </div>
-          <div class="food-expand-row">
-            <button class="food-expand-btn" id="foodExpandBtn" onclick="toggleFoodExpand()">展开更多 ▾</button>
+          <div class="food-cat-wrap" id="foodWrap-fruit">
+            <button class="food-cat-btn" onclick="toggleFoodCat('fruit')">🍎 水果</button>
+            <div class="food-sub-panel" id="foodSub-fruit"><div class="food-sub-inner">
+              <div class="tags-grid food-sub-grid">
+                <button class="tag food-tag" onclick="toggleTag(this)">🍌 香蕉</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🍉 西瓜</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🍍 菠萝</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🍈 哈密瓜</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🍒 荔枝</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🫐 龙眼</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🐉 火龙果</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🍒 樱桃</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🫐 黑莓</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🫐 蓝莓</button>
+              </div>
+              <div class="add-tag-row"><input class="add-tag-input" placeholder="添加其他…" onkeydown="if(event.key==='Enter')addFoodFromInput(this,'fruit')"><button class="add-tag-btn" onclick="addFoodFromInput(this.previousElementSibling,'fruit')">添加</button></div>
+            </div></div>
           </div>
-          <div class="add-tag-row" style="margin-top:8px">
-            <input class="add-tag-input" id="newFoodInput" placeholder="添加其他…" onkeydown="if(event.key==='Enter')addCustomFood()">
-            <button class="add-tag-btn" onclick="addCustomFood()">添加</button>
+          <div class="food-cat-wrap" id="foodWrap-veg">
+            <button class="food-cat-btn" onclick="toggleFoodCat('veg')">🥦 蔬菜</button>
+            <div class="food-sub-panel" id="foodSub-veg"><div class="food-sub-inner">
+              <div class="tags-grid food-sub-grid">
+                <button class="tag food-tag" onclick="toggleTag(this)">🥦 西兰花</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🍅 西红柿</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🥬 菠菜</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🥬 空心菜</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🥬 白菜</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🥒 黄瓜</button>
+              </div>
+              <div class="add-tag-row"><input class="add-tag-input" placeholder="添加其他…" onkeydown="if(event.key==='Enter')addFoodFromInput(this,'veg')"><button class="add-tag-btn" onclick="addFoodFromInput(this.previousElementSibling,'veg')">添加</button></div>
+            </div></div>
+          </div>
+          <div class="food-cat-wrap" id="foodWrap-staple">
+            <button class="food-cat-btn" onclick="toggleFoodCat('staple')">🍚 主食</button>
+            <div class="food-sub-panel" id="foodSub-staple"><div class="food-sub-inner">
+              <div class="tags-grid food-sub-grid">
+                <button class="tag food-tag" onclick="toggleTag(this)">🍚 米饭</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🍞 面包</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🍝 面条</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🥣 燕麦</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🥛 牛奶</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🫙 Acai酸奶</button>
+              </div>
+              <div class="add-tag-row"><input class="add-tag-input" placeholder="添加其他…" onkeydown="if(event.key==='Enter')addFoodFromInput(this,'staple')"><button class="add-tag-btn" onclick="addFoodFromInput(this.previousElementSibling,'staple')">添加</button></div>
+            </div></div>
+          </div>
+          <div class="food-cat-wrap" id="foodWrap-snack">
+            <button class="food-cat-btn" onclick="toggleFoodCat('snack')">🍿 零食</button>
+            <div class="food-sub-panel" id="foodSub-snack"><div class="food-sub-inner">
+              <div class="tags-grid food-sub-grid">
+                <button class="tag food-tag" onclick="toggleTag(this)">🍦 冰淇淋</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🌶️ 辣条</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🥔 薯片</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🍬 糖果</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🍫 巧克力</button>
+                <button class="tag food-tag" onclick="toggleTag(this)">🧃 饮料</button>
+              </div>
+              <div class="add-tag-row"><input class="add-tag-input" placeholder="添加其他…" onkeydown="if(event.key==='Enter')addFoodFromInput(this,'snack')"><button class="add-tag-btn" onclick="addFoodFromInput(this.previousElementSibling,'snack')">添加</button></div>
+            </div></div>
+          </div>
+          <div class="food-cat-wrap" id="foodWrap-other">
+            <button class="food-cat-btn" onclick="toggleFoodCat('other')">➕ 其他</button>
+            <div class="food-sub-panel" id="foodSub-other"><div class="food-sub-inner">
+              <div class="tags-grid food-sub-grid" id="foodOtherGrid"></div>
+              <div class="add-tag-row"><input class="add-tag-input" id="newFoodInput" placeholder="其他食物…" onkeydown="if(event.key==='Enter')addCustomFood()"><button class="add-tag-btn" onclick="addCustomFood()">添加</button></div>
+            </div></div>
           </div>
         </div>
         <!-- 已选食物汇总 -->
@@ -694,7 +739,7 @@
     document.getElementById('gymPlanPhase').style.display='block';
     document.getElementById('gymTrackPhase').style.display='none';
     document.getElementById('gymDonePhase').style.display='none';
-    document.querySelectorAll('#foodAllGrid .food-tag.selected').forEach(t=>t.classList.remove('selected')); const fss=document.getElementById('foodSelectedSummary'); if(fss) fss.style.display='none'; foodExpanded=false; updateFoodCollapseLayout();
+    document.querySelectorAll('.food-sub-panel .food-tag.selected').forEach(t=>t.classList.remove('selected')); document.querySelectorAll('.food-sub-panel').forEach(p=>p.style.display='none'); document.querySelectorAll('.food-cat-btn').forEach(b=>b.classList.remove('active')); const fss=document.getElementById('foodSelectedSummary'); if(fss) fss.style.display='none';
     document.querySelectorAll('.meal-btn.active').forEach(t=>t.classList.remove('active'));
     selectedMeals=0; isResting=false;
     // 刷新动态和日记（如果当前在这些页面）
@@ -739,110 +784,6 @@
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
-  function ymdFromDate(d){
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  }
-  function parseYmdLocal(s){
-    if(!s || typeof s!=='string') return null;
-    const [y,m,d]=s.split('-').map(Number);
-    if(!y||!m||!d) return null;
-    return new Date(y,m-1,d);
-  }
-  function diffDaysLocal(fromStr,toStr){
-    const from=parseYmdLocal(fromStr), to=parseYmdLocal(toStr);
-    if(!from||!to) return 0;
-    return Math.max(0, Math.round((from-to)/86400000));
-  }
-  function normalizeTaskDateMeta(task, baseDate){
-    const t={...task};
-    const storedLate=Number(t.daysLate)||0;
-    if(storedLate>0){
-      const base=parseYmdLocal(baseDate);
-      if(base){
-        const inferredDate=new Date(base.getFullYear(), base.getMonth(), base.getDate());
-        inferredDate.setDate(inferredDate.getDate()-storedLate);
-        const inferredOrigin=ymdFromDate(inferredDate);
-        const lateByCurrentOrigin=t.originDate?diffDaysLocal(baseDate, t.originDate):0;
-        // 兼容旧数据：originDate 缺失或偏新时，用 daysLate 反推更准确的起始日期
-        if(!t.originDate || lateByCurrentOrigin<storedLate) t.originDate=inferredOrigin;
-      }
-    }
-    if(!t.done){
-      const lateByOrigin=t.originDate?diffDaysLocal(baseDate, t.originDate):0;
-      t.daysLate=Math.max(storedLate, lateByOrigin);
-    }
-    return t;
-  }
-  function normalizeTasksForDate(taskList, baseDate){
-    return (taskList||[]).map(t=>normalizeTaskDateMeta(t, baseDate));
-  }
-  function getTaskLateDays(task, baseDate){
-    if(!task || task.done) return 0;
-    const dateRef=baseDate||todayStr();
-    const storedLate=Number(task.daysLate)||0;
-    let origin=task.originDate||'';
-    if(!origin && storedLate>0){
-      const base=parseYmdLocal(dateRef);
-      if(base){
-        base.setDate(base.getDate()-storedLate);
-        origin=ymdFromDate(base);
-      }
-    }
-    const lateByOrigin=origin?diffDaysLocal(dateRef, origin):0;
-    return Math.max(storedLate, lateByOrigin);
-  }
-  function isSameTaskRecord(a,b){
-    if(!a||!b) return false;
-    const ak=(a.originId||a.id||'').toString();
-    const bk=(b.originId||b.id||'').toString();
-    if(ak && bk && ak===bk) return true;
-    return (a.text||'').trim()===(b.text||'').trim() && (a.pri||'')===(b.pri||'');
-  }
-  async function reconcileTodayLateDaysFromYesterday(){
-    if(!myName || planDate!==todayStr() || !tasks.length) return false;
-    const y=new Date(); y.setDate(y.getDate()-1);
-    const yestStr=ymdFromDate(y);
-    try{
-      const [pRes, lRes]=await Promise.all([
-        fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${yestStr}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}),
-        fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${yestStr}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}})
-      ]);
-      const pData=await pRes.json();
-      const lData=await lRes.json();
-      let yTasks=(pData.length>0&&pData[0].tasks)?pData[0].tasks:((lData.length>0&&lData[0].tasks)?lData[0].tasks:[]);
-      if(!yTasks.length) return false;
-      yTasks=normalizeTasksForDate(yTasks, yestStr).filter(t=>!t.done);
-      let changed=false;
-
-      tasks.forEach(t=>{
-        if(t.done) return;
-        const match=yTasks.find(yTask=>isSameTaskRecord(t,yTask));
-        if(!match) return;
-        const yLate=getTaskLateDays(match, yestStr);
-        const candidateLate=Math.max(1, yLate+1);
-        const currentLate=getTaskLateDays(t, planDate);
-        if(candidateLate>currentLate){
-          t.daysLate=candidateLate;
-          changed=true;
-        }
-        if(!t.originDate){
-          if(match.originDate) t.originDate=match.originDate;
-          else{
-            const base=parseYmdLocal(yestStr);
-            if(base){
-              base.setDate(base.getDate()-yLate);
-              t.originDate=ymdFromDate(base);
-            }
-          }
-          changed=true;
-        }
-      });
-      return changed;
-    }catch(e){
-      console.warn('reconcileTodayLateDaysFromYesterday error', e);
-      return false;
-    }
-  }
   function formatDisplay(s) {
     const d = new Date(s+'T00:00:00');
     const days=['日','一','二','三','四','五','六'];
@@ -881,7 +822,7 @@
   }
 
   // ══ PLAN ═══════════════════════════════════
-  let tasks=[], selectedPri='high', selectedMeals=0, isResting=false, foodExpanded=false;
+  let tasks=[], selectedPri='high', selectedMeals=0, isResting=false;
   let planDate = todayStr();
   // Plan page calendar state
   let planCalYear, planCalMonth;
@@ -1002,18 +943,14 @@
         const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${planDate}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
         const records=await res.json();
         if(records.length>0 && records[0].tasks && records[0].tasks.length>0) {
-          tasks=normalizeTasksForDate(records[0].tasks, planDate);
-          const reconciled=await reconcileTodayLateDaysFromYesterday();
-          if(reconciled){ syncProgress(); syncTasksToLog(); }
+          tasks=records[0].tasks;
           renderTasks(); checkTodayPublished(); return;
         }
         // daily_progress 没有，再查 daily_logs（已发布的）
         const res2=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${planDate}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
         const logs=await res2.json();
         if(logs.length>0 && logs[0].tasks && logs[0].tasks.length>0) {
-          tasks=normalizeTasksForDate(logs[0].tasks, planDate);
-          const reconciled=await reconcileTodayLateDaysFromYesterday();
-          if(reconciled){ syncProgress(); syncTasksToLog(); }
+          tasks=logs[0].tasks;
           renderTasks(); checkTodayPublished(); return;
         }
         // 今天完全没有记录，从过去7天 Supabase 里找未完成任务顺延
@@ -1032,42 +969,24 @@
               dayTasks=d2.length>0?d2[0].tasks:null;
             }
             if(dayTasks){
-              const normalizedDayTasks=normalizeTasksForDate(dayTasks, dateStr);
-              normalizedDayTasks.filter(t=>!t.done).forEach(t=>{
+              dayTasks.filter(t=>!t.done).forEach(t=>{
                 const oid=t.originId||t.id;
-                if(!seen.has(oid)){
-                  seen.add(oid);
-                  const originDate=t.originDate||dateStr;
-                  carried.push({
-                    ...t,
-                    id:Date.now().toString()+Math.random().toString().slice(2),
-                    originId:oid,
-                    pri:t.pri||'high',
-                    daysLate:Math.max(1, diffDaysLocal(planDate, originDate)),
-                    originDate,
-                    done:false
-                  });
-                }
+                if(!seen.has(oid)){ seen.add(oid); const od=new Date(); od.setDate(od.getDate()-i); const originDate=`${od.getFullYear()}-${String(od.getMonth()+1).padStart(2,'0')}-${String(od.getDate()).padStart(2,'0')}`; carried.push({...t,id:Date.now().toString()+Math.random().toString().slice(2),originId:oid,pri:'high',daysLate:(t.daysLate||0)+i,originDate:t.originDate||originDate,done:false}); }
               });
               if(carried.length>0) break; // 找到最近一天有记录的就停
             }
           } catch(e){}
         }
-        if(carried.length>0){
-          tasks=normalizeTasksForDate(carried, planDate);
-          const reconciled=await reconcileTodayLateDaysFromYesterday();
-          if(reconciled){ syncProgress(); syncTasksToLog(); }
-          else { syncProgress(); }
-        }
+        if(carried.length>0){ tasks=carried; syncProgress(); }
       } else {
         // 历史日期：查 daily_progress 优先，再查 daily_logs
         const r1=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${planDate}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
         const d1=await r1.json();
-        if(d1.length>0 && d1[0].tasks && d1[0].tasks.length>0){ tasks=normalizeTasksForDate(d1[0].tasks, planDate); }
+        if(d1.length>0 && d1[0].tasks && d1[0].tasks.length>0){ tasks=d1[0].tasks; }
         else {
           const r2=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${planDate}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
           const d2=await r2.json();
-          if(d2.length>0 && d2[0].tasks) tasks=normalizeTasksForDate(d2[0].tasks, planDate);
+          if(d2.length>0 && d2[0].tasks) tasks=d2[0].tasks;
         }
       }
     } catch(e){ console.warn('loadTasks error', e); }
@@ -1106,16 +1025,12 @@
     console.log('renderTasks: taskList element=', list);
     const sorted=[...tasks].sort((a,b)=>{ if(a.done!==b.done) return a.done?1:-1; return priOrder[a.pri]-priOrder[b.pri]; });
     if(!sorted.length){ list.innerHTML=`<div class="empty-state"><div class="emoji">✨</div><p>今天还没有计划<br>添加第一件事吧！</p></div>`; }
-    else { list.innerHTML=sorted.map(t=>{
-      const lateDays=getTaskLateDays(t, planDate);
-      const lateHtml=!t.done && lateDays>0 ? `<span class="days-late">已拖${lateDays}天</span>` : '';
-      return `
+    else { list.innerHTML=sorted.map(t=>`
       <div class="task-item ${t.done?'done':''}" onclick="toggleTask('${t.id}')">
         <div class="priority-dot ${t.pri}"></div>
-        <div class="task-text">${t.text}${lateHtml}</div>
+        <div class="task-text">${t.text}${!t.done&&t.originDate?`<span class="days-late">已拖${Math.max(1,Math.floor((new Date(todayStr())-new Date(t.originDate))/86400000))}天</span>`:t.daysLate&&!t.done?`<span class="days-late">已拖${t.daysLate}天</span>`:''}</div>
         <div class="task-check">${t.done?'✓':''}</div>
-      </div>`;
-    }).join(''); }
+      </div>`).join(''); }
     console.log('renderTasks: innerHTML updated, taskList.innerHTML.length=', list.innerHTML.length);
     updateProgress();
   }
@@ -1154,7 +1069,7 @@
   function selectPri(btn,pri){ document.querySelectorAll('.pri-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedPri=pri; }
   function addTask(){
     const input=document.getElementById('taskInput'),text=input.value.trim(); if(!text) return;
-    tasks.push({id:Date.now().toString(),text,pri:selectedPri,done:false,originDate:planDate,daysLate:0});
+    tasks.push({id:Date.now().toString(),text,pri:selectedPri,done:false});
     saveTasks(); 
     renderTasks(); 
     input.value='';
@@ -1184,7 +1099,7 @@
   }
   function toggleTag(btn){ btn.classList.toggle('selected'); updateFoodSummary(); }
   function addCustomTag(){ const i=document.getElementById('newTagInput'),v=i.value.trim(); if(!v) return; const b=document.createElement('button'); b.className='tag selected'; b.textContent=v; b.onclick=function(){toggleWorkoutTag(this);}; document.getElementById('tagsGrid').appendChild(b); i.value=''; }
-  function addCustomFood(){ const i=document.getElementById('newFoodInput'),v=i.value.trim(); if(!v) return; const b=document.createElement('button'); b.className='tag food-tag selected'; b.textContent=v; b.onclick=function(){toggleTag(this); updateFoodSummary();}; document.getElementById('foodAllGrid').appendChild(b); i.value=''; updateFoodSummary(); requestAnimationFrame(updateFoodCollapseLayout); }
+  function addCustomFood(){ const i=document.getElementById('newFoodInput'),v=i.value.trim(); if(!v) return; const b=document.createElement('button'); b.className='tag food-tag selected'; b.textContent=v; b.onclick=function(){toggleTag(this); updateFoodSummary();}; document.getElementById('foodOtherGrid').appendChild(b); i.value=''; updateFoodSummary(); }
   function selectMeals(btn,n){ if(selectedMeals===n){btn.classList.remove('active');selectedMeals=0;} else{document.querySelectorAll('.meal-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selectedMeals=n;} }
   function getSelectedWorkout(){ return workoutItems; } // 返回 [{name, done}]
 
@@ -1302,57 +1217,26 @@
   function normalizeWorkout(arr){
     return (arr||[]).map(w=>typeof w==='string'?{name:w,done:true}:w); // 旧格式字符串视为已完成
   }
-  function getSelectedFoods(){ return[...document.querySelectorAll('#foodAllGrid .food-tag.selected')].map(t=>t.textContent); }
+  function getSelectedFoods(){ return[...document.querySelectorAll('.food-sub-panel .food-tag.selected, #foodOtherGrid .food-tag.selected')].map(t=>t.textContent); }
 
-  function toggleFoodExpand(){
-    foodExpanded=!foodExpanded;
-    updateFoodCollapseLayout();
+  function toggleFoodCat(cat){
+    const panel=document.getElementById('foodSub-'+cat);
+    const btn=panel.previousElementSibling;
+    const isOpen=panel.classList.contains('open');
+    // 关闭所有
+    document.querySelectorAll('.food-sub-panel').forEach(p=>p.classList.remove('open'));
+    document.querySelectorAll('.food-cat-btn').forEach(b=>b.classList.remove('active'));
+    // 切换当前
+    if(!isOpen){ panel.classList.add('open'); btn.classList.add('active'); }
   }
 
-  function updateFoodCollapseLayout(){
-    const wrap=document.getElementById('foodTagsCollapsible');
-    const grid=document.getElementById('foodAllGrid');
-    const btn=document.getElementById('foodExpandBtn');
-    if(!wrap||!grid||!btn) return;
-    const tags=[...grid.querySelectorAll('.food-tag')];
-    if(tags.length===0){ btn.style.display='none'; return; }
-    const gridRect=grid.getBoundingClientRect();
-    const rowTops=[];
-    tags.forEach(tag=>{
-      const top=Math.round(tag.getBoundingClientRect().top-gridRect.top);
-      if(!rowTops.some(v=>Math.abs(v-top)<=2)) rowTops.push(top);
-    });
-    rowTops.sort((a,b)=>a-b);
-
-    if(rowTops.length<=2){
-      foodExpanded=false;
-      btn.style.display='none';
-      wrap.classList.remove('collapsed');
-      wrap.classList.add('expanded');
-      return;
-    }
-
-    const secondRowTop=rowTops[1];
-    let secondRowBottom=0;
-    tags.forEach(tag=>{
-      const rect=tag.getBoundingClientRect();
-      const top=Math.round(rect.top-gridRect.top);
-      if(Math.abs(top-secondRowTop)<=2){
-        secondRowBottom=Math.max(secondRowBottom, rect.bottom-gridRect.top);
-      }
-    });
-    wrap.style.setProperty('--food-collapsed-h', `${Math.ceil(secondRowBottom+2)}px`);
-    btn.style.display='inline-flex';
-
-    if(foodExpanded){
-      wrap.classList.remove('collapsed');
-      wrap.classList.add('expanded');
-      btn.textContent='收起 ▲';
-    } else {
-      wrap.classList.remove('expanded');
-      wrap.classList.add('collapsed');
-      btn.textContent='展开更多 ▾';
-    }
+  function addFoodFromInput(input, cat){
+    const v=input.value.trim(); if(!v) return;
+    const grid=input.closest('.food-sub-panel').querySelector('.tags-grid');
+    const b=document.createElement('button'); b.className='tag food-tag selected'; b.textContent=v;
+    b.onclick=function(){ toggleTag(this); updateFoodSummary(); };
+    grid.appendChild(b); input.value='';
+    updateFoodSummary();
   }
 
   function updateFoodSummary(){
@@ -1521,17 +1405,7 @@
     const pct=total===0?0:Math.round(done/total*100);
     const barColor=pct===100?'var(--green)':pct>=50?'var(--yellow)':'var(--red)';
     const sorted=[...tasks].sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;return priOrder[a.pri]-priOrder[b.pri];});
-    const today=todayStr();
     const card=document.createElement('div'); card.className='live-card';
-    const taskHtml=sorted.map(t=>{
-      const lateDays=getTaskLateDays(t, today);
-      return `
-        <div class="feed-task ${t.done?'done':''}" style="pointer-events:none">
-          <div class="feed-task-dot ${t.pri}"></div>
-          <span>${t.text}${lateDays&&!t.done?`<span style="font-size:10px;color:var(--red);font-weight:700;margin-left:5px;font-family:Montserrat,sans-serif">已拖${lateDays}天</span>`:''}</span>
-          <span style="margin-left:auto;font-size:13px;color:var(--green)">${t.done?'✓':''}</span>
-        </div>`;
-    }).join('');
     card.innerHTML=`
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <div class="live-name">${name}</div>
@@ -1540,7 +1414,13 @@
       <div class="progress-bar-bg" style="margin-bottom:12px">
         <div style="height:100%;width:${pct}%;background:${barColor};border-radius:3px;transition:width 0.4s"></div>
       </div>
-      <div class="feed-tasks">${taskHtml}</div>
+      <div class="feed-tasks">${sorted.map(t=>`
+        <div class="feed-task ${t.done?'done':''}" style="pointer-events:none">
+          <div class="feed-task-dot ${t.pri}"></div>
+          <span>${t.text}${t.daysLate&&!t.done?`<span style="font-size:10px;color:var(--red);font-weight:700;margin-left:5px;font-family:Montserrat,sans-serif">已拖${t.daysLate}天</span>`:''}</span>
+          <span style="margin-left:auto;font-size:13px;color:var(--green)">${t.done?'✓':''}</span>
+        </div>`).join('')}
+      </div>
       <div style="font-family:Montserrat,sans-serif;font-size:10px;color:var(--muted);text-align:right;margin-top:6px">${done}/${total} 完成</div>`;
     return card;
   }
@@ -1887,15 +1767,12 @@
   setTimeout(()=>{
     const active = document.querySelector('.date-row .date-btn.active') || document.getElementById('dateFakeBtn');
     if(active) positionDateIndicator(active);
-    updateFoodCollapseLayout();
-    setTimeout(updateFoodCollapseLayout, 280);
   },60);
   window.addEventListener('resize',()=>{
     const active = document.querySelector('.date-row .date-btn.active') || document.getElementById('dateFakeBtn');
     if(active) positionDateIndicator(active);
     const activeNavBtn=document.querySelector('.bottom-nav-btn.active');
     if(activeNavBtn) positionNavActive(activeNavBtn);
-    updateFoodCollapseLayout();
   });
 
   // ══ 重要日程 ══
