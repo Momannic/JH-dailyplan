@@ -111,15 +111,37 @@
   .task-item { background: var(--surface); border-radius: 14px; padding: 14px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; border: 1.5px solid var(--border); cursor: pointer; transition: all 0.2s; }
   .task-item.done { background: var(--surface2); opacity: 0.65; }
   .task-item.done .task-text { text-decoration: line-through; color: var(--done-color); }
+  .task-status { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; display:flex; align-items:center; justify-content:center; font-size: 12px; font-weight: 900; font-family:'Montserrat',sans-serif; }
+  .task-status.high { background: var(--red); box-shadow: 0 0 0 3px var(--red-soft); }
+  .task-status.mid { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .task-status.low { background: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
+  .task-item.done .task-status { background: var(--green); box-shadow:none; color:#fff; }
   .priority-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .task-item:not(.done) .priority-dot.high { background: var(--red); box-shadow: 0 0 0 3px var(--red-soft); }
   .task-item:not(.done) .priority-dot.mid { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
   .task-item:not(.done) .priority-dot.low { background: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
   .task-item.done .priority-dot { background: var(--done-color); }
   .task-text { flex: 1; font-size: 15px; line-height: 1.4; }
-  .task-check { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; transition: all 0.2s; }
-  .task-item.done .task-check { background: var(--green); border-color: var(--green); color: white; }
+  .task-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; margin-left:auto; }
+  .task-delete {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid var(--border); background: transparent;
+    color: var(--muted); font-size: 14px; line-height: 1;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition: all 0.18s;
+  }
+  .task-delete:hover { border-color: var(--red); color: var(--red); background: var(--red-soft); }
+  .task-item.done .task-delete { opacity: 0.6; }
   .days-late { font-size: 11px; color: var(--red); font-weight: 700; margin-left: 6px; flex-shrink: 0; font-family: 'Montserrat', sans-serif; }
+
+  .confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; z-index: 9999; padding: 20px; }
+  .confirm-overlay.hidden { display:none; }
+  .confirm-box { width:min(320px,100%); background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:16px; box-shadow:0 16px 32px rgba(0,0,0,0.18); }
+  .confirm-title { font-size:15px; font-weight:700; color:var(--text); margin-bottom:14px; text-align:center; }
+  .confirm-actions { display:flex; gap:8px; }
+  .confirm-btn { flex:1; border:none; border-radius:10px; padding:10px 0; font-size:14px; font-weight:700; font-family:'Noto Sans SC',sans-serif; cursor:pointer; }
+  .confirm-cancel { background:var(--surface2); color:var(--muted); }
+  .confirm-ok { background:var(--red); color:#fff; }
 
   /* ── Add task ── */
   .add-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1.5px solid var(--border); }
@@ -259,12 +281,13 @@
   .feed-tasks { margin-bottom: 4px; }
   .feed-task { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; border-bottom: 1px solid var(--border); }
   .feed-task:last-child { border-bottom: none; }
-  .feed-task.done { color: var(--done-color); text-decoration: line-through; }
+  .feed-task.done { color: var(--done-color); text-decoration: none; }
   .feed-task-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .feed-task.done .feed-task-dot { background: var(--done-color); }
   .feed-task:not(.done) .feed-task-dot.high { background: var(--red); }
   .feed-task:not(.done) .feed-task-dot.mid { background: var(--accent); }
   .feed-task:not(.done) .feed-task-dot.low { background: var(--green); }
+  .feed-task-status { margin-left:auto; font-size:11px; font-weight:700; font-family:'Noto Sans SC',sans-serif; color:var(--green); flex-shrink:0; }
   .feed-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
   .feed-tag { padding: 4px 10px; border-radius: 10px; background: var(--surface2); color: var(--text); font-size: 12px; font-weight: 700; border: 1px solid var(--border); }
   .feed-food-tag { padding: 4px 10px; border-radius: 10px; background: var(--green-soft); color: var(--green); font-size: 12px; font-weight: 700; }
@@ -651,6 +674,16 @@
   </button>
 </div>
 
+<div class="confirm-overlay hidden" id="deleteConfirmOverlay" onclick="if(event.target===this) closeDeleteConfirm()">
+  <div class="confirm-box" onclick="event.stopPropagation()">
+    <div class="confirm-title">确定删除吗？</div>
+    <div class="confirm-actions">
+      <button class="confirm-btn confirm-cancel" onclick="closeDeleteConfirm()">取消</button>
+      <button class="confirm-btn confirm-ok" onclick="confirmDeleteTask()">确定</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const SUPABASE_URL = 'https://lylyavnwhtutaamqciht.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_x0zMUDUjy0_h_Vz5NC5wwA_6E6Wksna';
@@ -991,9 +1024,11 @@
     if(!sorted.length){ list.innerHTML=`<div class="empty-state"><div class="emoji">✨</div><p>今天还没有计划<br>添加第一件事吧！</p></div>`; }
     else { list.innerHTML=sorted.map(t=>`
       <div class="task-item ${t.done?'done':''}" onclick="toggleTask('${t.id}')">
-        <div class="priority-dot ${t.pri}"></div>
+        <div class="task-status ${t.pri}">${t.done?'✓':''}</div>
         <div class="task-text">${t.text}${!t.done&&t.originDate?`<span class="days-late">已拖${Math.max(1,Math.floor((new Date(todayStr())-new Date(t.originDate))/86400000))}天</span>`:t.daysLate&&!t.done?`<span class="days-late">已拖${t.daysLate}天</span>`:''}</div>
-        <div class="task-check">${t.done?'✓':''}</div>
+        <div class="task-actions">
+          <button class="task-delete" onclick="event.stopPropagation();requestDeleteTask('${t.id}')" aria-label="删除任务">×</button>
+        </div>
       </div>`).join(''); }
     console.log('renderTasks: innerHTML updated, taskList.innerHTML.length=', list.innerHTML.length);
     updateProgress();
@@ -1029,6 +1064,41 @@
         loadRecordsPage();
       }
     } 
+  }
+  let pendingDeleteTaskId = null;
+
+  function requestDeleteTask(id){
+    pendingDeleteTaskId = id;
+    const overlay=document.getElementById('deleteConfirmOverlay');
+    if(overlay) overlay.classList.remove('hidden');
+  }
+
+  function closeDeleteConfirm(){
+    pendingDeleteTaskId = null;
+    const overlay=document.getElementById('deleteConfirmOverlay');
+    if(overlay) overlay.classList.add('hidden');
+  }
+
+  function confirmDeleteTask(){
+    if(!pendingDeleteTaskId){ closeDeleteConfirm(); return; }
+    const id=pendingDeleteTaskId;
+    closeDeleteConfirm();
+    deleteTask(id);
+  }
+
+  function deleteTask(id){
+    const before=tasks.length;
+    tasks=tasks.filter(t=>t.id!==id);
+    if(tasks.length===before) return;
+    saveTasks();
+    renderTasks();
+    if(planDate===todayStr() && myName){
+      syncProgress();
+      syncTasksToLog();
+    }
+    if(document.getElementById('page-records').classList.contains('active')){
+      loadRecordsPage();
+    }
   }
   function selectPri(btn,pri){ document.querySelectorAll('.pri-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedPri=pri; }
   function addTask(){
@@ -1414,7 +1484,7 @@
         <div class="feed-task ${t.done?'done':''}" style="pointer-events:none">
           <div class="feed-task-dot ${t.pri}"></div>
           <span>${t.text}${t.daysLate&&!t.done?`<span style="font-size:10px;color:var(--red);font-weight:700;margin-left:5px;font-family:Montserrat,sans-serif">已拖${t.daysLate}天</span>`:''}</span>
-          <span style="margin-left:auto;font-size:13px;color:var(--green)">${t.done?'✓':''}</span>
+          ${t.done?`<span class="feed-task-status">已完成</span>`:''}
         </div>`).join('')}
       </div>
       <div style="font-family:Montserrat,sans-serif;font-size:10px;color:var(--muted);text-align:right;margin-top:6px">${done}/${total} 完成</div>`;
@@ -1655,7 +1725,11 @@
     const tasksHtml=tasks.length?`
       <div class="feed-section-title">📋 计划 ${done}/${total} · ${pct}%</div>
       <div class="feed-tasks">${[...tasks].sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;return priOrder[a.pri]-priOrder[b.pri];}).map(t=>`
-        <div class="feed-task ${t.done?'done':''}"><div class="feed-task-dot ${t.pri}"></div><span>${t.text}</span></div>`).join('')}
+        <div class="feed-task ${t.done?'done':''}">
+          <div class="feed-task-dot ${t.pri}"></div>
+          <span>${t.text}</span>
+          ${t.done?`<span class="feed-task-status">已完成</span>`:''}
+        </div>`).join('')}
       </div>`:'';
     const workoutNorm=normalizeWorkout(r.workout_tags||[]);
     const isRest=workoutNorm.some(w=>w.name==='😴 休息');
