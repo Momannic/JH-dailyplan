@@ -318,14 +318,15 @@
   .gym-item-text { font-size:15px; font-weight:600; flex:1; }
   .gym-done-btn { width:100%; padding:14px; border-radius:12px; border:none; background:var(--green); color:white; font-size:15px; font-weight:700; font-family:'Noto Sans SC',sans-serif; cursor:pointer; margin-top:14px; transition:all 0.2s; }
   .gym-done-btn:active { transform:scale(0.98); }
-  /* ── 饮食分类 ── */
-  .food-cats-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px; align-items:flex-start; }
-  .food-cat-wrap { display:flex; flex-direction:column; }
-  .food-cat-btn { padding:8px 14px; border-radius:20px; border:2px solid var(--border); background:transparent; color:var(--muted); font-size:13px; font-weight:700; font-family:'Noto Sans SC',sans-serif; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
-  .food-cat-btn.active { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); }
-  .food-sub-panel { max-height:0; overflow:hidden; transition:max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease; opacity:0; margin-top:0; width:max(240px, 100%); background:var(--surface2); border-radius:0 12px 12px 12px; }
-  .food-sub-panel.open { max-height:400px; opacity:1; margin-top:6px; padding:10px 12px; }
-  .food-sub-grid { margin-bottom:0; }
+  /* ── 饮食标签池（两行折叠） ── */
+  .food-tags-wrap { background:var(--surface2); border:1.5px solid var(--border); border-radius:12px; padding:10px; }
+  .food-tags-collapsible { overflow:hidden; transition:max-height 0.24s ease; }
+  .food-tags-collapsible.collapsed { max-height:var(--food-collapsed-h, 88px); }
+  .food-tags-collapsible.expanded { max-height:1000px; }
+  .food-all-grid { display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start; }
+  .food-expand-row { display:flex; justify-content:center; margin-top:8px; }
+  .food-expand-btn { border:none; background:transparent; color:var(--muted); font-size:12px; font-weight:700; font-family:'Noto Sans SC',sans-serif; cursor:pointer; padding:3px 10px; border-radius:999px; }
+  .food-expand-btn:hover { color:var(--text); background:var(--bg); }
   .gym-done-tag { display:inline-flex; align-items:center; gap:5px; padding:6px 12px; border-radius:10px; background:var(--text); color:var(--yellow); font-size:13px; font-weight:700; margin:3px; }
   /* ── 重要日程 banner ── */
   .events-banner {
@@ -529,88 +530,51 @@
       </div>
       <div class="sub-label">吃了什么？</div>
       <div id="foodCategoryArea">
-        <!-- 大类按钮 -->
-        <div class="food-cats-row" id="foodCatsRow">
-          <div class="food-cat-wrap" id="foodWrap-meat">
-            <button class="food-cat-btn" onclick="toggleFoodCat('meat')">🥩 肉类</button>
-            <div class="food-sub-panel" id="foodSub-meat"><div class="food-sub-inner">
-              <div class="tags-grid food-sub-grid">
-                <button class="tag food-tag" onclick="toggleTag(this)">🍗 鸡胸肉</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🍖 鸡腿肉</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🥩 牛肉</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🐷 猪肉</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🍤 虾</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🐟 鱼肉</button>
-              </div>
-              <div class="add-tag-row"><input class="add-tag-input" placeholder="添加其他…" onkeydown="if(event.key==='Enter')addFoodFromInput(this,'meat')"><button class="add-tag-btn" onclick="addFoodFromInput(this.previousElementSibling,'meat')">添加</button></div>
-            </div></div>
+        <div class="food-tags-wrap">
+          <div class="food-tags-collapsible collapsed" id="foodTagsCollapsible">
+            <div class="tags-grid food-all-grid" id="foodAllGrid">
+              <button class="tag food-tag" onclick="toggleTag(this)">🍗 鸡胸肉</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍖 鸡腿肉</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🥩 牛肉</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🐷 猪肉</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍤 虾</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🐟 鱼肉</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍌 香蕉</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍉 西瓜</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍍 菠萝</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍈 哈密瓜</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍒 荔枝</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🫐 龙眼</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🐉 火龙果</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍒 樱桃</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🫐 黑莓</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🫐 蓝莓</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🥦 西兰花</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍅 西红柿</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🥬 菠菜</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🥬 空心菜</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🥬 白菜</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🥒 黄瓜</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍚 米饭</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍞 面包</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍝 面条</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🥣 燕麦</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🥛 牛奶</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🫙 Acai酸奶</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍦 冰淇淋</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🌶️ 辣条</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🥔 薯片</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍬 糖果</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🍫 巧克力</button>
+              <button class="tag food-tag" onclick="toggleTag(this)">🧃 饮料</button>
+            </div>
           </div>
-          <div class="food-cat-wrap" id="foodWrap-fruit">
-            <button class="food-cat-btn" onclick="toggleFoodCat('fruit')">🍎 水果</button>
-            <div class="food-sub-panel" id="foodSub-fruit"><div class="food-sub-inner">
-              <div class="tags-grid food-sub-grid">
-                <button class="tag food-tag" onclick="toggleTag(this)">🍌 香蕉</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🍉 西瓜</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🍍 菠萝</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🍈 哈密瓜</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🍒 荔枝</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🫐 龙眼</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🐉 火龙果</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🍒 樱桃</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🫐 黑莓</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🫐 蓝莓</button>
-              </div>
-              <div class="add-tag-row"><input class="add-tag-input" placeholder="添加其他…" onkeydown="if(event.key==='Enter')addFoodFromInput(this,'fruit')"><button class="add-tag-btn" onclick="addFoodFromInput(this.previousElementSibling,'fruit')">添加</button></div>
-            </div></div>
+          <div class="food-expand-row">
+            <button class="food-expand-btn" id="foodExpandBtn" onclick="toggleFoodExpand()">展开更多 ▾</button>
           </div>
-          <div class="food-cat-wrap" id="foodWrap-veg">
-            <button class="food-cat-btn" onclick="toggleFoodCat('veg')">🥦 蔬菜</button>
-            <div class="food-sub-panel" id="foodSub-veg"><div class="food-sub-inner">
-              <div class="tags-grid food-sub-grid">
-                <button class="tag food-tag" onclick="toggleTag(this)">🥦 西兰花</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🍅 西红柿</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🥬 菠菜</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🥬 空心菜</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🥬 白菜</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🥒 黄瓜</button>
-              </div>
-              <div class="add-tag-row"><input class="add-tag-input" placeholder="添加其他…" onkeydown="if(event.key==='Enter')addFoodFromInput(this,'veg')"><button class="add-tag-btn" onclick="addFoodFromInput(this.previousElementSibling,'veg')">添加</button></div>
-            </div></div>
-          </div>
-          <div class="food-cat-wrap" id="foodWrap-staple">
-            <button class="food-cat-btn" onclick="toggleFoodCat('staple')">🍚 主食</button>
-            <div class="food-sub-panel" id="foodSub-staple"><div class="food-sub-inner">
-              <div class="tags-grid food-sub-grid">
-                <button class="tag food-tag" onclick="toggleTag(this)">🍚 米饭</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🍞 面包</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🍝 面条</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🥣 燕麦</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🥛 牛奶</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🫙 Acai酸奶</button>
-              </div>
-              <div class="add-tag-row"><input class="add-tag-input" placeholder="添加其他…" onkeydown="if(event.key==='Enter')addFoodFromInput(this,'staple')"><button class="add-tag-btn" onclick="addFoodFromInput(this.previousElementSibling,'staple')">添加</button></div>
-            </div></div>
-          </div>
-          <div class="food-cat-wrap" id="foodWrap-snack">
-            <button class="food-cat-btn" onclick="toggleFoodCat('snack')">🍿 零食</button>
-            <div class="food-sub-panel" id="foodSub-snack"><div class="food-sub-inner">
-              <div class="tags-grid food-sub-grid">
-                <button class="tag food-tag" onclick="toggleTag(this)">🍦 冰淇淋</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🌶️ 辣条</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🥔 薯片</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🍬 糖果</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🍫 巧克力</button>
-                <button class="tag food-tag" onclick="toggleTag(this)">🧃 饮料</button>
-              </div>
-              <div class="add-tag-row"><input class="add-tag-input" placeholder="添加其他…" onkeydown="if(event.key==='Enter')addFoodFromInput(this,'snack')"><button class="add-tag-btn" onclick="addFoodFromInput(this.previousElementSibling,'snack')">添加</button></div>
-            </div></div>
-          </div>
-          <div class="food-cat-wrap" id="foodWrap-other">
-            <button class="food-cat-btn" onclick="toggleFoodCat('other')">➕ 其他</button>
-            <div class="food-sub-panel" id="foodSub-other"><div class="food-sub-inner">
-              <div class="tags-grid food-sub-grid" id="foodOtherGrid"></div>
-              <div class="add-tag-row"><input class="add-tag-input" id="newFoodInput" placeholder="其他食物…" onkeydown="if(event.key==='Enter')addCustomFood()"><button class="add-tag-btn" onclick="addCustomFood()">添加</button></div>
-            </div></div>
+          <div class="add-tag-row" style="margin-top:8px">
+            <input class="add-tag-input" id="newFoodInput" placeholder="添加其他…" onkeydown="if(event.key==='Enter')addCustomFood()">
+            <button class="add-tag-btn" onclick="addCustomFood()">添加</button>
           </div>
         </div>
         <!-- 已选食物汇总 -->
@@ -739,7 +703,7 @@
     document.getElementById('gymPlanPhase').style.display='block';
     document.getElementById('gymTrackPhase').style.display='none';
     document.getElementById('gymDonePhase').style.display='none';
-    document.querySelectorAll('.food-sub-panel .food-tag.selected').forEach(t=>t.classList.remove('selected')); document.querySelectorAll('.food-sub-panel').forEach(p=>p.style.display='none'); document.querySelectorAll('.food-cat-btn').forEach(b=>b.classList.remove('active')); const fss=document.getElementById('foodSelectedSummary'); if(fss) fss.style.display='none';
+    document.querySelectorAll('#foodAllGrid .food-tag.selected').forEach(t=>t.classList.remove('selected')); const fss=document.getElementById('foodSelectedSummary'); if(fss) fss.style.display='none'; foodExpanded=false; updateFoodCollapseLayout();
     document.querySelectorAll('.meal-btn.active').forEach(t=>t.classList.remove('active'));
     selectedMeals=0; isResting=false;
     // 刷新动态和日记（如果当前在这些页面）
@@ -822,7 +786,7 @@
   }
 
   // ══ PLAN ═══════════════════════════════════
-  let tasks=[], selectedPri='high', selectedMeals=0, isResting=false;
+  let tasks=[], selectedPri='high', selectedMeals=0, isResting=false, foodExpanded=false;
   let planDate = todayStr();
   // Plan page calendar state
   let planCalYear, planCalMonth;
@@ -1099,7 +1063,7 @@
   }
   function toggleTag(btn){ btn.classList.toggle('selected'); updateFoodSummary(); }
   function addCustomTag(){ const i=document.getElementById('newTagInput'),v=i.value.trim(); if(!v) return; const b=document.createElement('button'); b.className='tag selected'; b.textContent=v; b.onclick=function(){toggleWorkoutTag(this);}; document.getElementById('tagsGrid').appendChild(b); i.value=''; }
-  function addCustomFood(){ const i=document.getElementById('newFoodInput'),v=i.value.trim(); if(!v) return; const b=document.createElement('button'); b.className='tag food-tag selected'; b.textContent=v; b.onclick=function(){toggleTag(this); updateFoodSummary();}; document.getElementById('foodOtherGrid').appendChild(b); i.value=''; updateFoodSummary(); }
+  function addCustomFood(){ const i=document.getElementById('newFoodInput'),v=i.value.trim(); if(!v) return; const b=document.createElement('button'); b.className='tag food-tag selected'; b.textContent=v; b.onclick=function(){toggleTag(this); updateFoodSummary();}; document.getElementById('foodAllGrid').appendChild(b); i.value=''; updateFoodSummary(); requestAnimationFrame(updateFoodCollapseLayout); }
   function selectMeals(btn,n){ if(selectedMeals===n){btn.classList.remove('active');selectedMeals=0;} else{document.querySelectorAll('.meal-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selectedMeals=n;} }
   function getSelectedWorkout(){ return workoutItems; } // 返回 [{name, done}]
 
@@ -1217,26 +1181,58 @@
   function normalizeWorkout(arr){
     return (arr||[]).map(w=>typeof w==='string'?{name:w,done:true}:w); // 旧格式字符串视为已完成
   }
-  function getSelectedFoods(){ return[...document.querySelectorAll('.food-sub-panel .food-tag.selected, #foodOtherGrid .food-tag.selected')].map(t=>t.textContent); }
+  function getSelectedFoods(){ return[...document.querySelectorAll('#foodAllGrid .food-tag.selected')].map(t=>t.textContent); }
 
-  function toggleFoodCat(cat){
-    const panel=document.getElementById('foodSub-'+cat);
-    const btn=panel.previousElementSibling;
-    const isOpen=panel.classList.contains('open');
-    // 关闭所有
-    document.querySelectorAll('.food-sub-panel').forEach(p=>p.classList.remove('open'));
-    document.querySelectorAll('.food-cat-btn').forEach(b=>b.classList.remove('active'));
-    // 切换当前
-    if(!isOpen){ panel.classList.add('open'); btn.classList.add('active'); }
+  function toggleFoodExpand(){
+    foodExpanded=!foodExpanded;
+    updateFoodCollapseLayout();
   }
 
-  function addFoodFromInput(input, cat){
-    const v=input.value.trim(); if(!v) return;
-    const grid=input.closest('.food-sub-panel').querySelector('.tags-grid');
-    const b=document.createElement('button'); b.className='tag food-tag selected'; b.textContent=v;
-    b.onclick=function(){ toggleTag(this); updateFoodSummary(); };
-    grid.appendChild(b); input.value='';
-    updateFoodSummary();
+  function updateFoodCollapseLayout(){
+    const wrap=document.getElementById('foodTagsCollapsible');
+    const grid=document.getElementById('foodAllGrid');
+    const btn=document.getElementById('foodExpandBtn');
+    if(!wrap||!grid||!btn) return;
+    const tags=[...grid.querySelectorAll('.food-tag')];
+    if(tags.length===0){ btn.style.display='none'; return; }
+
+    const gridRect=grid.getBoundingClientRect();
+    const rowTops=[];
+    tags.forEach(tag=>{
+      const top=Math.round(tag.getBoundingClientRect().top-gridRect.top);
+      if(!rowTops.some(v=>Math.abs(v-top)<=2)) rowTops.push(top);
+    });
+    rowTops.sort((a,b)=>a-b);
+
+    if(rowTops.length<=2){
+      foodExpanded=false;
+      btn.style.display='none';
+      wrap.classList.remove('collapsed');
+      wrap.classList.add('expanded');
+      return;
+    }
+
+    const secondRowTop=rowTops[1];
+    let secondRowBottom=0;
+    tags.forEach(tag=>{
+      const rect=tag.getBoundingClientRect();
+      const top=Math.round(rect.top-gridRect.top);
+      if(Math.abs(top-secondRowTop)<=2){
+        secondRowBottom=Math.max(secondRowBottom, rect.bottom-gridRect.top);
+      }
+    });
+    wrap.style.setProperty('--food-collapsed-h', `${Math.ceil(secondRowBottom+2)}px`);
+    btn.style.display='inline-flex';
+
+    if(foodExpanded){
+      wrap.classList.remove('collapsed');
+      wrap.classList.add('expanded');
+      btn.textContent='收起 ▲';
+    } else {
+      wrap.classList.remove('expanded');
+      wrap.classList.add('collapsed');
+      btn.textContent='展开更多 ▾';
+    }
   }
 
   function updateFoodSummary(){
@@ -1767,12 +1763,15 @@
   setTimeout(()=>{
     const active = document.querySelector('.date-row .date-btn.active') || document.getElementById('dateFakeBtn');
     if(active) positionDateIndicator(active);
+    updateFoodCollapseLayout();
+    setTimeout(updateFoodCollapseLayout, 280);
   },60);
   window.addEventListener('resize',()=>{
     const active = document.querySelector('.date-row .date-btn.active') || document.getElementById('dateFakeBtn');
     if(active) positionDateIndicator(active);
     const activeNavBtn=document.querySelector('.bottom-nav-btn.active');
     if(activeNavBtn) positionNavActive(activeNavBtn);
+    updateFoodCollapseLayout();
   });
 
   // ══ 重要日程 ══
