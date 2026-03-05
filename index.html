@@ -219,6 +219,8 @@
   .meals-row { display: flex; gap: 8px; margin-bottom: 14px; }
   .meal-btn { flex: 1; padding: 10px; border-radius: 12px; border: 2px solid var(--border); background: transparent; color: var(--muted); font-size: 13px; font-family: 'Noto Sans SC', sans-serif; cursor: pointer; transition: all 0.2s; text-align: center; }
   .meal-btn.active { border-color: var(--green); background: var(--green-soft); color: var(--green); font-weight: 700; }
+  .food-save-btn { width:100%; margin-top:10px; padding:12px; border:none; border-radius:12px; background:var(--text); color:var(--yellow); font-size:14px; font-weight:700; font-family:'Noto Sans SC',sans-serif; cursor:pointer; }
+  .food-save-btn.success { background:var(--green); color:#fff; }
 
   /* ── Summary ── */
   .summary-textarea { width: 100%; padding: 14px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 15px; font-family: 'Noto Sans SC', sans-serif; resize: none; outline: none; line-height: 1.7; min-height: 100px; }
@@ -327,8 +329,8 @@
   .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #000; border-top: 1px solid #222; display: flex; z-index: 100; overflow: hidden; }
   .bottom-nav .nav-active { position:absolute; top:0; bottom:0; width: 0; left:0; background: rgba(240,165,0,0.18); border-radius: 0; transform: translateX(0); transition: transform 220ms ease, width 220ms ease; z-index: 0; box-shadow: 0 -8px 32px rgba(240,165,0,0.55), 0 -2px 12px rgba(240,165,0,0.4); }
   .bottom-nav .bottom-nav-btn { position: relative; z-index: 1; }
-  .bottom-nav-btn { flex: 1; padding: 12px 8px 20px; border: none; background: transparent; color: #fff; font-size: 11px; font-family: 'Noto Sans SC', sans-serif; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: color 0.2s, transform 0.2s; }
-  .bottom-nav-btn .icon { font-size: 20px; }
+  .bottom-nav-btn { flex: 1; padding: 10px 8px 13px; border: none; background: transparent; color: #fff; font-size: 11px; font-family: 'Noto Sans SC', sans-serif; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: color 0.2s, transform 0.2s; }
+  .bottom-nav-btn .icon { font-size: 18px; }
   .bottom-nav-btn.active { color: var(--yellow); font-weight: 800; text-shadow: 0 0 12px rgba(240,165,0,0.9), 0 0 4px rgba(240,165,0,0.6); }
   /* ── Gym checklist ── */
   .gym-start-btn { width:100%; padding:13px; border-radius:12px; border:none; background:var(--text); color:var(--yellow); font-size:15px; font-weight:700; font-family:'Noto Sans SC',sans-serif; cursor:pointer; transition:all 0.2s; }
@@ -385,6 +387,29 @@
   .events-add-text { flex:1; padding:9px 12px; border-radius:10px; border:1.5px solid #333; background:#1a1a1a; color:#f7f4ef; font-size:13px; font-family:'Noto Sans SC',sans-serif; }
   .events-add-text::placeholder { color:#555; }
   .events-add-btn { padding:9px 16px; border-radius:10px; border:none; background:var(--yellow); color:#000; font-size:13px; font-weight:700; cursor:pointer; font-family:'Noto Sans SC',sans-serif; white-space:nowrap; }
+
+  /* ── Mobile-first polish ── */
+  @media (max-width: 600px) {
+    body { padding-bottom: 88px; }
+    .header { padding: 14px 14px 12px; }
+    .header-left h1 { font-size: 24px; }
+    .header-right { gap: 4px; }
+    .page-wrapper { max-width: 100%; }
+    .page { padding: 12px; }
+    .card, .add-card, .gym-section, .live-card, .feed-card { border-radius: 14px; padding: 14px; }
+    .progress-card { border-radius: 14px; padding: 16px; }
+    .task-item { padding: 12px 13px; gap: 10px; }
+    .task-text { font-size: 16px; }
+    .task-delete { width: 24px; height: 24px; }
+    .date-btn, .meal-btn, .pri-btn, .tag, .food-expand-btn, .events-add-btn, .events-date-btn, .events-add-text, .comment-send-btn, .add-btn, .finish-btn, .food-save-btn, .gym-start-btn, .gym-done-btn {
+      min-height: 42px;
+    }
+    .add-input, .add-tag-input, .summary-textarea, .comment-input { font-size: 16px; }
+    .events-bar { padding: 8px 12px; }
+    .events-panel-inner { padding: 10px 12px 14px; }
+    .bottom-nav-btn { padding: 8px 8px 10px; font-size: 10px; }
+    .bottom-nav-btn .icon { font-size: 17px; }
+  }
 
 </style>
 <!-- flatpickr for consistent date picker across browsers -->
@@ -523,7 +548,7 @@
           <input class="add-tag-input" id="newTagInput" placeholder="自定义动作…" onkeydown="if(event.key==='Enter')addCustomTag()">
           <button class="add-tag-btn" onclick="addCustomTag()">添加</button>
         </div>
-        <button class="gym-start-btn" id="gymStartBtn" onclick="startWorkout()" style="margin-top:14px">💪 开始训练</button>
+        <button class="gym-start-btn" id="gymStartBtn" onclick="startWorkout()" style="margin-top:14px">📝 记入日记</button>
       </div>
       <!-- 阶段2：训练打卡中 -->
       <div id="gymTrackPhase" style="display:none">
@@ -605,6 +630,7 @@
           <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:Montserrat,sans-serif;letter-spacing:1px">已选</div>
           <div id="foodSelectedTags" class="tags-grid" style="gap:6px"></div>
         </div>
+        <button class="food-save-btn" id="foodSaveBtn" onclick="saveFoodToDiary()">📝 饮食记入日记</button>
       </div>
     </div>
 
@@ -737,6 +763,7 @@
     document.getElementById('gymTrackPhase').style.display='none';
     document.getElementById('gymDonePhase').style.display='none';
     document.querySelectorAll('#foodAllGrid .food-tag.selected').forEach(t=>t.classList.remove('selected')); const fss=document.getElementById('foodSelectedSummary'); if(fss) fss.style.display='none'; foodExpanded=false; updateFoodCollapseLayout();
+    const foodSaveBtn=document.getElementById('foodSaveBtn'); if(foodSaveBtn){ foodSaveBtn.disabled=false; foodSaveBtn.classList.remove('success'); foodSaveBtn.textContent='📝 饮食记入日记'; }
     document.querySelectorAll('.meal-btn.active').forEach(t=>t.classList.remove('active'));
     selectedMeals=0; isResting=false;
     // 刷新动态和日记（如果当前在这些页面）
@@ -1021,13 +1048,14 @@
     const list=document.getElementById('taskList');
     console.log('renderTasks: taskList element=', list);
     const sorted=[...tasks].sort((a,b)=>{ if(a.done!==b.done) return a.done?1:-1; return priOrder[a.pri]-priOrder[b.pri]; });
+    const canDelete = planDate===todayStr();
     if(!sorted.length){ list.innerHTML=`<div class="empty-state"><div class="emoji">✨</div><p>今天还没有计划<br>添加第一件事吧！</p></div>`; }
     else { list.innerHTML=sorted.map(t=>`
       <div class="task-item ${t.done?'done':''}" onclick="toggleTask('${t.id}')">
         <div class="task-status ${t.pri}">${t.done?'✓':''}</div>
         <div class="task-text">${t.text}${!t.done&&t.originDate?`<span class="days-late">已拖${Math.max(1,Math.floor((new Date(todayStr())-new Date(t.originDate))/86400000))}天</span>`:t.daysLate&&!t.done?`<span class="days-late">已拖${t.daysLate}天</span>`:''}</div>
         <div class="task-actions">
-          <button class="task-delete" onclick="event.stopPropagation();requestDeleteTask('${t.id}')" aria-label="删除任务">×</button>
+          ${canDelete?`<button class="task-delete" onclick="event.stopPropagation();requestDeleteTask('${t.id}')" aria-label="删除任务">×</button>`:''}
         </div>
       </div>`).join(''); }
     console.log('renderTasks: innerHTML updated, taskList.innerHTML.length=', list.innerHTML.length);
@@ -1068,6 +1096,7 @@
   let pendingDeleteTaskId = null;
 
   function requestDeleteTask(id){
+    if(planDate!==todayStr()) return;
     pendingDeleteTaskId = id;
     const overlay=document.getElementById('deleteConfirmOverlay');
     if(overlay) overlay.classList.remove('hidden');
@@ -1087,6 +1116,7 @@
   }
 
   function deleteTask(id){
+    if(planDate!==todayStr()) return;
     const before=tasks.length;
     tasks=tasks.filter(t=>t.id!==id);
     if(tasks.length===before) return;
@@ -1151,7 +1181,7 @@
       btn.style.color='#ffffff';
       btn.style.marginTop='14px';
     } else {
-      btn.textContent='💪 开始训练';
+      btn.textContent='📝 记入日记';
       btn.style.background='#1a1614';
       btn.style.color='#f0a500';
       btn.style.marginTop='14px';
@@ -1173,11 +1203,14 @@
     }
     const selected=[...document.querySelectorAll('#tagsGrid .tag.selected:not(.rest-tag)')].map(t=>t.textContent);
     if(!selected.length){ alert('请先选择今天要练的内容！'); return; }
-    workoutItems=selected.map(name=>({name,done:false}));
-    renderGymChecklist();
+    workoutItems=selected.map(name=>({name,done:true}));
+    workoutLogged=true;
     document.getElementById('gymPlanPhase').style.display='none';
-    document.getElementById('gymTrackPhase').style.display='block';
-    document.getElementById('gymDonePhase').style.display='none';
+    document.getElementById('gymTrackPhase').style.display='none';
+    document.getElementById('gymDonePhase').style.display='block';
+    const summary=document.getElementById('gymDoneSummary');
+    summary.innerHTML=workoutItems.map(i=>`<span class="gym-done-tag">✅ ${i.name}</span>`).join('');
+    syncWorkoutToLog();
   }
 
   function renderGymChecklist(){
@@ -1312,6 +1345,76 @@
     if(selected.length===0){ summary.style.display='none'; return; }
     summary.style.display='block';
     tags.innerHTML=selected.map(f=>`<span style="padding:4px 10px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700">${f}</span>`).join('');
+  }
+
+  async function saveFoodToDiary(){
+    if(!myName){ alert('请先选择你是谁！'); return; }
+    const foods=getSelectedFoods();
+    if(!foods.length && !selectedMeals){ alert('请先选择今天吃了什么或吃了几顿'); return; }
+
+    const btn=document.getElementById('foodSaveBtn');
+    if(btn){ btn.disabled=true; btn.textContent='保存中…'; }
+
+    const logId=`${myName}-${planDate}`;
+    try{
+      const getRes=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${logId}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      if(!getRes.ok) throw new Error('读取现有数据失败');
+      const existing=await getRes.json();
+      const prev=existing.length>0?existing[0]:null;
+
+      const prevTasks=prev?(prev.tasks||[]):[];
+      const localIds=new Set(tasks.map(t=>t.originId||t.id));
+      const onlyInPrev=prevTasks.filter(t=>!localIds.has(t.originId||t.id));
+      const mergedTasks=[...tasks, ...onlyInPrev];
+
+      const prevWorkoutRaw=normalizeWorkout(prev?prev.workout_tags||[]:[]);
+      const prevWorkoutMap={}; prevWorkoutRaw.forEach(w=>prevWorkoutMap[w.name]=w);
+      normalizeWorkout(getSelectedWorkout()).forEach(w=>prevWorkoutMap[w.name]=w);
+      const mergedWorkout=Object.values(prevWorkoutMap);
+
+      const mergedFoods=[...new Set([...(prev?prev.food_tags||[]:[]), ...foods])];
+      const prevMeals=prev?prev.meals||0:0;
+      const mergedMeals=Math.max(prevMeals, selectedMeals);
+
+      const mergedSummaries=prev?(prev.summaries&&prev.summaries.length?prev.summaries:(prev.summary?[{text:prev.summary,time:''}]:[])):[];
+      const mergedReactions=prev?prev.reactions||{}:{};
+      const mergedComments=prev?(Array.isArray(prev.comments)?prev.comments:Object.entries(prev.comments||{}).map(([name,text])=>({name,text,time:''}))):[];
+
+      const record={
+        id:logId, name:myName, date:planDate,
+        tasks:mergedTasks,
+        workout_tags:mergedWorkout,
+        food_tags:mergedFoods,
+        meals:mergedMeals,
+        summaries:mergedSummaries,
+        summary:'',
+        reactions:mergedReactions,
+        comments:mergedComments
+      };
+
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Prefer':'resolution=merge-duplicates,return=minimal'},
+        body:JSON.stringify(record)
+      });
+      if(!res.ok) throw new Error(await res.text());
+
+      if(btn){
+        btn.textContent='✅ 饮食已记入日记';
+        btn.classList.add('success');
+        setTimeout(()=>{
+          btn.classList.remove('success');
+          btn.disabled=false;
+          btn.textContent='📝 饮食记入日记';
+        },1400);
+      }
+      if(document.getElementById('page-records').classList.contains('active')) loadRecordsPage();
+      checkTodayPublished();
+    }catch(e){
+      if(btn){ btn.disabled=false; btn.textContent='📝 饮食记入日记'; }
+      alert('保存失败，请重试 😢\n'+e.message);
+      console.error(e);
+    }
   }
 
   async function submitToday(){
@@ -1748,10 +1851,8 @@
     const summaries=r.summaries&&r.summaries.length?r.summaries:(r.summary?[{text:r.summary,time:''}]:[]);
     const summaryHtml=summaries.length?summaries.map(s=>`
       <div class="feed-summary">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-          <span>💬 ${s.text}</span>
-          ${s.time?`<span style="font-family:'Montserrat',sans-serif;font-size:10px;color:var(--muted);flex-shrink:0;padding-top:2px">${s.time}</span>`:''}
-        </div>
+        ${s.time?`<div style="font-family:'Montserrat',sans-serif;font-size:10px;color:var(--muted);margin-bottom:4px">${s.time}</div>`:''}
+        <div>💬 ${s.text}</div>
       </div>`).join(''):'';
     const reactions=r.reactions||{};
     const reactionHtml=REACTIONS.map(emoji=>{ const count=reactions[emoji]||0; return `<button class="reaction-btn ${count>0?'reacted':''}" onclick="toggleReaction('${r.id}','${emoji}')">${emoji}<span class="reaction-count">${count>0?' '+count:''}</span></button>`; }).join('');
