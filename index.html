@@ -1238,6 +1238,8 @@
 
   // ══ PLAN ═══════════════════════════════════
   let tasks=[], selectedPri='high', selectedMeals=0, isResting=false, foodExpanded=false;
+  let lastTaskLocalEditAt = 0;
+  const taskToggleLock = new Set();
   let planDate = todayStr();
   // Plan page calendar state
   let planCalYear, planCalMonth;
@@ -1350,7 +1352,15 @@
   }
 
   async function loadTasks() {
+    const reqStartedAt = Date.now();
     if(!myName){ renderTasks(); workoutItems=[]; renderWorkoutUI(); return; }
+    // 刚做过本地勾选时，短时间内不接受远端回包覆盖，避免进度“点了又回去/不更新”
+    if(planDate===todayStr() && (Date.now()-lastTaskLocalEditAt)<1500){
+      renderTasks();
+      checkTodayPublished();
+      await loadWorkoutState();
+      return;
+    }
     tasks=[];
     try {
       if(planDate===todayStr()) {
@@ -1358,6 +1368,7 @@
         const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${planDate}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
         const records=await res.json();
         if(records.length>0 && records[0].tasks && records[0].tasks.length>0) {
+          if(lastTaskLocalEditAt > reqStartedAt){ renderTasks(); checkTodayPublished(); await loadWorkoutState(); return; }
           tasks=records[0].tasks;
           renderTasks(); checkTodayPublished(); await loadWorkoutState(); return;
         }
@@ -1365,6 +1376,7 @@
         const res2=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${planDate}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
         const logs=await res2.json();
         if(logs.length>0 && logs[0].tasks && logs[0].tasks.length>0) {
+          if(lastTaskLocalEditAt > reqStartedAt){ renderTasks(); checkTodayPublished(); await loadWorkoutState(); return; }
           tasks=logs[0].tasks;
           renderTasks(); checkTodayPublished(); await loadWorkoutState(); return;
         }
@@ -1405,6 +1417,7 @@
         }
       }
     } catch(e){ console.warn('loadTasks error', e); }
+    if(planDate===todayStr() && lastTaskLocalEditAt > reqStartedAt){ renderTasks(); checkTodayPublished(); await loadWorkoutState(); return; }
     renderTasks();
     checkTodayPublished();
     await loadWorkoutState();
@@ -1434,23 +1447,64 @@
   }
 
   async function syncProgress() {
-    const record={id:`${myName}-${planDate}`,name:myName,date:planDate,tasks,workout_tags:workoutItems,updated_at:new Date().toISOString()};
-    try { await fetch(`${SUPABASE_URL}/rest/v1/daily_progress`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(record)}); } catch(e){}
+    const base={id:`${myName}-${planDate}`,name:myName,date:planDate,tasks,updated_at:new Date().toISOString()};
+    const full={...base, workout_tags:workoutItems};
+    try {
+      let res=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Prefer':'resolution=merge-duplicates,return=minimal'},
+        body:JSON.stringify(full)
+      });
+      // 兼容表结构差异：若 full payload 被拒，降级为只同步任务，确保进度可更新
+      if(!res.ok){
+        const err=await res.text();
+        console.warn('syncProgress full payload failed, fallback to tasks-only:', err);
+        res=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Prefer':'resolution=merge-duplicates,return=minimal'},
+          body:JSON.stringify(base)
+        });
+      }
+      if(!res.ok){
+        const err2=await res.text();
+        console.warn('syncProgress failed:', err2);
+      }
+    } catch(e){
+      console.warn('syncProgress failed:', e);
+    }
   }
 
   // 勾选任务后同步更新 daily_logs 里的 tasks，确保日记里的进度永远是最新的
   async function syncTasksToLog() {
     const logId=`${myName}-${planDate}`;
     try {
-      const getRes=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${logId}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      const headers={'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`};
+      let targetId=logId;
+
+      // 先按约定 id 查；查不到再按 name+date 回查真实 id（兼容旧数据）
+      const getRes=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${logId}&select=id`,{headers});
       if(!getRes.ok) return;
       const existing=await getRes.json();
-      if(!existing.length) return; // 还没发布过，不需要同步
-      await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${logId}`,{
+      if(!existing.length){
+        const fallbackRes=await fetch(
+          `${SUPABASE_URL}/rest/v1/daily_logs?name=eq.${encodeURIComponent(myName)}&date=eq.${planDate}&select=id&order=updated_at.desc&limit=1`,
+          {headers}
+        );
+        if(!fallbackRes.ok) return;
+        const fallback=await fallbackRes.json();
+        if(!fallback.length) return; // 还没发布过，不需要同步
+        targetId=fallback[0].id;
+      }
+
+      const patchRes=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${targetId}`,{
         method:'PATCH',
         headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`},
         body:JSON.stringify({tasks})
       });
+      if(!patchRes.ok){
+        const err=await patchRes.text();
+        console.warn('syncTasksToLog patch failed:', err);
+      }
     } catch(e){ console.warn('syncTasksToLog failed', e); }
   }
 
@@ -1487,22 +1541,28 @@
       pct>0?`${done}/${total} 继续！`:`共 ${total} 件事，开始吧！`;
   }
 
-  function toggleTask(id){ 
-    const t=tasks.find(t=>t.id===id); 
+  async function toggleTask(id){ 
+    if(taskToggleLock.has(id)) return;
+    taskToggleLock.add(id);
+    const t=tasks.find(t=>String(t.id)===String(id)); 
     if(t){
       t.done=!t.done;
+      lastTaskLocalEditAt = Date.now();
       saveTasks();
       renderTasks();
       // 如果是今天的任务，同时同步到 Supabase
       if(planDate===todayStr() && myName) {
-        syncProgress();
-        syncTasksToLog(); // 同步最新勾选状态到 daily_logs，保证日记进度永远最新
+        try{
+          await syncProgress();
+          await syncTasksToLog(); // 同步最新勾选状态到 daily_logs，保证日记进度永远最新
+        }catch(e){}
       }
       // 如果日记页面已打开，重新加载日记以显示最新的任务状态
       if(document.getElementById('page-records').classList.contains('active')) {
         loadRecordsPage();
       }
-    } 
+    }
+    setTimeout(()=>taskToggleLock.delete(id), 900);
   }
   let pendingDeleteTaskId = null;
 
@@ -1529,8 +1589,9 @@
   function deleteTask(id){
     if(planDate!==todayStr()) return;
     const before=tasks.length;
-    tasks=tasks.filter(t=>t.id!==id);
+    tasks=tasks.filter(t=>String(t.id)!==String(id));
     if(tasks.length===before) return;
+    lastTaskLocalEditAt = Date.now();
     saveTasks();
     renderTasks();
     if(planDate===todayStr() && myName){
@@ -1545,6 +1606,7 @@
   function addTask(){
     const input=document.getElementById('taskInput'),text=input.value.trim(); if(!text) return;
     tasks.push({id:Date.now().toString(),text,pri:selectedPri,done:false});
+    lastTaskLocalEditAt = Date.now();
     saveTasks(); 
     renderTasks(); 
     input.value='';
