@@ -58,8 +58,9 @@
     z-index: 999; padding: 40px 24px;
   }
   .identity-overlay.hidden { display: none; }
-  .id-title { font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 900; color: #f7f4ef; margin-bottom: 6px; }
-  .id-title span { color: var(--accent); }
+  .id-title { font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 900; color: #f7f4ef; margin-bottom: 6px; letter-spacing: 0; }
+  .id-title span { color: var(--accent); font-weight: 900; text-shadow: 0 0 12px rgba(240,165,0,0.35); }
+  .id-title-rest { margin-left: 8px; letter-spacing: 0; }
   .id-sub { font-family: 'Montserrat', sans-serif; font-size: 11px; color: #9a9088; letter-spacing: 3px; margin-bottom: 44px; text-transform: uppercase; }
   .id-question { font-size: 15px; color: #9a9088; font-weight: 500; margin-bottom: 14px; }
   .id-step { width: 100%; max-width: 320px; display: flex; flex-direction: column; align-items: center; }
@@ -332,7 +333,7 @@
     padding:10px 12px; font-size:14px; line-height:1.6;
     font-family:'Noto Sans SC',sans-serif; outline:none;
   }
-  .diary-editor-actions, .diary-delete-confirm, .comment-del-confirm { display:flex; gap:8px; margin-top:8px; align-items:center; flex-wrap:wrap; }
+  .diary-editor-actions, .diary-delete-confirm { display:flex; gap:8px; margin-top:8px; align-items:center; flex-wrap:wrap; }
   .mini-btn {
     border:1px solid var(--border); background:var(--surface); color:var(--muted);
     border-radius:8px; font-size:12px; padding:5px 10px; cursor:pointer;
@@ -365,7 +366,7 @@
   .reaction-count { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); }
   .reaction-btn.reacted .reaction-count { color: var(--yellow); }
   .feed-comment-section { border-top: 1px solid var(--border); padding-top: 12px; }
-  .comment-item { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-start; }
+  .comment-item { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-start; position: relative; }
   .comment-name { font-weight: 900; font-size: 13px; flex-shrink: 0; padding-top: 1px; }
   .comment-text { font-size: 13px; line-height: 1.5; flex: 1; }
   .comment-time { font-family: 'Montserrat', sans-serif; font-size: 10px; color: var(--muted); flex-shrink: 0; padding-top: 2px; }
@@ -375,6 +376,25 @@
     font-size: 12px; line-height: 1; display: inline-flex; align-items: center; justify-content: center;
     cursor: pointer; flex-shrink: 0; margin-top: 1px;
   }
+  .comment-action { position: relative; flex-shrink: 0; }
+  .comment-del-confirm {
+    position: absolute;
+    right: 0;
+    top: 22px;
+    z-index: 15;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 4px 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+    white-space: nowrap;
+  }
+  .comment-del-confirm .mini-tip { font-size: 11px; }
+  .comment-del-confirm .mini-btn { padding: 3px 8px; font-size: 11px; line-height: 1.1; }
   .comment-input-row { display: flex; gap: 8px; margin-top: 8px; }
   .comment-input { flex: 1; padding: 9px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; font-family: 'Noto Sans SC', sans-serif; outline: none; }
   .comment-input:focus { border-color: var(--text); }
@@ -897,7 +917,7 @@
 
 <!-- ── Identity overlay ── -->
 <div class="identity-overlay" id="identityOverlay">
-  <div class="id-title"><span>来来回回</span> 日记</div>
+  <div class="id-title"><span>来来回回</span><span class="id-title-rest">日记</span></div>
   <div class="id-sub">JLLHH DAILY</div>
   <div class="id-step" id="stepPw">
     <div class="id-question">输入密码进入</div>
@@ -2443,7 +2463,7 @@
     const reactions=r.reactions||{};
     const reactionHtml=REACTIONS.map(emoji=>{ const count=reactions[emoji]||0; return `<button class="reaction-btn ${count>0?'reacted':''}" onclick="toggleReaction('${r.id}','${emoji}')">${emoji}<span class="reaction-count">${count>0?' '+count:''}</span></button>`; }).join('');
     const comments=Array.isArray(r.comments)?r.comments:Object.entries(r.comments||{}).map(([name,text])=>({name,text,time:''}));
-    const commentsHtml=comments.map((c,ci)=>`<div class="comment-item"><span class="comment-name">${c.name}</span><span class="comment-text">${c.text}</span>${c.time?`<span class="comment-time">${c.time}</span>`:''}${(myName&&c.name===myName)?`<button class="comment-del" onclick="event.stopPropagation();requestDeleteComment('${r.id}',${ci})" aria-label="删除评论">×</button><span class="comment-del-confirm hidden" id="cdel-${r.id}-${ci}"><span class="mini-tip">确认删除这条评论？</span><button class="mini-btn" onclick="event.stopPropagation();cancelDeleteComment('${r.id}',${ci})">取消</button><button class="mini-btn danger" onclick="event.stopPropagation();confirmDeleteComment('${r.id}',${ci})">确认</button></span>`:''}</div>`).join('');
+    const commentsHtml=comments.map((c,ci)=>`<div class="comment-item"><span class="comment-name">${c.name}</span><span class="comment-text">${c.text}</span>${c.time?`<span class="comment-time">${c.time}</span>`:''}${(myName&&c.name===myName)?`<span class="comment-action"><button class="comment-del" onclick="event.stopPropagation();requestDeleteComment('${r.id}',${ci})" aria-label="删除评论">×</button><span class="comment-del-confirm hidden" id="cdel-${r.id}-${ci}"><span class="mini-tip">确认删除？</span><button class="mini-btn" onclick="event.stopPropagation();cancelDeleteComment('${r.id}',${ci})">取消</button><button class="mini-btn danger" onclick="event.stopPropagation();confirmDeleteComment('${r.id}',${ci})">删除</button></span></span>`:''}</div>`).join('');
     div.innerHTML=`
       <div class="feed-header"><span class="feed-name">${r.name}</span></div>
       ${tasksHtml}${workoutHtml}${foodHtml}${summaryHtml}
