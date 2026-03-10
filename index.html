@@ -1946,15 +1946,12 @@
       requestAnimationFrame(updateFoodCollapseLayout);
       return;
     }
-
-    const rowTops=[];
-    tags.forEach(tag=>{
-      const top=Math.round(tag.offsetTop);
-      if(!rowTops.some(v=>Math.abs(v-top)<=1)) rowTops.push(top);
-    });
-    rowTops.sort((a,b)=>a-b);
-
-    if(rowTops.length<=2){
+    const gridStyle=getComputedStyle(grid);
+    const cols=(gridStyle.gridTemplateColumns||'').split(' ').filter(Boolean).length||1;
+    const rowGap=parseFloat(gridStyle.rowGap||gridStyle.gap||'8')||8;
+    const tagH=tags[0].offsetHeight||40;
+    const needCollapse=tags.length>(cols*2);
+    if(!needCollapse){
       foodExpanded=false;
       btn.style.display='none';
       wrap.classList.remove('collapsed');
@@ -1962,16 +1959,7 @@
       wrap.style.maxHeight='none';
       return;
     }
-
-    const secondRowTop=rowTops[1];
-    let secondRowBottom=0;
-    tags.forEach(tag=>{
-      const top=Math.round(tag.offsetTop);
-      if(Math.abs(top-secondRowTop)<=1){
-        secondRowBottom=Math.max(secondRowBottom, tag.offsetTop + tag.offsetHeight);
-      }
-    });
-    const collapsedH=Math.ceil(secondRowBottom+2);
+    const collapsedH=Math.ceil(tagH*2 + rowGap + 2);
     wrap.style.setProperty('--food-collapsed-h', `${collapsedH}px`);
     btn.style.display='inline-flex';
 
