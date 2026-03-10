@@ -58,9 +58,10 @@
     z-index: 999; padding: 40px 24px;
   }
   .identity-overlay.hidden { display: none; }
-  .id-title { font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 900; color: #f7f4ef; margin-bottom: 6px; letter-spacing: 0; }
-  .id-title span { color: var(--accent); font-weight: 900; text-shadow: 0 0 12px rgba(240,165,0,0.35); }
-  .id-title-rest { margin-left: 8px; letter-spacing: 0; }
+  .id-title { font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 500; color: #f7f4ef; margin-bottom: 6px; letter-spacing: 0; }
+  .id-title .id-main { color: var(--accent); font-weight: 900; text-shadow: 0 0 12px rgba(240,165,0,0.35); }
+  .id-title .id-sep { color: #9a9088; font-weight: 500; margin: 0 8px; }
+  .id-title .id-rest { color: #f7f4ef; font-weight: 500; letter-spacing: 0; }
   .id-sub { font-family: 'Montserrat', sans-serif; font-size: 11px; color: #9a9088; letter-spacing: 3px; margin-bottom: 44px; text-transform: uppercase; }
   .id-question { font-size: 15px; color: #9a9088; font-weight: 500; margin-bottom: 14px; }
   .id-step { width: 100%; max-width: 320px; display: flex; flex-direction: column; align-items: center; }
@@ -917,7 +918,7 @@
 
 <!-- ── Identity overlay ── -->
 <div class="identity-overlay" id="identityOverlay">
-  <div class="id-title"><span>来来回回</span><span class="id-title-rest">日记</span></div>
+  <div class="id-title"><span class="id-main">来来回回</span><span class="id-sep">·</span><span class="id-rest">日记</span></div>
   <div class="id-sub">JLLHH DAILY</div>
   <div class="id-step" id="stepPw">
     <div class="id-question">输入密码进入</div>
