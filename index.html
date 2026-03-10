@@ -1209,12 +1209,16 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const SUPABASE_URL = 'https://lylyavnwhtutaamqciht.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_x0zMUDUjy0_h_Vz5NC5wwA_6E6Wksna';
   const REACTIONS = ['❤️','💪','🔥','😂'];
   const priOrder = {high:0, mid:1, low:2};
   const CORRECT_PW = 'jllhh1314';
+  let sbClient = null;
+  let realtimeChannel = null;
+  let realtimeRefreshTimer = null;
 
   // ── Identity ──────────────────────────────
   let myName = localStorage.getItem('jh-identity') || '';
@@ -1298,6 +1302,39 @@
       }
     }
     document.getElementById('progressLabel').innerHTML = myName ? `<span style="color:var(--yellow);font-weight:800;font-family:'Montserrat',sans-serif">${myName}</span> ${dateLabel}完成度` : `${dateLabel}完成度`;
+  }
+
+  function queueRealtimeRefresh() {
+    if (realtimeRefreshTimer) clearTimeout(realtimeRefreshTimer);
+    realtimeRefreshTimer = setTimeout(async () => {
+      try {
+        if (!myName) return;
+        await loadTasks();
+        const activePage = (document.querySelector('.page.active') || {}).id || '';
+        if (activePage === 'page-live') await loadLive();
+        if (activePage === 'page-records') await loadRecordsPage();
+      } catch (e) {
+        console.warn('realtime refresh error', e);
+      }
+    }, 250);
+  }
+
+  function initRealtimeSync() {
+    try {
+      if (!window.supabase || typeof window.supabase.createClient !== 'function') return;
+      if (!sbClient) sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      if (realtimeChannel) {
+        sbClient.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+      }
+      realtimeChannel = sbClient
+        .channel('jh-realtime-sync')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_progress' }, () => queueRealtimeRefresh())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_logs' }, () => queueRealtimeRefresh())
+        .subscribe();
+    } catch (e) {
+      console.warn('init realtime failed', e);
+    }
   }
 
   // ── Utils ──────────────────────────────────
@@ -2841,6 +2878,8 @@
       setTimeout(()=>{ eventsBarMoved=false; }, 120);
     }, {passive:true});
   })();
+
+  initRealtimeSync();
 </script>
 </body>
 </html>
