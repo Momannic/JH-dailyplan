@@ -1929,6 +1929,8 @@
   function getSelectedFoods(){ return[...document.querySelectorAll('#foodAllGrid .food-tag.selected')].map(t=>t.textContent); }
 
   function toggleFoodExpand(){
+    const wrap=document.getElementById('foodTagsCollapsible');
+    if(wrap) void wrap.offsetHeight;
     foodExpanded=!foodExpanded;
     updateFoodCollapseLayout();
   }
@@ -1957,6 +1959,7 @@
       btn.style.display='none';
       wrap.classList.remove('collapsed');
       wrap.classList.add('expanded');
+      wrap.style.maxHeight='none';
       return;
     }
 
@@ -1968,16 +1971,19 @@
         secondRowBottom=Math.max(secondRowBottom, tag.offsetTop + tag.offsetHeight);
       }
     });
-    wrap.style.setProperty('--food-collapsed-h', `${Math.ceil(secondRowBottom+2)}px`);
+    const collapsedH=Math.ceil(secondRowBottom+2);
+    wrap.style.setProperty('--food-collapsed-h', `${collapsedH}px`);
     btn.style.display='inline-flex';
 
     if(foodExpanded){
       wrap.classList.remove('collapsed');
       wrap.classList.add('expanded');
+      wrap.style.maxHeight='none';
       btn.textContent='收起 ▲';
     } else {
       wrap.classList.remove('expanded');
       wrap.classList.add('collapsed');
+      wrap.style.maxHeight=`${collapsedH}px`;
       btn.textContent='展开更多 ▾';
     }
   }
