@@ -328,11 +328,23 @@
   .diary-text { line-height:1.7; }
   .diary-editor.hidden, .diary-delete-confirm.hidden, .diary-more-menu.hidden, .comment-del-confirm.hidden { display:none; }
   .diary-editor-ta {
-    width:100%; min-height:90px; resize:vertical;
-    border:1.5px solid var(--border); border-radius:10px;
-    background:var(--surface); color:var(--text);
-    padding:10px 12px; font-size:14px; line-height:1.6;
+    width:100%;
+    min-height:72px;
+    box-sizing:border-box;
+    display:block;
+    -webkit-appearance:none;
+    appearance:none;
+    resize:none;
+    overflow-y:hidden;
+    border:1.5px solid var(--border);
+    border-radius:10px;
+    background:var(--surface2);
+    color:var(--text);
+    padding:12px 14px;
+    font-size:14px;
+    line-height:1.7;
     font-family:'Noto Sans SC',sans-serif; outline:none;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
   }
   .diary-editor-actions, .diary-delete-confirm { display:flex; gap:8px; margin-top:8px; align-items:center; flex-wrap:wrap; }
   .mini-btn {
@@ -2529,8 +2541,10 @@
     const ta=document.getElementById(`sum-ta-${logId}-${idx}`);
     if(!textEl||!editEl||!ta) return;
     ta.value=(textEl.textContent||'').replace(/^💬\s*/,'').trim();
+    ta.oninput=()=>autoResizeDiaryTextarea(ta);
     textEl.classList.add('hidden');
     editEl.classList.remove('hidden');
+    autoResizeDiaryTextarea(ta);
   }
   function cancelDiaryEdit(logId, idx){
     const textEl=document.getElementById(`sum-text-${logId}-${idx}`);
@@ -2556,6 +2570,14 @@
       upsertAllLogsRecord(updated);
       rerenderLogCard(updated);
     }catch(e){ alert('编辑失败，请重试'); }
+  }
+  function autoResizeDiaryTextarea(el){
+    if(!el) return;
+    el.style.height='auto';
+    const maxH=420;
+    const next=Math.min(el.scrollHeight, maxH);
+    el.style.height=next+'px';
+    el.style.overflowY=el.scrollHeight>maxH?'auto':'hidden';
   }
   function openDeleteDiaryConfirm(logId, idx){
     closeDiaryMenus();
