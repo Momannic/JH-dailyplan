@@ -28,6 +28,7 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  .hidden { display: none !important; }
 
   body {
     background: var(--bg); color: var(--text);
@@ -291,6 +292,47 @@
   .feed-card.past:hover { opacity: 1; }
   .feed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
   .feed-name { font-weight: 900; font-size: 16px; }
+  .diary-more-wrap { position: relative; margin-left: auto; }
+  .diary-more-btn {
+    width: 24px; height: 24px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--muted); font-size: 14px; line-height: 1;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .diary-more-menu {
+    position: absolute; right: 0; top: 32px; z-index: 20;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; min-width: 96px; overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  }
+  .diary-more-menu.hidden { display: none; }
+  .diary-more-item {
+    width: 100%; border: none; background: transparent; color: var(--text);
+    font-size: 13px; text-align: left; padding: 9px 10px; cursor: pointer;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+  .diary-more-item + .diary-more-item { border-top: 1px solid var(--border); }
+  .diary-more-item.danger { color: var(--red); }
+  .diary-top { display:flex; align-items:flex-start; gap:8px; margin-bottom:4px; }
+  .diary-time { font-family:'Montserrat',sans-serif; font-size:10px; color:var(--muted); }
+  .diary-text { line-height:1.7; }
+  .diary-editor.hidden, .diary-delete-confirm.hidden, .diary-more-menu.hidden, .comment-del-confirm.hidden { display:none; }
+  .diary-editor-ta {
+    width:100%; min-height:90px; resize:vertical;
+    border:1.5px solid var(--border); border-radius:10px;
+    background:var(--surface); color:var(--text);
+    padding:10px 12px; font-size:14px; line-height:1.6;
+    font-family:'Noto Sans SC',sans-serif; outline:none;
+  }
+  .diary-editor-actions, .diary-delete-confirm, .comment-del-confirm { display:flex; gap:8px; margin-top:8px; align-items:center; flex-wrap:wrap; }
+  .mini-btn {
+    border:1px solid var(--border); background:var(--surface); color:var(--muted);
+    border-radius:8px; font-size:12px; padding:5px 10px; cursor:pointer;
+    font-family:'Noto Sans SC',sans-serif;
+  }
+  .mini-btn.primary { color:var(--text); border-color:#d4cdc4; }
+  .mini-btn.danger { color:var(--red); border-color:#f0c5c5; }
+  .mini-tip { font-size:12px; color:var(--muted); }
   .feed-date { font-family: 'Montserrat', sans-serif; font-size: 11px; color: var(--muted); }
   .feed-section-title { font-family: 'Montserrat', sans-serif; font-size: 10px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; margin-top: 10px; }
   .feed-tasks { margin-bottom: 4px; }
@@ -319,6 +361,12 @@
   .comment-name { font-weight: 900; font-size: 13px; flex-shrink: 0; padding-top: 1px; }
   .comment-text { font-size: 13px; line-height: 1.5; flex: 1; }
   .comment-time { font-family: 'Montserrat', sans-serif; font-size: 10px; color: var(--muted); flex-shrink: 0; padding-top: 2px; }
+  .comment-del {
+    width: 18px; height: 18px; border: 1px solid var(--border);
+    border-radius: 50%; background: transparent; color: var(--muted);
+    font-size: 12px; line-height: 1; display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; margin-top: 1px;
+  }
   .comment-input-row { display: flex; gap: 8px; margin-top: 8px; }
   .comment-input { flex: 1; padding: 9px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; font-family: 'Noto Sans SC', sans-serif; outline: none; }
   .comment-input:focus { border-color: var(--text); }
@@ -841,8 +889,8 @@
 
 <!-- ── Identity overlay ── -->
 <div class="identity-overlay" id="identityOverlay">
-  <div class="id-title"><span>JH</span> 每日计划</div>
-  <div class="id-sub">daily · tracker</div>
+  <div class="id-title"><span>来来回回</span> 日记</div>
+  <div class="id-sub">JLLHH DAILY</div>
   <div class="id-step" id="stepPw">
     <div class="id-question">输入密码进入</div>
     <input class="pw-input" id="pwInput" type="password" placeholder="••••••••"
@@ -1415,7 +1463,14 @@
             if(dayTasks){
               dayTasks.filter(t=>!t.done).forEach(t=>{
                 const oid=t.originId||t.id;
-                if(!seen.has(oid)){ seen.add(oid); const od=new Date(); od.setDate(od.getDate()-i); const originDate=`${od.getFullYear()}-${String(od.getMonth()+1).padStart(2,'0')}-${String(od.getDate()).padStart(2,'0')}`; carried.push({...t,id:Date.now().toString()+Math.random().toString().slice(2),originId:oid,pri:'high',daysLate:(t.daysLate||0)+i,originDate:t.originDate||originDate,done:false}); }
+                if(!seen.has(oid)){
+                  seen.add(oid);
+                  const od=new Date(); od.setDate(od.getDate()-i);
+                  const fallbackOrigin=`${od.getFullYear()}-${String(od.getMonth()+1).padStart(2,'0')}-${String(od.getDate()).padStart(2,'0')}`;
+                  const originDate=t.originDate||fallbackOrigin;
+                  const daysLate=Math.max(1, Math.floor((new Date(todayStr())-new Date(originDate))/86400000));
+                  carried.push({...t,id:Date.now().toString()+Math.random().toString().slice(2),originId:oid,pri:'high',daysLate,originDate,done:false});
+                }
               });
               if(carried.length>0) break; // 找到最近一天有记录的就停
             }
@@ -1564,6 +1619,11 @@
     const t=tasks.find(t=>String(t.id)===String(id)); 
     if(t){
       t.done=!t.done;
+      if(t.done){
+        // 完成任务即终止拖延链，避免次日继续在旧链条上累加
+        delete t.originDate;
+        delete t.daysLate;
+      }
       lastTaskLocalEditAt = Date.now();
       saveTasks();
       renderTasks();
@@ -2318,6 +2378,8 @@
     const div=document.createElement('div'); div.className='feed-card'+(isPastDay?' past':''); div.id=`feed-${r.id}`;
     const tasks=r.tasks||[], done=tasks.filter(t=>t.done).length, total=tasks.length;
     const pct=total===0?0:Math.round(done/total*100);
+    const summaries=r.summaries&&r.summaries.length?r.summaries:(r.summary?[{text:r.summary,time:''}]:[]);
+    const canEditDiary = !!myName && myName===r.name;
     const tasksHtml=tasks.length?`
       <div class="feed-section-title">📋 计划 ${done}/${total} · ${pct}%</div>
       <div class="feed-tasks">${[...tasks].sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;return priOrder[a.pri]-priOrder[b.pri];}).map(t=>`
@@ -2344,17 +2406,36 @@
           </div>`).join('')}
       </div>`:''
     const foodHtml=(r.food_tags&&r.food_tags.length)||r.meals?`<div class="feed-section-title">🍽️ 饮食${r.meals?' · '+(r.meals===4?'4顿+':r.meals+'顿'):''}</div><div class="feed-tags">${(r.food_tags||[]).map(f=>`<span class="feed-food-tag">${f}</span>`).join('')}</div>`:'';
-    // 兼容新版summaries数组和旧版单条summary
-    const summaries=r.summaries&&r.summaries.length?r.summaries:(r.summary?[{text:r.summary,time:''}]:[]);
-    const summaryHtml=summaries.length?summaries.map(s=>`
-      <div class="feed-summary">
-        ${s.time?`<div style="font-family:'Montserrat',sans-serif;font-size:10px;color:var(--muted);margin-bottom:4px">${s.time}</div>`:''}
-        <div>💬 ${s.text}</div>
+    const summaryHtml=summaries.length?summaries.map((s,si)=>`
+      <div class="feed-summary" id="sum-${r.id}-${si}">
+        <div class="diary-top">
+          ${s.time?`<div class="diary-time">${s.time}</div>`:'<div></div>'}
+          ${canEditDiary?`<div class="diary-more-wrap">
+            <button class="diary-more-btn" onclick="event.stopPropagation();toggleDiaryMenu('${r.id}',${si})" aria-label="更多操作">⋯</button>
+            <div class="diary-more-menu hidden" id="dm-${r.id}-${si}">
+              <button class="diary-more-item" onclick="event.stopPropagation();startEditDiary('${r.id}',${si})">编辑</button>
+              <button class="diary-more-item danger" onclick="event.stopPropagation();openDeleteDiaryConfirm('${r.id}',${si})">删除</button>
+            </div>
+          </div>`:''}
+        </div>
+        <div class="diary-text" id="sum-text-${r.id}-${si}">💬 ${s.text}</div>
+        <div class="diary-editor hidden" id="sum-edit-${r.id}-${si}">
+          <textarea class="diary-editor-ta" id="sum-ta-${r.id}-${si}"></textarea>
+          <div class="diary-editor-actions">
+            <button class="mini-btn primary" onclick="event.stopPropagation();saveDiaryEdit('${r.id}',${si})">保存</button>
+            <button class="mini-btn" onclick="event.stopPropagation();cancelDiaryEdit('${r.id}',${si})">取消</button>
+          </div>
+        </div>
+        <div class="diary-delete-confirm hidden" id="sum-del-${r.id}-${si}">
+          <span class="mini-tip">确认删除这条日记？</span>
+          <button class="mini-btn" onclick="event.stopPropagation();cancelDeleteDiary('${r.id}',${si})">取消</button>
+          <button class="mini-btn danger" onclick="event.stopPropagation();confirmDeleteDiary('${r.id}',${si})">确认</button>
+        </div>
       </div>`).join(''):'';
     const reactions=r.reactions||{};
     const reactionHtml=REACTIONS.map(emoji=>{ const count=reactions[emoji]||0; return `<button class="reaction-btn ${count>0?'reacted':''}" onclick="toggleReaction('${r.id}','${emoji}')">${emoji}<span class="reaction-count">${count>0?' '+count:''}</span></button>`; }).join('');
     const comments=Array.isArray(r.comments)?r.comments:Object.entries(r.comments||{}).map(([name,text])=>({name,text,time:''}));
-    const commentsHtml=comments.map(c=>`<div class="comment-item"><span class="comment-name">${c.name}</span><span class="comment-text">${c.text}</span>${c.time?`<span class="comment-time">${c.time}</span>`:''}</div>`).join('');
+    const commentsHtml=comments.map((c,ci)=>`<div class="comment-item"><span class="comment-name">${c.name}</span><span class="comment-text">${c.text}</span>${c.time?`<span class="comment-time">${c.time}</span>`:''}${(myName&&c.name===myName)?`<button class="comment-del" onclick="event.stopPropagation();requestDeleteComment('${r.id}',${ci})" aria-label="删除评论">×</button><span class="comment-del-confirm hidden" id="cdel-${r.id}-${ci}"><span class="mini-tip">确认删除这条评论？</span><button class="mini-btn" onclick="event.stopPropagation();cancelDeleteComment('${r.id}',${ci})">取消</button><button class="mini-btn danger" onclick="event.stopPropagation();confirmDeleteComment('${r.id}',${ci})">确认</button></span>`:''}</div>`).join('');
     div.innerHTML=`
       <div class="feed-header"><span class="feed-name">${r.name}</span></div>
       ${tasksHtml}${workoutHtml}${foodHtml}${summaryHtml}
@@ -2381,6 +2462,96 @@
     } catch(e){console.error(e);}
   }
 
+  function closeDiaryMenus(){
+    document.querySelectorAll('.diary-more-menu').forEach(m=>m.classList.add('hidden'));
+  }
+  function toggleDiaryMenu(logId, idx){
+    const m=document.getElementById(`dm-${logId}-${idx}`);
+    if(!m) return;
+    const willOpen=m.classList.contains('hidden');
+    closeDiaryMenus();
+    if(willOpen) m.classList.remove('hidden');
+  }
+  function getDiarySummariesFromRecord(r){
+    return r.summaries&&r.summaries.length?[...r.summaries]:(r.summary?[{text:r.summary,time:''}]:[]);
+  }
+  function upsertAllLogsRecord(updated){
+    const idx=allLogs.findIndex(x=>x.id===updated.id);
+    if(idx>=0) allLogs[idx]=updated;
+  }
+  function rerenderLogCard(updated){
+    const container=document.getElementById('feedList');
+    const oldCard=document.getElementById(`feed-${updated.id}`);
+    if(!container||!oldCard) return;
+    const tmp=document.createElement('div');
+    renderFeedCard(updated,tmp,isPast(updated.date)&&!isToday(updated.date));
+    container.replaceChild(tmp.firstChild,oldCard);
+  }
+  function startEditDiary(logId, idx){
+    closeDiaryMenus();
+    const card=allLogs.find(x=>String(x.id)===String(logId));
+    if(!card || !myName || card.name!==myName) return;
+    document.querySelectorAll('.diary-editor').forEach(el=>el.classList.add('hidden'));
+    const textEl=document.getElementById(`sum-text-${logId}-${idx}`);
+    const editEl=document.getElementById(`sum-edit-${logId}-${idx}`);
+    const ta=document.getElementById(`sum-ta-${logId}-${idx}`);
+    if(!textEl||!editEl||!ta) return;
+    ta.value=(textEl.textContent||'').replace(/^💬\s*/,'').trim();
+    textEl.classList.add('hidden');
+    editEl.classList.remove('hidden');
+  }
+  function cancelDiaryEdit(logId, idx){
+    const textEl=document.getElementById(`sum-text-${logId}-${idx}`);
+    const editEl=document.getElementById(`sum-edit-${logId}-${idx}`);
+    if(textEl) textEl.classList.remove('hidden');
+    if(editEl) editEl.classList.add('hidden');
+  }
+  async function saveDiaryEdit(logId, idx){
+    try{
+      const ta=document.getElementById(`sum-ta-${logId}-${idx}`);
+      if(!ta) return;
+      const text=ta.value.trim();
+      if(!text){ alert('内容不能为空'); return; }
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${logId}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      const records=await res.json(); if(!records.length) return;
+      const r=records[0];
+      if(!myName || r.name!==myName) return;
+      const summaries=getDiarySummariesFromRecord(r);
+      if(idx<0 || idx>=summaries.length) return;
+      summaries[idx]={...summaries[idx], text};
+      await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${logId}`,{method:'PATCH',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`},body:JSON.stringify({summaries,summary:''})});
+      const updated={...r,summaries,summary:''};
+      upsertAllLogsRecord(updated);
+      rerenderLogCard(updated);
+    }catch(e){ alert('编辑失败，请重试'); }
+  }
+  function openDeleteDiaryConfirm(logId, idx){
+    closeDiaryMenus();
+    const card=allLogs.find(x=>String(x.id)===String(logId));
+    if(!card || !myName || card.name!==myName) return;
+    const box=document.getElementById(`sum-del-${logId}-${idx}`);
+    if(box) box.classList.remove('hidden');
+  }
+  function cancelDeleteDiary(logId, idx){
+    const box=document.getElementById(`sum-del-${logId}-${idx}`);
+    if(box) box.classList.add('hidden');
+  }
+  async function confirmDeleteDiary(logId, idx){
+    try{
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${logId}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      const records=await res.json(); if(!records.length) return;
+      const r=records[0];
+      if(!myName || r.name!==myName) return;
+      const summaries=getDiarySummariesFromRecord(r);
+      if(idx<0 || idx>=summaries.length) return;
+      summaries.splice(idx,1);
+      await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${logId}`,{method:'PATCH',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`},body:JSON.stringify({summaries,summary:''})});
+      const updated={...r,summaries,summary:''};
+      upsertAllLogsRecord(updated);
+      rerenderLogCard(updated);
+    }catch(e){ alert('删除失败，请重试'); }
+  }
+
   async function sendComment(logId){
     const input=document.getElementById(`ci-${logId}`),text=input.value.trim(); if(!text) return;
     if(!myName){alert('请先选择你是谁！');return;}
@@ -2398,6 +2569,42 @@
       document.getElementById(`ci-${logId}`).value='';
     } catch(e){alert('发送失败，请重试');}
   }
+
+  function requestDeleteComment(logId, commentIndex){
+    const card=allLogs.find(x=>String(x.id)===String(logId));
+    if(!card) return;
+    const comments=Array.isArray(card.comments)?card.comments:Object.entries(card.comments||{}).map(([name,text])=>({name,text,time:''}));
+    const c=comments[commentIndex];
+    if(!c || !myName || c.name!==myName) return;
+    document.querySelectorAll('.comment-del-confirm').forEach(el=>el.classList.add('hidden'));
+    const box=document.getElementById(`cdel-${logId}-${commentIndex}`);
+    if(box) box.classList.remove('hidden');
+  }
+  function cancelDeleteComment(logId, commentIndex){
+    const box=document.getElementById(`cdel-${logId}-${commentIndex}`);
+    if(box) box.classList.add('hidden');
+  }
+  async function confirmDeleteComment(logId, commentIndex){
+    try{
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${logId}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      const records=await res.json(); if(!records.length) return;
+      const r=records[0];
+      let comments=Array.isArray(r.comments)?r.comments:Object.entries(r.comments||{}).map(([name,text])=>({name,text,time:''}));
+      if(commentIndex<0 || commentIndex>=comments.length) return;
+      if(!myName || comments[commentIndex].name!==myName) return;
+      comments.splice(commentIndex,1);
+      await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${logId}`,{method:'PATCH',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`},body:JSON.stringify({comments})});
+      const updated={...r,comments};
+      upsertAllLogsRecord(updated);
+      rerenderLogCard(updated);
+    }catch(e){ alert('删除评论失败，请重试'); }
+  }
+
+  document.addEventListener('click', ()=>{
+    closeDiaryMenus();
+    document.querySelectorAll('.comment-del-confirm').forEach(el=>el.classList.add('hidden'));
+    document.querySelectorAll('.diary-delete-confirm').forEach(el=>el.classList.add('hidden'));
+  });
 
   async function exportCSV(){
     const rows=[['日期','姓名','计划完成','训练内容','饮食','心得']];
@@ -2449,6 +2656,8 @@
   // ══ 重要日程 ══
   let eventsCalYear=new Date().getFullYear(), eventsCalMonth=new Date().getMonth();
   let eventsSelectedDate=''; // 'M/D' 格式
+  let eventsBarMoved=false;
+  let eventsBarTouchY=0;
 
   async function loadEvents(){
     try {
@@ -2515,6 +2724,7 @@
   }
 
   function toggleEventsBanner(){
+    if(eventsBarMoved) return;
     document.getElementById('eventsBanner').classList.toggle('open');
   }
 
@@ -2560,6 +2770,23 @@
 
   loadEvents();
   setInterval(loadEvents, 60000);
+
+  // 避免在移动端纵向滚动时误触发“重要日程”展开，造成滚动卡顿/回顶感
+  (function bindEventsBarTouchGuard(){
+    const bar=document.querySelector('.events-bar');
+    if(!bar) return;
+    bar.addEventListener('touchstart', (e)=>{
+      eventsBarMoved=false;
+      eventsBarTouchY=e.touches&&e.touches[0]?e.touches[0].clientY:0;
+    }, {passive:true});
+    bar.addEventListener('touchmove', (e)=>{
+      const y=e.touches&&e.touches[0]?e.touches[0].clientY:eventsBarTouchY;
+      if(Math.abs(y-eventsBarTouchY)>8) eventsBarMoved=true;
+    }, {passive:true});
+    bar.addEventListener('touchend', ()=>{
+      setTimeout(()=>{ eventsBarMoved=false; }, 120);
+    }, {passive:true});
+  })();
 </script>
 </body>
 </html>
