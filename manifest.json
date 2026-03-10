@@ -1,0 +1,9 @@
+{
+  "name": "来来回回日记",
+  "short_name": "来来回回日记",
+  "description": "来来回回日记 · Daily Journal",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f7f4ef",
+  "theme_color": "#1a1614"
+}
