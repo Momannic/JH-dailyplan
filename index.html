@@ -49,8 +49,6 @@
   }
   body.app-in { animation: appFadeIn 240ms ease-out; }
   @keyframes appFadeIn { from { opacity: 0; } to { opacity: 1; } }
-  body.app-in { animation: appFadeIn 240ms ease-out; }
-  @keyframes appFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
   /* numbers/latin → Montserrat, Chinese → Noto Sans SC */
   .mono { font-family: 'Montserrat', sans-serif; }
@@ -60,8 +58,52 @@
     position: fixed; inset: 0; background: var(--text);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     z-index: 999; padding: 40px 24px;
+    overflow: hidden;
+  }
+  .identity-overlay::before,
+  .identity-overlay::after {
+    content: '';
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(18px);
+    opacity: 0.32;
+    pointer-events: none;
+  }
+  .identity-overlay::before {
+    width: 220px;
+    height: 220px;
+    top: 12%;
+    left: -70px;
+    background: radial-gradient(circle, rgba(240,165,0,0.42), rgba(240,165,0,0));
+    animation: overlayGlow 5.6s ease-in-out infinite;
+  }
+  .identity-overlay::after {
+    width: 180px;
+    height: 180px;
+    right: -30px;
+    bottom: 14%;
+    background: radial-gradient(circle, rgba(255,255,255,0.14), rgba(255,255,255,0));
+    animation: overlayGlow 6.4s ease-in-out infinite reverse;
   }
   .identity-overlay.hidden { display: none; }
+  @keyframes overlayGlow {
+    0%,100% { transform: translate3d(0,0,0) scale(1); opacity: 0.24; }
+    50% { transform: translate3d(0,-10px,0) scale(1.08); opacity: 0.4; }
+  }
+  .identity-panel {
+    width: 100%;
+    max-width: 360px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: identityPanelIn 420ms cubic-bezier(0.2,0.9,0.2,1);
+  }
+  @keyframes identityPanelIn {
+    from { opacity: 0; transform: translateY(18px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
   .id-title { font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 500; color: #f7f4ef; margin-bottom: 6px; letter-spacing: 0; }
   .id-title .id-main { color: var(--accent); font-weight: 900; text-shadow: 0 0 12px rgba(240,165,0,0.35); }
   .id-title .id-sep { color: #9a9088; font-weight: 500; margin: 0 8px; }
@@ -69,34 +111,86 @@
   .id-sub { font-family: 'Montserrat', sans-serif; font-size: 11px; color: #9a9088; letter-spacing: 3px; margin-bottom: 44px; text-transform: uppercase; }
   .id-question { font-size: 15px; color: #9a9088; font-weight: 500; margin-bottom: 14px; }
   .id-step { width: 100%; max-width: 320px; display: flex; flex-direction: column; align-items: center; }
-  .id-step.hidden { display: none; }
-  .pw-input {
-    width: 100%; padding: 16px 18px; border-radius: 14px;
-    border: 2px solid #3a3632; background: #242220;
-    color: #f7f4ef; font-size: 20px; font-family: 'Montserrat', sans-serif;
-    outline: none; text-align: center; letter-spacing: 6px; margin-bottom: 12px;
-    transition: border-color 0.2s;
-  }
-  .pw-input:focus { border-color: var(--yellow); }
-  .pw-input.error { border-color: var(--red); animation: shake 0.3s; }
-  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
-  .pw-btn {
-    width: 100%; padding: 14px; border-radius: 14px; border: none;
-    background: var(--yellow); color: var(--text);
-    font-size: 16px; font-weight: 700; font-family: 'Noto Sans SC', sans-serif;
-    cursor: pointer; transition: all 0.2s; margin-bottom: 8px;
-  }
-  .pw-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-  .pw-error { font-size: 13px; color: var(--red); height: 18px; }
-  .id-btns { display: flex; gap: 16px; width: 100%; max-width: 320px; }
+  .id-btns { display: flex; gap: 16px; width: 100%; max-width: 320px; margin-top: 4px; }
   .id-btn {
-    flex: 1; padding: 20px; border-radius: 18px;
-    border: 2px solid #3a3632; background: #242220;
-    color: #9a9088; font-size: 22px; font-weight: 900;
+    flex: 1;
+    padding: 20px;
+    border-radius: 18px;
+    border: 1.5px solid #3a3632;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+      #242220;
+    color: #9a9088;
+    font-size: 22px;
+    font-weight: 900;
     font-family: 'Montserrat', sans-serif; cursor: pointer;
-    transition: all 0.2s; text-align: center;
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease, background 180ms ease;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
   }
-  .id-btn:hover { border-color: var(--yellow); color: var(--yellow); background: var(--yellow-soft); transform: translateY(-2px); }
+  .id-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.2), transparent 80%);
+    transform: translateX(-130%);
+    transition: transform 460ms ease;
+  }
+  .id-btn:hover::after,
+  .id-btn.active::after { transform: translateX(130%); }
+  .id-btn:hover { border-color: rgba(240,165,0,0.5); color: #f7f4ef; transform: translateY(-2px); }
+  .id-btn.active {
+    border-color: rgba(240,165,0,0.88);
+    color: var(--yellow);
+    background:
+      linear-gradient(180deg, rgba(240,165,0,0.16), rgba(240,165,0,0.05)),
+      #242220;
+    box-shadow: 0 12px 26px rgba(240,165,0,0.18), inset 0 0 0 1px rgba(255,255,255,0.06);
+    transform: translateY(-2px);
+  }
+  .id-confirm {
+    width: 100%;
+    margin-top: 18px;
+    padding: 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(240,165,0,0.22);
+    background: linear-gradient(180deg, #f5b400, #e6a100);
+    color: #171412;
+    font-size: 16px;
+    font-weight: 800;
+    font-family: 'Noto Sans SC', sans-serif;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 180ms ease, opacity 180ms ease, box-shadow 180ms ease;
+    box-shadow: 0 14px 28px rgba(240,165,0,0.22);
+  }
+  .id-confirm::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 15%, rgba(255,255,255,0.34), transparent 55%);
+    transform: translateX(-140%);
+    animation: confirmSweep 3s ease-in-out infinite;
+  }
+  @keyframes confirmSweep {
+    0%, 20% { transform: translateX(-140%); }
+    55% { transform: translateX(140%); }
+    100% { transform: translateX(140%); }
+  }
+  .id-confirm.hidden {
+    display: block !important;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    box-shadow: none;
+  }
+  .id-confirm:not(.hidden) {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
 
   /* ── Header ── */
   .header { width: 100%; background: var(--text); padding: 18px 20px 14px; display: flex; justify-content: space-between; align-items: center; }
@@ -943,20 +1037,16 @@
 
 <!-- ── Identity overlay ── -->
 <div class="identity-overlay" id="identityOverlay">
-  <div class="id-title"><span class="id-main">来来回回</span><span class="id-sep">·</span><span class="id-rest">日记</span></div>
-  <div class="id-sub">JLLHH DAILY</div>
-  <div class="id-step" id="stepPw">
-    <div class="id-question">输入密码进入</div>
-    <input class="pw-input" id="pwInput" type="password" placeholder="••••••••"
-      onkeydown="if(event.key==='Enter')checkPassword()">
-    <button class="pw-btn" onclick="checkPassword()">进入</button>
-    <div class="pw-error" id="pwError"></div>
-  </div>
-  <div class="id-step hidden" id="stepWho">
-    <div class="id-question" style="margin-bottom:24px">你是谁？</div>
-    <div class="id-btns">
-      <button class="id-btn" onclick="setIdentity('HH')">HH</button>
-      <button class="id-btn" onclick="setIdentity('JLL')">JLL</button>
+  <div class="identity-panel">
+    <div class="id-title"><span class="id-main">来来回回</span><span class="id-sep">·</span><span class="id-rest">日记</span></div>
+    <div class="id-sub">JLLHH DAILY</div>
+    <div class="id-step" id="identityStep">
+      <div class="id-question" style="margin-bottom:24px">选择身份进入</div>
+      <div class="id-btns">
+        <button class="id-btn" id="identityBtnHH" onclick="selectIdentityOption('HH')">HH</button>
+        <button class="id-btn" id="identityBtnJLL" onclick="selectIdentityOption('JLL')">JLL</button>
+      </div>
+      <button class="id-confirm hidden" id="identityConfirmBtn" onclick="confirmIdentity()">确定进入</button>
     </div>
   </div>
 </div>
@@ -1225,31 +1315,33 @@
   const SUPABASE_KEY = 'sb_publishable_x0zMUDUjy0_h_Vz5NC5wwA_6E6Wksna';
   const REACTIONS = ['❤️','💪','🔥','😂'];
   const priOrder = {high:0, mid:1, low:2};
-  const CORRECT_PW = 'jllhh1314';
   let sbClient = null;
   let realtimeChannel = null;
   let realtimeRefreshTimer = null;
 
   // ── Identity ──────────────────────────────
   let myName = localStorage.getItem('jh-identity') || '';
-  let pwPassed = sessionStorage.getItem('jh-pw') === '1';
+  let pendingIdentity = myName || '';
 
-  function checkPassword() {
-    const val = document.getElementById('pwInput').value;
-    const errEl = document.getElementById('pwError');
-    if (val === CORRECT_PW) {
-      sessionStorage.setItem('jh-pw','1'); pwPassed = true; errEl.textContent = '';
-      if (myName) {
-        document.getElementById('identityOverlay').classList.add('hidden');
-        updateProgressLabel();
-        triggerMainEnterMotion();
-        requestAnimationFrame(updateFoodCollapseLayout);
-      }
-      else { document.getElementById('stepPw').classList.add('hidden'); document.getElementById('stepWho').classList.remove('hidden'); }
-    } else {
-      const inp = document.getElementById('pwInput');
-      inp.classList.add('error'); errEl.textContent = '密码错误，请重试';
-      setTimeout(()=>{ inp.classList.remove('error'); inp.value=''; }, 600);
+  function selectIdentityOption(name) {
+    pendingIdentity = name;
+    document.getElementById('identityBtnHH')?.classList.toggle('active', name === 'HH');
+    document.getElementById('identityBtnJLL')?.classList.toggle('active', name === 'JLL');
+    document.getElementById('identityConfirmBtn')?.classList.remove('hidden');
+  }
+  function confirmIdentity() {
+    if (!pendingIdentity) return;
+    const changed = myName !== pendingIdentity;
+    myName = pendingIdentity;
+    localStorage.setItem('jh-identity', myName);
+    document.getElementById('identityOverlay').classList.add('hidden');
+    document.getElementById('switchBtn').textContent = myName + ' · 切换';
+    triggerMainEnterMotion();
+    if (changed) refreshAfterIdentityChange();
+    else {
+      updateProgressLabel();
+      loadTasks();
+      requestAnimationFrame(updateFoodCollapseLayout);
     }
   }
   function setIdentity(name) {
@@ -1261,9 +1353,8 @@
     requestAnimationFrame(updateFoodCollapseLayout);
   }
   function switchIdentity() {
-    myName = ''; localStorage.removeItem('jh-identity');
-    document.getElementById('stepPw').classList.add('hidden');
-    document.getElementById('stepWho').classList.remove('hidden');
+    pendingIdentity = myName || '';
+    selectIdentityOption(pendingIdentity);
     document.getElementById('identityOverlay').classList.remove('hidden');
   }
   // 身份切换后刷新所有页面内容
@@ -1293,14 +1384,10 @@
     loadTasks();
   }
   function initIdentity() {
-    if (!pwPassed) { document.getElementById('stepPw').classList.remove('hidden'); document.getElementById('stepWho').classList.add('hidden'); return; }
     if (myName) {
-      document.getElementById('identityOverlay').classList.add('hidden');
       document.getElementById('switchBtn').textContent = myName + ' · 切换';
       updateProgressLabel();
-    } else {
-      document.getElementById('stepPw').classList.add('hidden');
-      document.getElementById('stepWho').classList.remove('hidden');
+      selectIdentityOption(myName);
     }
   }
   function updateProgressLabel() {
