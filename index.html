@@ -47,6 +47,10 @@
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: auto;
   }
+  body.app-in { animation: appFadeIn 240ms ease-out; }
+  @keyframes appFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  body.app-in { animation: appFadeIn 240ms ease-out; }
+  @keyframes appFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
   /* numbers/latin → Montserrat, Chinese → Noto Sans SC */
   .mono { font-family: 'Montserrat', sans-serif; }
@@ -619,6 +623,7 @@
     top: 0;
     z-index: 120;
     box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    padding-top: env(safe-area-inset-top, 0px);
   }
   .events-bar { display:flex; align-items:center; gap:10px; padding: 10px 20px; cursor:pointer; touch-action: pan-y; }
   .events-bar-icon { font-size:13px; flex-shrink:0; }
@@ -643,6 +648,11 @@
   .events-add-text { flex:1; padding:9px 12px; border-radius:10px; border:1.5px solid #333; background:#1a1a1a; color:#f7f4ef; font-size:13px; font-family:'Noto Sans SC',sans-serif; }
   .events-add-text::placeholder { color:#555; }
   .events-add-btn { padding:9px 16px; border-radius:10px; border:none; background:var(--yellow); color:#000; font-size:13px; font-weight:700; cursor:pointer; font-family:'Noto Sans SC',sans-serif; white-space:nowrap; }
+  .main-entering .header,
+  .main-entering .events-banner,
+  .main-entering .page-wrapper,
+  .main-entering .bottom-nav { animation: mainEnter 360ms cubic-bezier(0.2,0.9,0.2,1); }
+  @keyframes mainEnter { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 
   /* ── Mobile-first polish ── */
   @media (max-width: 600px) {
@@ -1229,7 +1239,12 @@
     const errEl = document.getElementById('pwError');
     if (val === CORRECT_PW) {
       sessionStorage.setItem('jh-pw','1'); pwPassed = true; errEl.textContent = '';
-      if (myName) { document.getElementById('identityOverlay').classList.add('hidden'); updateProgressLabel(); }
+      if (myName) {
+        document.getElementById('identityOverlay').classList.add('hidden');
+        updateProgressLabel();
+        triggerMainEnterMotion();
+        requestAnimationFrame(updateFoodCollapseLayout);
+      }
       else { document.getElementById('stepPw').classList.add('hidden'); document.getElementById('stepWho').classList.remove('hidden'); }
     } else {
       const inp = document.getElementById('pwInput');
@@ -1241,7 +1256,9 @@
     myName = name; localStorage.setItem('jh-identity', name);
     document.getElementById('identityOverlay').classList.add('hidden');
     document.getElementById('switchBtn').textContent = name + ' · 切换';
+    triggerMainEnterMotion();
     refreshAfterIdentityChange();
+    requestAnimationFrame(updateFoodCollapseLayout);
   }
   function switchIdentity() {
     myName = ''; localStorage.removeItem('jh-identity');
@@ -1302,6 +1319,12 @@
       }
     }
     document.getElementById('progressLabel').innerHTML = myName ? `<span style="color:var(--yellow);font-weight:800;font-family:'Montserrat',sans-serif">${myName}</span> ${dateLabel}完成度` : `${dateLabel}完成度`;
+  }
+  function triggerMainEnterMotion(){
+    document.body.classList.remove('main-entering');
+    void document.body.offsetWidth;
+    document.body.classList.add('main-entering');
+    setTimeout(()=>document.body.classList.remove('main-entering'), 420);
   }
 
   function queueRealtimeRefresh() {
@@ -1373,6 +1396,7 @@
       renderPlanCalendar();
       // 进一步确保渲染完成后任务列表可见
       setTimeout(()=>{ try{ renderTasks(); }catch(e){} }, 0);
+      requestAnimationFrame(updateFoodCollapseLayout);
     }
     // 移动底栏覆盖指示条
     try{
@@ -1916,12 +1940,15 @@
     if(!wrap||!grid||!btn) return;
     const tags=[...grid.querySelectorAll('.food-tag')];
     if(tags.length===0){ btn.style.display='none'; return; }
+    if(grid.clientWidth===0 || grid.offsetParent===null){
+      requestAnimationFrame(updateFoodCollapseLayout);
+      return;
+    }
 
-    const gridRect=grid.getBoundingClientRect();
     const rowTops=[];
     tags.forEach(tag=>{
-      const top=Math.round(tag.getBoundingClientRect().top-gridRect.top);
-      if(!rowTops.some(v=>Math.abs(v-top)<=2)) rowTops.push(top);
+      const top=Math.round(tag.offsetTop);
+      if(!rowTops.some(v=>Math.abs(v-top)<=1)) rowTops.push(top);
     });
     rowTops.sort((a,b)=>a-b);
 
@@ -1936,10 +1963,9 @@
     const secondRowTop=rowTops[1];
     let secondRowBottom=0;
     tags.forEach(tag=>{
-      const rect=tag.getBoundingClientRect();
-      const top=Math.round(rect.top-gridRect.top);
-      if(Math.abs(top-secondRowTop)<=2){
-        secondRowBottom=Math.max(secondRowBottom, rect.bottom-gridRect.top);
+      const top=Math.round(tag.offsetTop);
+      if(Math.abs(top-secondRowTop)<=1){
+        secondRowBottom=Math.max(secondRowBottom, tag.offsetTop + tag.offsetHeight);
       }
     });
     wrap.style.setProperty('--food-collapsed-h', `${Math.ceil(secondRowBottom+2)}px`);
@@ -2707,6 +2733,8 @@
   // ── Init ─────────────────────────────────
   // 移除过时的 planDateInput 与 flatpickr 初始化，改为使用内联日历
   console.log('=== Initialization started ===');
+  document.body.classList.add('app-in');
+  setTimeout(()=>document.body.classList.remove('app-in'), 320);
   initIdentity();
   updateProgressLabel();
   console.log('Before loadTasks: planDate=', planDate, 'myName=', myName);
