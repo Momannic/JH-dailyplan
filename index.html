@@ -1168,65 +1168,15 @@
 
     <div class="gym-section food-section">
       <div class="sub-label section-title">🍽️ 今日饮食</div>
-      <div class="sub-label" style="margin-top:-4px">吃了几顿？</div>
-      <div class="meals-row">
-        <button class="meal-btn" onclick="selectMeals(this,1)">1顿</button>
-        <button class="meal-btn" onclick="selectMeals(this,2)">2顿</button>
-        <button class="meal-btn" onclick="selectMeals(this,3)">3顿</button>
-        <button class="meal-btn" onclick="selectMeals(this,4)">4顿+</button>
-      </div>
-      <div class="sub-label">吃了什么？</div>
+      <div class="sub-label" style="margin-top:-4px">直接填写今天吃了什么</div>
       <div id="foodCategoryArea">
-        <div class="food-tags-wrap">
-          <div class="food-tags-collapsible collapsed" id="foodTagsCollapsible">
-            <div class="tags-grid food-all-grid" id="foodAllGrid">
-              <button class="tag food-tag" onclick="toggleTag(this)">🍗 鸡胸肉</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍖 鸡腿肉</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥩 牛肉</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🐷 猪肉</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍤 虾</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🐟 鱼肉</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍌 香蕉</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍉 西瓜</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍍 菠萝</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍈 哈密瓜</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍒 荔枝</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🫐 龙眼</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🐉 火龙果</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍒 樱桃</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🫐 黑莓</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🫐 蓝莓</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥦 西兰花</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍅 西红柿</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥬 菠菜</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥬 空心菜</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥬 白菜</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥒 黄瓜</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍚 米饭</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍞 面包</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍝 面条</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥣 燕麦</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥛 牛奶</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🫙 Acai酸奶</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍦 冰淇淋</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🌶️ 辣条</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🥔 薯片</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍬 糖果</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🍫 巧克力</button>
-              <button class="tag food-tag" onclick="toggleTag(this)">🧃 饮料</button>
-            </div>
-          </div>
-          <div class="food-expand-row">
-            <button class="food-expand-btn" id="foodExpandBtn" onclick="toggleFoodExpand()">展开更多 ▾</button>
-          </div>
-          <div class="add-tag-row" style="margin-top:8px">
-            <input class="add-tag-input" id="newFoodInput" placeholder="添加其他…" onkeydown="if(event.key==='Enter')addCustomFood()">
-            <button class="add-tag-btn" onclick="addCustomFood()">添加</button>
-          </div>
+        <div class="add-tag-row" style="margin-top:8px">
+          <input class="add-tag-input" id="newFoodInput" placeholder="例如：鸡胸肉、米饭、香蕉…" onkeydown="if(event.key==='Enter')addCustomFood()">
+          <button class="add-tag-btn" onclick="addCustomFood()">添加</button>
         </div>
         <!-- 已选食物汇总 -->
         <div id="foodSelectedSummary" style="display:none;margin-top:10px;padding:8px 10px;background:var(--surface2);border-radius:10px">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:Montserrat,sans-serif;letter-spacing:1px">已选</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:Montserrat,sans-serif;letter-spacing:1px">已填</div>
           <div id="foodSelectedTags" class="tags-grid" style="gap:6px"></div>
         </div>
         <button class="food-save-btn" id="foodSaveBtn" onclick="saveFoodToDiary()">📝 记入日记</button>
@@ -1371,9 +1321,10 @@
     document.querySelectorAll('#tagsGrid .tag').forEach(t=>t.classList.remove('selected','gym-pending','gym-done'));
     workoutItems=[]; workoutLogged=false;
     renderWorkoutUI();
-    document.querySelectorAll('#foodAllGrid .food-tag.selected').forEach(t=>t.classList.remove('selected')); const fss=document.getElementById('foodSelectedSummary'); if(fss) fss.style.display='none'; foodExpanded=false; updateFoodCollapseLayout();
+    foodEntries=[];
+    updateFoodSummary();
+    const foodInput=document.getElementById('newFoodInput'); if(foodInput) foodInput.value='';
     const foodSaveBtn=document.getElementById('foodSaveBtn'); if(foodSaveBtn){ foodSaveBtn.disabled=false; foodSaveBtn.classList.remove('success'); foodSaveBtn.textContent='📝 记入日记'; }
-    document.querySelectorAll('.meal-btn.active').forEach(t=>t.classList.remove('active'));
     selectedMeals=0; isResting=false;
     // 刷新动态和日记（如果当前在这些页面）
     const livePage=document.getElementById('page-live');
@@ -1494,7 +1445,7 @@
   }
 
   // ══ PLAN ═══════════════════════════════════
-  let tasks=[], selectedPri='high', selectedMeals=0, isResting=false, foodExpanded=false;
+  let tasks=[], selectedPri='high', selectedMeals=0, isResting=false, foodExpanded=false, foodEntries=[];
   let lastTaskLocalEditAt = 0;
   const taskToggleLock = new Set();
   let planDate = todayStr();
@@ -1907,7 +1858,7 @@
     else workoutItems.splice(idx,1);
     onWorkoutChanged();
   }
-  function toggleTag(btn){ btn.classList.toggle('selected'); updateFoodSummary(); }
+  function toggleTag(btn){ if(btn) btn.classList.toggle('selected'); updateFoodSummary(); }
   function removeCustomWorkoutTag(btn){
     const name=btn.textContent.trim();
     workoutItems=workoutItems.filter(i=>i.name!==name);
@@ -1927,8 +1878,21 @@
     if(!workoutItems.some(w=>w.name===v)) workoutItems.push({name:v,done:false});
     onWorkoutChanged();
   }
-  function addCustomFood(){ const i=document.getElementById('newFoodInput'),v=i.value.trim(); if(!v) return; const b=document.createElement('button'); b.className='tag food-tag selected'; b.textContent=v; b.dataset.custom='1'; b.onclick=function(){toggleTag(this); updateFoodSummary();}; document.getElementById('foodAllGrid').appendChild(b); i.value=''; updateFoodSummary(); requestAnimationFrame(updateFoodCollapseLayout); }
-  function selectMeals(btn,n){ if(selectedMeals===n){btn.classList.remove('active');selectedMeals=0;} else{document.querySelectorAll('.meal-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selectedMeals=n;} }
+  function addCustomFood(){
+    const input=document.getElementById('newFoodInput');
+    const raw=(input?.value||'').trim();
+    if(!raw) return;
+    const nextItems=raw
+      .split(/[\n,，、]/)
+      .map(v=>v.trim())
+      .filter(Boolean);
+    nextItems.forEach(item=>{
+      if(!foodEntries.includes(item)) foodEntries.push(item);
+    });
+    if(input) input.value='';
+    updateFoodSummary();
+  }
+  function selectMeals(btn,n){ selectedMeals=0; }
   function getSelectedWorkout(){ return workoutItems; } // 返回 [{name, done}]
 
   // ── 健身打卡（与今日计划同逻辑） ──
@@ -2013,76 +1977,30 @@
   function normalizeWorkout(arr){
     return (arr||[]).map(w=>typeof w==='string'?{name:w,done:true}:w); // 旧格式字符串视为已完成
   }
-  function getSelectedFoods(){ return[...document.querySelectorAll('#foodAllGrid .food-tag.selected')].map(t=>t.textContent); }
+  function getSelectedFoods(){ return [...foodEntries]; }
 
-  function toggleFoodExpand(){
-    const wrap=document.getElementById('foodTagsCollapsible');
-    if(wrap) void wrap.offsetHeight;
-    foodExpanded=!foodExpanded;
-    updateFoodCollapseLayout();
-  }
+  function toggleFoodExpand(){ foodExpanded=!foodExpanded; }
 
   function updateFoodCollapseLayout(){
-    const wrap=document.getElementById('foodTagsCollapsible');
-    const grid=document.getElementById('foodAllGrid');
     const btn=document.getElementById('foodExpandBtn');
-    if(!wrap||!grid||!btn) return;
-    const tags=[...grid.querySelectorAll('.food-tag')];
-    if(tags.length===0){ btn.style.display='none'; return; }
-    if(grid.clientWidth===0 || grid.offsetParent===null){
-      requestAnimationFrame(updateFoodCollapseLayout);
-      return;
-    }
-    const gridStyle=getComputedStyle(grid);
-    const cols=(gridStyle.gridTemplateColumns||'').split(' ').filter(Boolean).length||1;
-    const rowGap=parseFloat(gridStyle.rowGap||gridStyle.gap||'8')||8;
-    const tagH=tags[0].offsetHeight||40;
-    const needCollapse=tags.length>(cols*2);
-    if(!needCollapse){
-      foodExpanded=false;
-      btn.style.display='none';
-      wrap.classList.remove('collapsed');
-      wrap.classList.add('expanded');
-      wrap.style.maxHeight='none';
-      return;
-    }
-    const collapsedH=Math.ceil(tagH*2 + rowGap + 2);
-    wrap.style.setProperty('--food-collapsed-h', `${collapsedH}px`);
-    btn.style.display='inline-flex';
-
-    if(foodExpanded){
-      wrap.classList.remove('collapsed');
-      wrap.classList.add('expanded');
-      wrap.style.maxHeight='none';
-      btn.textContent='收起 ▲';
-    } else {
-      wrap.classList.remove('expanded');
-      wrap.classList.add('collapsed');
-      wrap.style.maxHeight=`${collapsedH}px`;
-      btn.textContent='展开更多 ▾';
-    }
+    if(btn) btn.style.display='none';
   }
 
   function updateFoodSummary(){
     const summary=document.getElementById('foodSelectedSummary');
     const tags=document.getElementById('foodSelectedTags');
-    const selectedNodes=[...document.querySelectorAll('#foodAllGrid .food-tag.selected')];
-    if(selectedNodes.length===0){ summary.style.display='none'; tags.innerHTML=''; return; }
+    if(!summary || !tags) return;
+    if(foodEntries.length===0){ summary.style.display='none'; tags.innerHTML=''; return; }
     summary.style.display='block';
     tags.innerHTML='';
-    selectedNodes.forEach(node=>{
+    foodEntries.forEach(item=>{
       const chip=document.createElement('button');
       chip.type='button';
       chip.className='food-selected-tag';
-      chip.innerHTML=`<span>${node.textContent}</span><span class="food-selected-x">×</span>`;
+      chip.innerHTML=`<span>${item}</span><span class="food-selected-x">×</span>`;
       chip.onclick=()=>{
-        if(node.dataset.custom==='1'){
-          node.remove();
-        } else {
-          node.classList.remove('selected');
-        }
+        foodEntries=foodEntries.filter(v=>v!==item);
         updateFoodSummary();
-        requestAnimationFrame(updateFoodCollapseLayout);
       };
       tags.appendChild(chip);
     });
@@ -2091,7 +2009,7 @@
   async function saveFoodToDiary(){
     if(!myName){ alert('请先选择你是谁！'); return; }
     const foods=getSelectedFoods();
-    if(!foods.length && !selectedMeals){ alert('请先选择今天吃了什么或吃了几顿'); return; }
+    if(!foods.length){ alert('请先填写今天吃了什么'); return; }
 
     const btn=document.getElementById('foodSaveBtn');
     if(btn){ btn.disabled=true; btn.textContent='保存中…'; }
@@ -2112,8 +2030,7 @@
       const mergedWorkout=currentWorkout.length ? currentWorkout : normalizeWorkout(prev?prev.workout_tags||[]:[]);
 
       const mergedFoods=[...new Set([...(prev?prev.food_tags||[]:[]), ...foods])];
-      const prevMeals=prev?prev.meals||0:0;
-      const mergedMeals=Math.max(prevMeals, selectedMeals);
+      const mergedMeals=prev?prev.meals||0:0;
 
       const mergedSummaries=prev?(prev.summaries&&prev.summaries.length?prev.summaries:(prev.summary?[{text:prev.summary,time:''}]:[])):[];
       const mergedReactions=prev?prev.reactions||{}:{};
@@ -2187,8 +2104,7 @@
       const mergedFoods=[...new Set([...(prev?prev.food_tags||[]:[]), ...newFoods])];
 
       // 顿数：取最大值（今天吃的只会越来越多）
-      const prevMeals=prev?prev.meals||0:0;
-      const mergedMeals=Math.max(prevMeals, selectedMeals);
+      const mergedMeals=prev?prev.meals||0:0;
 
       // 心得：追加新条（有内容才加）
       let mergedSummaries=[];
