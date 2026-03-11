@@ -264,6 +264,32 @@
 
   /* ── Progress ── */
   .progress-card { background: var(--text); border-radius: 18px; padding: 20px 22px; margin-bottom: 12px; border: 1.5px solid rgba(255,255,255,0.1); box-shadow: 0 12px 28px rgba(8,6,4,0.28), inset 0 1px 0 rgba(255,255,255,0.06); }
+  .progress-card .date-row { margin-bottom: 12px; gap: 8px; }
+  .progress-card .date-btn,
+  .progress-card .date-input-fake {
+    min-height: 34px;
+    height: 34px;
+    padding: 0 13px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.03);
+    color: #bdb2a8;
+    font-size: 13px;
+  }
+  .progress-card .date-row .date-active {
+    border-radius: 12px;
+    background: rgba(255,255,255,0.08);
+    box-shadow: none;
+  }
+  .progress-card .date-btn.active,
+  .progress-card .date-input-fake.active {
+    background: transparent;
+    border-color: rgba(255,255,255,0.14);
+    color: var(--yellow);
+  }
+  .progress-card #planCalDropdown {
+    margin-top: 10px;
+  }
   .progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
   .progress-label { color: #f7f4ef; font-size: 13px; font-weight: 500; }
   .progress-pct-big { font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 900; color: var(--yellow); line-height: 1; }
@@ -1289,14 +1315,12 @@
 
   <!-- ══ 今日计划 ══ -->
   <div class="page active" id="page-plan">
-
-    <div style="margin-bottom:8px;padding:2px 4px">
+    <div class="progress-card">
       <div class="date-row">
         <button class="date-btn active" id="dateBtnToday" onclick="selectPlanDate(this,'today')">今天</button>
         <button class="date-btn" id="dateBtnYesterday" onclick="selectPlanDate(this,'yesterday')">昨天</button>
         <button class="date-btn" id="dateFakeBtn" onclick="togglePlanCalDropdown()"><span class="icon-button-label"><i data-lucide="calendar-days" class="ui-icon small"></i><span>更多日期</span></span></button>
       </div>
-      <!-- 日历下拉菜单 -->
       <div id="planCalDropdown" class="cal-dropdown closed">
         <div class="cal-header" style="margin-bottom:12px">
           <button class="cal-nav" onclick="event.stopPropagation();planCalPrevMonth()"><i data-lucide="chevron-left" class="ui-icon small"></i></button>
@@ -1305,9 +1329,6 @@
         </div>
         <div class="cal-grid" id="planCalGrid"></div>
       </div>
-    </div>
-
-    <div class="progress-card">
       <div class="progress-top">
         <div class="progress-label" id="progressLabel">今日完成度</div>
         <div class="progress-pct-big" id="progressPctBig">0%</div>
