@@ -263,7 +263,7 @@
   .card-divider { height: 1px; background: var(--border); margin: 14px 0; }
 
   /* ── Progress ── */
-  .progress-card { background: var(--text); border-radius: 18px; padding: 20px 22px; margin-bottom: 12px; }
+  .progress-card { background: var(--text); border-radius: 18px; padding: 20px 22px; margin-bottom: 12px; border: 1.5px solid rgba(255,255,255,0.1); box-shadow: 0 12px 28px rgba(8,6,4,0.28), inset 0 1px 0 rgba(255,255,255,0.06); }
   .progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
   .progress-label { color: #f7f4ef; font-size: 13px; font-weight: 500; }
   .progress-pct-big { font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 900; color: var(--yellow); line-height: 1; }
@@ -523,8 +523,38 @@
   .feed-food-tag { padding: 4px 10px; border-radius: 10px; background: var(--green-soft); color: var(--green); font-size: 12px; font-weight: 700; }
   .feed-rest-tag { padding: 4px 10px; border-radius: 10px; background: rgba(74,144,217,0.1); color: var(--blue); font-size: 12px; font-weight: 700; }
   .feed-summary { background: var(--surface2); border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.7; color: var(--text); margin-top: 12px; margin-bottom: 14px; border-left: 3px solid var(--accent); }
-  .feed-reactions { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-  .reaction-btn { padding: 7px 13px; border-radius: 20px; border: 1.5px solid var(--border); background: transparent; font-size: 15px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 5px; font-family: 'Noto Sans SC', sans-serif; }
+  .feed-workout-card {
+    background: transparent;
+    border: 1.5px solid rgba(240,165,0,0.44);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin: 12px 0 14px;
+    box-shadow: 0 10px 22px rgba(18,12,8,0.08);
+  }
+  .feed-workout-title {
+    font-family:'Montserrat',sans-serif;
+    font-size:10px;
+    letter-spacing:2px;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .feed-workout-row {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 0;
+    border-bottom:1px solid rgba(26,22,20,0.08);
+  }
+  .feed-workout-row:last-child { border-bottom:none; }
+  .feed-workout-state {
+    margin-left:auto;
+    font-size:11px;
+    font-family:Montserrat,sans-serif;
+    color:#7b746d;
+  }
+  .feed-reactions { display: flex; gap: 8px; margin-top: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+  .reaction-btn { padding: 8px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: transparent; font-size: 16px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; font-family: 'Noto Sans SC', sans-serif; }
   .reaction-btn:hover { transform: scale(1.08); border-color: #bbb; }
   .reaction-btn.reacted { border-color: var(--yellow); background: var(--yellow-soft); }
   .reaction-count { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); }
@@ -566,7 +596,7 @@
   .comment-input { flex: 1; padding: 9px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; font-family: 'Noto Sans SC', sans-serif; outline: none; }
   .comment-input:focus { border-color: var(--text); }
   .comment-input::placeholder { color: var(--muted); }
-  .comment-send-btn { padding: 9px 16px; border-radius: 20px; border: none; background: var(--text); color: var(--bg); font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans SC', sans-serif; }
+  .comment-send-btn { padding: 9px 16px; border-radius: 20px; border: none; background: var(--text); color: var(--yellow); font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans SC', sans-serif; }
 
   .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
   .empty-state .state-icon-wrap { display:flex; justify-content:center; margin-bottom:10px; color:var(--muted); }
@@ -585,22 +615,26 @@
   /* ── Live page ── */
   .live-hero {
     padding: 4px 2px 12px;
-    display: inline-grid;
-    grid-auto-flow: row;
-    gap: 2px;
-    width: max-content;
-    justify-items: stretch;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
   }
   .live-hero-label {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
     gap: 8px;
     font-size: 15px;
     font-weight: 700;
     color: var(--muted);
-    width: 100%;
     letter-spacing: 0;
+  }
+  .live-hero-sep {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--yellow);
+    opacity: 0.88;
   }
   .live-hero-label .icon {
     color: var(--yellow);
@@ -612,14 +646,13 @@
     align-items: center;
     font-family: 'Noto Sans SC', sans-serif;
     font-size: 15px;
-    line-height: 1.35;
+    line-height: 1;
     font-weight: 700;
     letter-spacing: 0;
     color: var(--yellow);
     text-shadow: none;
-    width: 100%;
   }
-  .live-card { background: var(--surface); border-radius: 18px; padding: 18px; margin-bottom: 12px; border: 1.5px solid var(--border); }
+  .live-card { background: var(--surface); border-radius: 18px; padding: 18px; margin-bottom: 12px; border: 1.5px solid rgba(25,20,16,0.18); box-shadow: 0 10px 22px rgba(18,12,8,0.08); }
   .live-name { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 16px; margin-bottom: 4px; }
   .live-pct { font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 900; color: var(--yellow); }
   .live-refresh { text-align: center; font-family: 'Montserrat', sans-serif; font-size: 10px; color: var(--muted); padding: 6px 0 2px; }
@@ -920,11 +953,15 @@
   .card, .add-card, .gym-section, .live-card, .feed-card {
     border-radius: 18px;
     border-width: 1.25px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    box-shadow: 0 10px 24px rgba(18,12,8,0.08);
   }
   .progress-card {
     border-radius: 18px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    box-shadow: 0 14px 28px rgba(8,6,4,0.28), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  .live-card,
+  .feed-card {
+    border-color: rgba(25,20,16,0.18);
   }
 
   .task-item, .gym-item {
@@ -1155,7 +1192,7 @@
 <!-- ══ 重要日程 banner ══ -->
 <div class="events-banner" id="eventsBanner">
   <div class="events-bar" onclick="toggleEventsBanner()">
-    <span class="events-bar-icon"><i data-lucide="pin" class="ui-icon small"></i></span>
+    <span class="events-bar-icon" style="color:var(--yellow)"><i data-lucide="scroll-text" class="ui-icon small"></i></span>
     <div class="events-ticker-wrap">
       <div class="events-ticker" id="eventsTicker">
         <span class="events-empty">添加重要日程…</span>
@@ -1285,6 +1322,7 @@
   <div class="page" id="page-live">
     <div class="live-hero">
       <div class="live-hero-label"><span class="icon"><i data-lucide="activity" class="ui-icon small"></i></span><span>今日实时进度</span></div>
+      <div class="live-hero-sep"><i data-lucide="diamond" class="ui-icon small"></i></div>
       <div class="live-hero-date" id="liveHeroDate"></div>
     </div>
     <div id="liveList"></div>
@@ -1358,10 +1396,10 @@
   const SUPABASE_URL = 'https://lylyavnwhtutaamqciht.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_x0zMUDUjy0_h_Vz5NC5wwA_6E6Wksna';
   const REACTIONS = [
-    { key:'heart', icon:'heart', legacy:'\u2764\uFE0F' },
-    { key:'dumbbell', icon:'dumbbell', legacy:'\uD83D\uDCAA' },
-    { key:'flame', icon:'flame', legacy:'\uD83D\uDD25' },
-    { key:'smile', icon:'smile', legacy:'\uD83D\uDE02' }
+    { key:'heart', emoji:'❤️', legacy:'\u2764\uFE0F' },
+    { key:'dumbbell', emoji:'👍', legacy:'\uD83D\uDC4D' },
+    { key:'flame', emoji:'🔥', legacy:'\uD83D\uDD25' },
+    { key:'smile', emoji:'😊', legacy:'\uD83D\uDE0A' }
   ];
   const priOrder = {high:0, mid:1, low:2};
   let sbClient = null;
@@ -2677,20 +2715,20 @@
     const workoutNorm=normalizeWorkout(r.workout_tags||[]);
     const isRest=workoutNorm.some(w=>isRestWorkoutName(w.name));
     const workoutHtml=workoutNorm.length?`
-      <div style="background:var(--text);border-radius:12px;padding:12px 14px;margin:10px 0">
-        <div style="font-family:'Montserrat',sans-serif;font-size:10px;letter-spacing:2px;color:#9a9088;text-transform:uppercase;margin-bottom:10px"><span class="icon-title">${icon('dumbbell','small')}<span>训练打卡</span></span></div>
+      <div class="feed-workout-card">
+        <div class="feed-workout-title"><span class="icon-title">${icon('dumbbell','small')}<span>训练打卡</span></span></div>
         ${isRest ? `
-          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
-            <span style="font-size:14px;font-weight:600;color:#8dc1ff" class="icon-label">${icon('moon','small')}<span>休息</span></span>
+          <div class="feed-workout-row">
+            <span style="font-size:14px;font-weight:600;color:#4a90d9" class="icon-label">${icon('moon','small')}<span>休息</span></span>
           </div>
         ` : workoutNorm.map(w=>`
-          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
-            <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${w.done?'var(--green)':'#444'};background:${w.done?'var(--green)':'transparent'};display:flex;align-items:center;justify-content:center;font-size:11px;color:white;flex-shrink:0">${w.done?'✓':''}</div>
-            <span style="font-size:14px;font-weight:600;color:${w.done?'#f7f4ef':'#9a9088'};${w.done?'':'opacity:0.7'}">${w.name}</span>
-            <span style="margin-left:auto;font-size:11px;font-family:Montserrat,sans-serif;color:${w.done?'var(--green)':'#666'}">${w.done?'完成':'未完成'}</span>
+          <div class="feed-workout-row">
+            <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${w.done?'var(--green)':'rgba(26,22,20,0.22)'};background:${w.done?'var(--green)':'transparent'};display:flex;align-items:center;justify-content:center;font-size:11px;color:white;flex-shrink:0">${w.done?'✓':''}</div>
+            <span style="font-size:14px;font-weight:600;color:${w.done?'var(--text)':'#6f6760'};${w.done?'':'opacity:0.92'}">${w.name}</span>
+            <span class="feed-workout-state" style="color:${w.done?'var(--green)':'#8d847c'}">${w.done?'已完成':'未完成'}</span>
           </div>`).join('')}
       </div>`:''
-    const foodHtml=(r.food_tags&&r.food_tags.length)||r.meals?`<div class="feed-section-title"><span class="icon-title">${icon('utensils-crossed','small')}<span>饮食${r.meals?' · '+(r.meals===4?'4顿+':r.meals+'顿'):''}</span></span></div><div class="feed-tags">${(r.food_tags||[]).map(f=>`<span class="feed-food-tag">${f}</span>`).join('')}</div>`:'';
+    const foodHtml=(r.food_tags&&r.food_tags.length)||r.meals?`<div class="feed-section-title" style="margin-top:16px"><span class="icon-title">${icon('utensils-crossed','small')}<span>饮食${r.meals?' · '+(r.meals===4?'4顿+':r.meals+'顿'):''}</span></span></div><div class="feed-tags" style="margin-bottom:4px">${(r.food_tags||[]).map(f=>`<span class="feed-food-tag">${f}</span>`).join('')}</div>`:'';
     const summaryHtml=summaries.length?summaries.map((s,si)=>`
       <div class="feed-summary" id="sum-${r.id}-${si}">
         <div class="diary-top">
@@ -2718,7 +2756,7 @@
         </div>
       </div>`).join(''):'';
     const reactions=r.reactions||{};
-    const reactionHtml=REACTIONS.map(reaction=>{ const count=(reactions[reaction.key]||0)+(reactions[reaction.legacy]||0); return `<button class="reaction-btn ${count>0?'reacted':''}" onclick="toggleReaction('${r.id}','${reaction.key}')">${icon(reaction.icon,'small')}<span class="reaction-count">${count>0?' '+count:''}</span></button>`; }).join('');
+    const reactionHtml=REACTIONS.map(reaction=>{ const count=(reactions[reaction.key]||0)+(reactions[reaction.legacy]||0); return `<button class="reaction-btn ${count>0?'reacted':''}" onclick="toggleReaction('${r.id}','${reaction.key}')"><span>${reaction.emoji}</span><span class="reaction-count">${count>0?' '+count:''}</span></button>`; }).join('');
     const comments=Array.isArray(r.comments)?r.comments:Object.entries(r.comments||{}).map(([name,text])=>({name,text,time:''}));
     const commentsHtml=comments.map((c,ci)=>`<div class="comment-item"><span class="comment-name">${c.name}</span><span class="comment-text">${c.text}</span>${c.time?`<span class="comment-time">${c.time}</span>`:''}${(myName&&c.name===myName)?`<span class="comment-action"><button class="comment-del" onclick="event.stopPropagation();requestDeleteComment('${r.id}',${ci})" aria-label="删除评论">×</button><span class="comment-del-confirm hidden" id="cdel-${r.id}-${ci}"><span class="mini-tip">确认删除？</span><button class="mini-btn" onclick="event.stopPropagation();cancelDeleteComment('${r.id}',${ci})">取消</button><button class="mini-btn danger" onclick="event.stopPropagation();confirmDeleteComment('${r.id}',${ci})">删除</button></span></span>`:''}</div>`).join('');
     div.innerHTML=`
