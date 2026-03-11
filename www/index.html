@@ -733,9 +733,19 @@
     padding:10px 12px; border:1.25px solid var(--border);
     border-radius:12px; background:var(--surface); cursor:pointer;
     margin-bottom:6px;
-    transition: all 0.16s ease;
+    transition: all 0.16s ease, opacity 0.22s ease, transform 0.22s ease;
     position: relative;
   }
+  @keyframes gymCardFadeIn {
+    from { opacity: 0; transform: translateY(8px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes gymCardFadeOut {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to { opacity: 0; transform: translateY(-6px) scale(0.985); }
+  }
+  .gym-plan-item.anim-enter { animation: gymCardFadeIn 220ms ease both; }
+  .gym-plan-item.anim-exit { animation: gymCardFadeOut 220ms ease both; pointer-events: none; }
   .gym-plan-item:last-child { margin-bottom: 0; }
   .gym-plan-text { font-size:14px; line-height:1.45; position:relative; z-index:1; }
   .gym-plan-hint {
@@ -2199,25 +2209,30 @@
     const idx=workoutItems.findIndex(i=>i.name===restName);
     if(idx===-1){
       workoutItems=[{name:restName,done:false}];
-    } else {
-      workoutItems.splice(idx,1);
+      markWorkoutInsert(restName);
+      onWorkoutChanged();
+      return;
     }
-    onWorkoutChanged();
+    removeWorkoutItemWithAnim(restName);
   }
   function toggleWorkoutTag(btn){
     const name=getWorkoutTagName(btn);
     workoutItems=workoutItems.filter(i=>!isRestWorkoutName(i.name));
     const idx=workoutItems.findIndex(i=>i.name===name);
-    if(idx===-1) workoutItems.unshift({name,done:false});
-    else workoutItems.splice(idx,1);
-    onWorkoutChanged();
+    if(idx===-1){
+      workoutItems.push({name,done:false});
+      markWorkoutInsert(name);
+      onWorkoutChanged();
+      return;
+    }
+    removeWorkoutItemWithAnim(name);
   }
   function toggleTag(btn){ if(btn) btn.classList.toggle('selected'); updateFoodSummary(); }
   function removeCustomWorkoutTag(btn){
     const name=btn.textContent.trim();
-    workoutItems=workoutItems.filter(i=>i.name!==name);
     btn.remove();
-    onWorkoutChanged();
+    if(!workoutItems.some(i=>i.name===name)) return;
+    removeWorkoutItemWithAnim(name);
   }
   function addCustomTag(){
     const i=document.getElementById('newTagInput'),v=i.value.trim();
@@ -2229,7 +2244,10 @@
     document.getElementById('tagsGrid').appendChild(b);
     i.value='';
     workoutItems=workoutItems.filter(i=>!isRestWorkoutName(i.name));
-    if(!workoutItems.some(w=>w.name===v)) workoutItems.unshift({name:v,done:false});
+    if(!workoutItems.some(w=>w.name===v)){
+      workoutItems.push({name:v,done:false});
+      markWorkoutInsert(v);
+    }
     onWorkoutChanged();
   }
   function addCustomFood(){
@@ -2253,6 +2271,40 @@
   let workoutItems=[]; // [{name, done}]
   let workoutLogged=false;
   let workoutTransitionHint=null; // {name, toDone, at}
+  let workoutInsertHint=null; // {name, at}
+
+  function markWorkoutInsert(name){
+    workoutInsertHint={name,at:Date.now()};
+  }
+  function shouldAnimateWorkoutInsert(name){
+    return !!(workoutInsertHint && workoutInsertHint.name===name && Date.now()-workoutInsertHint.at<800);
+  }
+  function clearWorkoutInsertHint(){
+    if(workoutInsertHint && Date.now()-workoutInsertHint.at>=800) workoutInsertHint=null;
+  }
+  function findWorkoutCardByName(name){
+    const list=document.getElementById('gymTaskList');
+    if(!list) return null;
+    const cards=list.querySelectorAll('.gym-plan-item');
+    for(const card of cards){
+      if(card.dataset.name===name) return card;
+    }
+    return null;
+  }
+  function removeWorkoutItemWithAnim(name){
+    const card=findWorkoutCardByName(name);
+    if(!card){
+      workoutItems=workoutItems.filter(i=>i.name!==name);
+      onWorkoutChanged();
+      return;
+    }
+    card.classList.remove('anim-enter');
+    card.classList.add('anim-exit');
+    setTimeout(()=>{
+      workoutItems=workoutItems.filter(i=>i.name!==name);
+      onWorkoutChanged();
+    },220);
+  }
 
   function renderWorkoutUI(){
     renderWorkoutList();
@@ -2280,6 +2332,8 @@
         !isRest
       ) ? (workoutTransitionHint.toDone?'anim-to-done':'anim-to-pending') : '';
       div.className='gym-plan-item '+(isRest?'rest':(item.done?'done':'pending'))+(animClass?` ${animClass}`:'');
+      div.dataset.name=isRest?'休息':item.name;
+      if(shouldAnimateWorkoutInsert(isRest?'休息':item.name)) div.classList.add('anim-enter');
       if(!isRest){
         div.onclick=()=>{
           const nextDone=!workoutItems[i].done;
@@ -2299,6 +2353,7 @@
         <div class="gym-plan-card-action">${item.done?'已完成':'未完成'}</div>`;
       list.appendChild(div);
     });
+    clearWorkoutInsertHint();
     renderLucideIcons();
   }
 
