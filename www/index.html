@@ -33,6 +33,8 @@
     --done-color: #c5bdb4;
     --blue: #4a90d9;
     --pink: #f26fa7;
+    --ui-font: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei",
+      -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -40,12 +42,16 @@
 
   body {
     background: var(--bg); color: var(--text);
-    font-family: 'Noto Sans SC', sans-serif;
+    font-family: var(--ui-font);
     min-height: 100vh; display: flex; flex-direction: column; align-items: center;
     padding-bottom: 100px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: auto;
+  }
+  /* Global font unification: Chinese + English use one consistent family */
+  body, body *:not(svg):not(path) {
+    font-family: var(--ui-font) !important;
   }
   body.app-in { animation: appFadeIn 240ms ease-out; }
   @keyframes appFadeIn { from { opacity: 0; } to { opacity: 1; } }
