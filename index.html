@@ -151,10 +151,10 @@
     from { opacity: 0; transform: translateY(18px) scale(0.985); }
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
-  .id-title { font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 500; color: #f7f4ef; margin-bottom: 6px; letter-spacing: 0; }
-  .id-title .id-main { color: var(--accent); font-weight: 900; text-shadow: 0 0 12px rgba(240,165,0,0.35); }
+  .id-title { font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 800 !important; color: #f7f4ef; margin-bottom: 6px; letter-spacing: 0; text-shadow: 0 0 10px rgba(255,255,255,0.16); }
+  .id-title .id-main { color: var(--accent); font-weight: 900 !important; text-shadow: 0 0 14px rgba(240,165,0,0.4); }
   .id-title .id-sep { color: #9a9088; font-weight: 500; margin: 0 8px; }
-  .id-title .id-rest { color: #f7f4ef; font-weight: 500; letter-spacing: 0; }
+  .id-title .id-rest { color: #f7f4ef; font-weight: 800 !important; letter-spacing: 0; text-shadow: 0 0 12px rgba(255,255,255,0.22); }
   .id-sub { font-family: 'Montserrat', sans-serif; font-size: 11px; color: #9a9088; letter-spacing: 3px; margin-bottom: 44px; text-transform: uppercase; }
   .id-question { font-size: 15px; color: #9a9088; font-weight: 500; margin-bottom: 14px; }
   .id-step { width: 100%; max-width: 320px; display: flex; flex-direction: column; align-items: center; }
@@ -169,12 +169,13 @@
       #242220;
     color: #9a9088;
     font-size: 22px;
-    font-weight: 900;
+    font-weight: 900 !important;
     font-family: 'Montserrat', sans-serif; cursor: pointer;
     transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease, background 180ms ease;
     text-align: center;
     position: relative;
     overflow: hidden;
+    text-shadow: 0 0 10px rgba(255,255,255,0.14);
   }
   .id-btn::after {
     content: '';
@@ -195,6 +196,7 @@
       #242220;
     box-shadow: 0 12px 26px rgba(240,165,0,0.18), inset 0 0 0 1px rgba(255,255,255,0.06);
     transform: translateY(-2px);
+    text-shadow: 0 0 16px rgba(240,165,0,0.45);
   }
   #identityBtnJLL:hover { border-color: rgba(242,111,167,0.58); color: #ffe9f2; }
   #identityBtnJLL.active {
@@ -205,6 +207,7 @@
       #2a2230;
     box-shadow: 0 12px 28px rgba(242,111,167,0.24), 0 0 34px rgba(242,111,167,0.18), inset 0 0 0 1px rgba(255,255,255,0.06);
     transform: translateY(-2px);
+    text-shadow: 0 0 16px rgba(242,111,167,0.5);
   }
   .id-confirm {
     width: 100%;
