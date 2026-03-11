@@ -349,6 +349,8 @@
   .gym-section { background: var(--surface); border-radius: 16px; padding: 18px; margin-bottom: 12px; border: 1.5px solid var(--border); }
   .tags-grid { display: flex; flex-wrap: wrap; gap: 8px; }
   .tag { padding: 9px 15px; border-radius: 20px; border: 2px solid var(--border); background: transparent; color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.18s; font-family: 'Noto Sans SC', sans-serif; user-select: none; }
+  .emoji-label { display:inline-flex; align-items:center; gap:6px; }
+  .tag-emoji { display:inline-flex; align-items:center; justify-content:center; font-size:15px; line-height:1; }
   .tag:hover { border-color: #bbb; color: var(--text); }
   .tag.selected { border-color: var(--text); background: var(--text); color: var(--yellow); font-weight: 700; box-shadow: 0 4px 14px rgba(0,0,0,0.18); transform: translateY(-2px); }
   .tag.rest-tag { font-weight: 800; border: 2px solid var(--blue) !important; color: var(--blue) !important; }
@@ -564,25 +566,25 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
-    color: #667a97;
-    margin-bottom: 8px;
+    color: var(--muted);
+    margin-bottom: 4px;
     letter-spacing: 0;
   }
   .live-hero-label .icon {
-    color: var(--blue);
-    font-size: 16px;
+    color: var(--yellow);
+    font-size: 15px;
     line-height: 1;
   }
   .live-hero-date {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 34px;
-    line-height: 1.02;
-    font-weight: 900;
-    letter-spacing: -1px;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 15px;
+    line-height: 1.35;
+    font-weight: 700;
+    letter-spacing: 0;
     color: var(--yellow);
-    text-shadow: 0 10px 24px rgba(240,165,0,0.1);
+    text-shadow: none;
   }
   .live-card { background: var(--surface); border-radius: 18px; padding: 18px; margin-bottom: 12px; border: 1.5px solid var(--border); }
   .live-name { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 16px; margin-bottom: 4px; }
@@ -776,14 +778,15 @@
   .events-bar { display:flex; align-items:center; gap:10px; padding: 10px 20px; cursor:pointer; touch-action: pan-y; }
   .events-bar-icon { font-size:13px; flex-shrink:0; }
   .events-ticker-wrap { flex:1; overflow:hidden; height:22px; position:relative; }
-  .events-ticker { display:inline-flex; position:absolute; left:4px; top:0; white-space:nowrap; animation: tickerScroll 12s linear infinite; }
+  .events-ticker { display:inline-flex; align-items:center; gap:28px; position:absolute; left:4px; top:0; white-space:nowrap; will-change:transform; transform:translate3d(0,0,0); animation:none; }
+  .events-ticker-group { display:inline-flex; align-items:center; flex-shrink:0; }
   .events-ticker:hover { animation-play-state:paused; }
   .events-ticker-item { font-family:'Noto Sans SC',sans-serif; font-size:13px; color:#fff; font-weight:700; padding-right:40px; line-height:22px; }
   .events-ticker-item .date-tag { font-family:'Montserrat',sans-serif; font-size:11px; background:var(--yellow); color:#000; font-weight:800; padding:1px 6px; border-radius:4px; margin-right:7px; }
   .events-empty { font-family:'Noto Sans SC',sans-serif; font-size:12px; color:var(--yellow); line-height:22px; opacity:0.6; }
   .events-chevron { font-size:12px; color:var(--yellow); transition:transform 0.2s; flex-shrink:0; opacity:0.7; }
   .events-banner.open .events-chevron { transform:rotate(180deg); }
-  @keyframes tickerScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  @keyframes tickerScroll { 0%{transform:translate3d(0,0,0)} 100%{transform:translate3d(calc(-1 * var(--ticker-distance, 50%)),0,0)} }
   .events-panel { max-height:0; overflow:hidden; transition:max-height 0.35s ease; }
   .events-banner.open .events-panel { max-height:500px; }
   .events-panel-inner { padding:12px 20px 16px; border-top:1px solid #2a2a2a; }
@@ -1199,19 +1202,19 @@
         <div class="card-label section-title"><span class="icon-title"><i data-lucide="dumbbell" class="ui-icon small"></i><span>今日训练计划</span></span></div>
         <div id="gymTaskList" class="gym-plan-list" style="display:none"></div>
         <div class="tags-grid" id="tagsGrid">
-          <button class="tag rest-tag" onclick="toggleRestOrTag(this)"><span class="icon-label"><i data-lucide="moon" class="ui-icon small"></i><span>休息</span></span></button>
-          <button class="tag" onclick="toggleWorkoutTag(this)"><span class="icon-label"><i data-lucide="dumbbell" class="ui-icon small"></i><span>胸</span></span></button>
-          <button class="tag" onclick="toggleWorkoutTag(this)"><span class="icon-label"><i data-lucide="dumbbell" class="ui-icon small"></i><span>背</span></span></button>
-          <button class="tag" onclick="toggleWorkoutTag(this)"><span class="icon-label"><i data-lucide="accessibility" class="ui-icon small"></i><span>腿</span></span></button>
-          <button class="tag" onclick="toggleWorkoutTag(this)"><span class="icon-label"><i data-lucide="accessibility" class="ui-icon small"></i><span>臀</span></span></button>
-          <button class="tag" onclick="toggleWorkoutTag(this)"><span class="icon-label"><i data-lucide="dumbbell" class="ui-icon small"></i><span>肩</span></span></button>
-          <button class="tag" onclick="toggleWorkoutTag(this)"><span class="icon-label"><i data-lucide="flame" class="ui-icon small"></i><span>腹</span></span></button>
-          <button class="tag" onclick="toggleWorkoutTag(this)"><span class="icon-label"><i data-lucide="dumbbell" class="ui-icon small"></i><span>三头</span></span></button>
-          <button class="tag" onclick="toggleWorkoutTag(this)"><span class="icon-label"><i data-lucide="dumbbell" class="ui-icon small"></i><span>二头</span></span></button>
-          <button class="tag" onclick="toggleWorkoutTag(this)"><span class="icon-label"><i data-lucide="person-running" class="ui-icon small"></i><span>热身</span></span></button>
-          <button class="tag" onclick="toggleWorkoutTag(this)"><span class="icon-label"><i data-lucide="mountain" class="ui-icon small"></i><span>爬坡</span></span></button>
-          <button class="tag" onclick="toggleWorkoutTag(this)"><span class="icon-label"><i data-lucide="person-running" class="ui-icon small"></i><span>短跑</span></span></button>
-          <button class="tag" onclick="toggleWorkoutTag(this)"><span class="icon-label"><i data-lucide="person-running" class="ui-icon small"></i><span>长跑</span></span></button>
+          <button class="tag rest-tag" data-name="休息" onclick="toggleRestOrTag(this)"><span class="emoji-label"><span class="tag-emoji">😴</span><span>休息</span></span></button>
+          <button class="tag" data-name="胸" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">💪</span><span>胸</span></span></button>
+          <button class="tag" data-name="背" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🏋️</span><span>背</span></span></button>
+          <button class="tag" data-name="腿" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🦵</span><span>腿</span></span></button>
+          <button class="tag" data-name="臀" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🦵</span><span>臀</span></span></button>
+          <button class="tag" data-name="肩" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">💪</span><span>肩</span></span></button>
+          <button class="tag" data-name="腹" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🔥</span><span>腹</span></span></button>
+          <button class="tag" data-name="三头" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">💪</span><span>三头</span></span></button>
+          <button class="tag" data-name="二头" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">💪</span><span>二头</span></span></button>
+          <button class="tag" data-name="热身" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🏃</span><span>热身</span></span></button>
+          <button class="tag" data-name="爬坡" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">⛰️</span><span>爬坡</span></span></button>
+          <button class="tag" data-name="短跑" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🏃</span><span>短跑</span></span></button>
+          <button class="tag" data-name="长跑" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🏃</span><span>长跑</span></span></button>
         </div>
         <div class="add-tag-row">
           <input class="add-tag-input" id="newTagInput" placeholder="自定义动作…" onkeydown="if(event.key==='Enter')addCustomTag()">
@@ -1248,7 +1251,7 @@
   <!-- ══ 今日动态 ══ -->
   <div class="page" id="page-live">
     <div class="live-hero">
-      <div class="live-hero-label"><span class="icon"><i data-lucide="arrow-up-right" class="ui-icon small"></i></span><span>今日实时进度</span></div>
+      <div class="live-hero-label"><span class="icon"><i data-lucide="activity" class="ui-icon small"></i></span><span>今日实时进度</span></div>
       <div class="live-hero-date" id="liveHeroDate"></div>
     </div>
     <div id="liveList"></div>
@@ -1342,6 +1345,56 @@
   }
   function isRestWorkoutName(name){
     return name === '休息' || name === '\uD83D\uDE34 休息';
+  }
+  const WORKOUT_EMOJI = {
+    '休息':'😴',
+    '胸':'💪',
+    '背':'🏋️',
+    '腿':'🦵',
+    '臀':'🦵',
+    '肩':'💪',
+    '腹':'🔥',
+    '三头':'💪',
+    '二头':'💪',
+    '热身':'🏃',
+    '爬坡':'⛰️',
+    '短跑':'🏃',
+    '长跑':'🏃'
+  };
+  function workoutLabel(name){
+    const mark = WORKOUT_EMOJI[name];
+    if(!mark) return name;
+    return `<span class="emoji-label"><span class="tag-emoji">${mark}</span><span>${name}</span></span>`;
+  }
+  function getWorkoutTagName(btn){
+    return (btn?.dataset?.name || btn?.textContent || '').trim();
+  }
+  function configureEventsTicker(){
+    const wrap=document.querySelector('.events-ticker-wrap');
+    const ticker=document.getElementById('eventsTicker');
+    if(!wrap || !ticker) return;
+    const itemsHtml=ticker.dataset.itemsHtml || '';
+    ticker.style.animation='none';
+    ticker.style.transform='translate3d(0,0,0)';
+    if(!itemsHtml){
+      return;
+    }
+    ticker.innerHTML=`<span class="events-ticker-group">${itemsHtml}</span>`;
+    const firstGroup=ticker.querySelector('.events-ticker-group');
+    if(!firstGroup) return;
+    const singleWidth=Math.ceil(firstGroup.scrollWidth);
+    const viewportWidth=Math.ceil(wrap.clientWidth);
+    if(singleWidth<=viewportWidth-8){
+      return;
+    }
+    ticker.innerHTML=`<span class="events-ticker-group">${itemsHtml}</span><span class="events-ticker-group" aria-hidden="true">${itemsHtml}</span>`;
+    const gap=28;
+    const distance=singleWidth+gap;
+    const duration=Math.max(6, Math.min(14, distance/84));
+    ticker.style.setProperty('--ticker-distance', `${distance}px`);
+    ticker.style.setProperty('--ticker-duration', `${duration}s`);
+    void ticker.offsetWidth;
+    ticker.style.animation='tickerScroll var(--ticker-duration) linear infinite';
   }
 
   // ── Identity ──────────────────────────────
@@ -1928,7 +1981,7 @@
     onWorkoutChanged();
   }
   function toggleWorkoutTag(btn){
-    const name=btn.textContent.trim();
+    const name=getWorkoutTagName(btn);
     workoutItems=workoutItems.filter(i=>!isRestWorkoutName(i.name));
     const idx=workoutItems.findIndex(i=>i.name===name);
     if(idx===-1) workoutItems.push({name,done:false});
@@ -1998,7 +2051,7 @@
       if(!isRest){
         div.onclick=()=>{ workoutItems[i].done=!workoutItems[i].done; onWorkoutChanged(); };
       }
-      div.innerHTML=`<div class="gym-plan-text">${isRest?`<span class="icon-label">${icon('moon','small')}<span>休息</span></span>`:item.name}</div>${isRest?'':`<div class="gym-plan-hint">${item.done?'（点击取消训练）':'（点击完成训练）'}</div><div class="gym-plan-state">${item.done?'已完成':'未完成'}</div>`}`;
+      div.innerHTML=`<div class="gym-plan-text">${workoutLabel(isRest?'休息':item.name)}</div>${isRest?'':`<div class="gym-plan-hint">${item.done?'（点击取消训练）':'（点击完成训练）'}</div><div class="gym-plan-state">${item.done?'已完成':'未完成'}</div>`}`;
       list.appendChild(div);
     });
     renderLucideIcons();
@@ -2008,7 +2061,7 @@
     const map={};
     workoutItems.forEach(i=>{ map[i.name]=i; });
     document.querySelectorAll('#tagsGrid .tag').forEach(tag=>{
-      const name=tag.textContent.trim();
+      const name=getWorkoutTagName(tag);
       tag.classList.remove('selected','gym-pending','gym-done');
       const item=map[name];
       if(!item) return;
@@ -2923,12 +2976,14 @@
         <button class="event-item-del" onclick="deleteEvent('${e.id}')">×</button>
       </div>`).join(''):'<div style="color:#555;font-size:12px;padding:8px 0">还没有日程，添加一个吧</div>';
     if(events.length===0){
+      ticker.dataset.itemsHtml='';
       ticker.innerHTML='<span class="events-empty">添加重要日程…</span>';
       ticker.style.animation='none';
+      ticker.style.transform='translate3d(0,0,0)';
     } else {
       const items=events.map(e=>`<span class="events-ticker-item">${e.date?`<span class="date-tag">${e.date} </span>`:''}${e.text}</span>`).join('');
-      ticker.innerHTML=items+items;
-      ticker.style.animation='tickerScroll 12s linear infinite';
+      ticker.dataset.itemsHtml=items;
+      configureEventsTicker();
     }
     renderLucideIcons();
   }
@@ -2980,6 +3035,11 @@
 
   loadEvents();
   setInterval(loadEvents, 60000);
+  window.addEventListener('resize', ()=>{ configureEventsTicker(); });
+  window.addEventListener('load', ()=>{ setTimeout(configureEventsTicker, 120); });
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(()=>setTimeout(configureEventsTicker, 120)).catch(()=>{});
+  }
 
   // 避免在移动端纵向滚动时误触发“重要日程”展开，造成滚动卡顿/回顶感
   (function bindEventsBarTouchGuard(){
