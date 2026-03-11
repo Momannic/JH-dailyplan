@@ -299,6 +299,8 @@
 
   /* ── Tasks ── */
   .task-item { background: var(--surface); border-radius: 14px; padding: 14px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; border: 1.5px solid var(--border); cursor: pointer; transition: all 0.2s; }
+  .task-item.anim-enter { animation: taskFadeIn 220ms ease both; }
+  .task-item.anim-exit { animation: taskFadeOut 220ms ease both; pointer-events: none; }
   .task-item.done { background: var(--surface2); opacity: 0.65; }
   .task-item.done .task-text { text-decoration: line-through; color: var(--done-color); }
   .task-status { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; display:flex; align-items:center; justify-content:center; font-size: 12px; font-weight: 900; font-family:'Montserrat',sans-serif; }
@@ -323,6 +325,15 @@
   .task-delete:hover { border-color: var(--red); color: var(--red); background: var(--red-soft); }
   .task-item.done .task-delete { opacity: 0.6; }
   .days-late { font-size: 11px; color: var(--red); font-weight: 700; margin-left: 6px; flex-shrink: 0; font-family: 'Montserrat', sans-serif; }
+
+  @keyframes taskFadeIn {
+    from { opacity: 0; transform: translateY(8px) scale(0.995); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes taskFadeOut {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to { opacity: 0; transform: translateY(-8px) scale(0.99); }
+  }
 
   .confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; z-index: 9999; padding: 20px; }
   .confirm-overlay.hidden { display:none; }
@@ -415,7 +426,7 @@
   .food-save-btn.success { background:var(--green); color:#fff; }
 
   /* ── Summary ── */
-  .summary-textarea { width: 100%; padding: 14px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 15px; font-family: 'Noto Sans SC', sans-serif; resize: none; outline: none; line-height: 1.7; min-height: 100px; }
+  .summary-textarea { width: 100%; padding: 14px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 15px; font-family: 'Noto Sans SC', sans-serif; resize: none; outline: none; line-height: 1.7; min-height: 100px; margin-bottom: 12px; }
   .summary-textarea:focus { border-color: var(--text); }
   .summary-textarea::placeholder { color: var(--muted); }
   .finish-btn { width: 100%; padding: 16px; border-radius: 14px; border: none; background: var(--text); color: var(--yellow); font-size: 16px; font-weight: 700; font-family: 'Noto Sans SC', sans-serif; cursor: pointer; transition: all 0.2s; margin-bottom: 12px; }
@@ -1416,15 +1427,14 @@
         <button class="pri-btn mid" onclick="selectPri(this,'mid')"><span class="icon-button-label"><span class="pri-swatch mid"></span><span>一般吧</span></span></button>
         <button class="pri-btn low" onclick="selectPri(this,'low')"><span class="icon-button-label"><span class="pri-swatch low"></span><span>不着急</span></span></button>
       </div>
-      <button class="add-btn" onclick="addTask()"><span class="icon-button-label"><i data-lucide="plus" class="ui-icon small"></i><span>添加到今日计划</span></span></button>
+      <button class="add-btn" onclick="addTask()"><span class="icon-button-label"><i data-lucide="circle-plus" class="ui-icon small"></i><span>添加计划</span></span></button>
     </div>
 
     <div class="card">
       <div class="card-label summary-title"><span class="icon-title"><i data-lucide="square-pen" class="ui-icon small"></i><span>今日心得 / 总结</span></span></div>
       <textarea class="summary-textarea" id="summaryInput" placeholder="今天怎么样？有什么感受或收获…"></textarea>
+      <button class="finish-btn" id="finishBtn" onclick="submitToday()"><span class="icon-button-label"><i data-lucide="check" class="ui-icon small"></i><span>完成今日任务，点击分享</span></span></button>
     </div>
-
-    <button class="finish-btn" id="finishBtn" onclick="submitToday()"><span class="icon-button-label"><i data-lucide="check" class="ui-icon small"></i><span>完成今日任务，点击分享</span></span></button>
   </div>
 
   <!-- ══ 健身饮食 ══ -->
@@ -1809,6 +1819,7 @@
 
   // ══ PLAN ═══════════════════════════════════
   let tasks=[], selectedPri='high', selectedMeals=0, isResting=false, foodExpanded=false, foodEntries=[];
+  let taskInsertHint = null; // {id, at}
   let lastTaskLocalEditAt = 0;
   const taskToggleLock = new Set();
   let planDate = todayStr();
@@ -2094,16 +2105,36 @@
     const canDelete = planDate===todayStr();
     if(!sorted.length){ list.innerHTML=`<div class="empty-state"><div class="state-icon-wrap">${icon('sparkles','state')}</div><p>今天还没有计划<br>添加第一件事吧！</p></div>`; }
     else { list.innerHTML=sorted.map(t=>`
-      <div class="task-item ${t.done?'done':''}" onclick="toggleTask('${t.id}')">
+      <div class="task-item ${t.done?'done':''} ${shouldAnimateTaskInsert(t.id)?'anim-enter':''}" data-task-id="${t.id}" onclick="toggleTask('${t.id}')">
         <div class="task-status ${t.pri}">${t.done?'✓':''}</div>
         <div class="task-text">${t.text}${!t.done&&t.originDate?`<span class="days-late">已拖${Math.max(1,Math.floor((new Date(todayStr())-new Date(t.originDate))/86400000))}天</span>`:t.daysLate&&!t.done?`<span class="days-late">已拖${t.daysLate}天</span>`:''}</div>
         <div class="task-actions">
           ${canDelete?`<button class="task-delete" onclick="event.stopPropagation();requestDeleteTask('${t.id}')" aria-label="删除任务">×</button>`:''}
         </div>
       </div>`).join(''); }
+    clearTaskInsertHint();
     console.log('renderTasks: innerHTML updated, taskList.innerHTML.length=', list.innerHTML.length);
     renderLucideIcons();
     updateProgress();
+  }
+
+  function markTaskInsert(id){
+    taskInsertHint={id:String(id),at:Date.now()};
+  }
+  function shouldAnimateTaskInsert(id){
+    return !!(taskInsertHint && taskInsertHint.id===String(id) && Date.now()-taskInsertHint.at<900);
+  }
+  function clearTaskInsertHint(){
+    if(taskInsertHint && Date.now()-taskInsertHint.at>=900) taskInsertHint=null;
+  }
+  function findTaskCardById(id){
+    const list=document.getElementById('taskList');
+    if(!list) return null;
+    const cards=list.querySelectorAll('.task-item');
+    for(const card of cards){
+      if(String(card.dataset.taskId)===String(id)) return card;
+    }
+    return null;
   }
 
   function updateProgress() {
@@ -2167,7 +2198,18 @@
     if(!pendingDeleteTaskId){ closeDeleteConfirm(); return; }
     const id=pendingDeleteTaskId;
     closeDeleteConfirm();
-    deleteTask(id);
+    removeTaskWithAnim(id);
+  }
+
+  function removeTaskWithAnim(id){
+    const card=findTaskCardById(id);
+    if(!card){
+      deleteTask(id);
+      return;
+    }
+    card.classList.remove('anim-enter');
+    card.classList.add('anim-exit');
+    setTimeout(()=>deleteTask(id),220);
   }
 
   function deleteTask(id){
@@ -2189,7 +2231,9 @@
   function selectPri(btn,pri){ document.querySelectorAll('.pri-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedPri=pri; }
   function addTask(){
     const input=document.getElementById('taskInput'),text=input.value.trim(); if(!text) return;
-    tasks.push({id:Date.now().toString(),text,pri:selectedPri,done:false});
+    const id=Date.now().toString();
+    tasks.push({id,text,pri:selectedPri,done:false});
+    markTaskInsert(id);
     lastTaskLocalEditAt = Date.now();
     saveTasks(); 
     renderTasks(); 
