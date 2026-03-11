@@ -727,6 +727,7 @@
   .gym-done-btn { width:100%; padding:14px; border-radius:12px; border:none; background:var(--green); color:white; font-size:15px; font-weight:700; font-family:'Noto Sans SC',sans-serif; cursor:pointer; margin-top:14px; transition:all 0.2s; }
   .gym-done-btn:active { transform:scale(0.98); }
   .gym-plan-list { margin: 10px 0 12px; }
+  .gym-plan-list-top { margin: 0 0 12px; }
   .gym-plan-item {
     display:flex; align-items:center; justify-content:space-between;
     padding:10px 12px; border:1.25px solid var(--border);
@@ -765,6 +766,81 @@
   .gym-plan-item.rest .gym-plan-text { color: #ffffff; font-weight: 700; }
   .gym-plan-item.rest .gym-plan-hint { display: none; }
   .gym-plan-item.rest .gym-plan-state { display: none; }
+  .gym-plan-list-top .gym-plan-item {
+    min-height: 84px;
+    padding: 12px 14px;
+    border-radius: 22px;
+    border: 1.5px solid var(--border);
+    box-shadow: 0 8px 18px rgba(18,12,8,0.06);
+    background: var(--surface);
+  }
+  .gym-plan-list-top .gym-plan-item.pending,
+  .gym-plan-list-top .gym-plan-item.done,
+  .gym-plan-list-top .gym-plan-item.rest {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+  .gym-plan-card-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+  }
+  .gym-plan-card-badge {
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+    background: var(--text);
+    color: var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .gym-plan-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .gym-plan-card-name {
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 800;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .gym-plan-card-sub {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+  .gym-plan-card-action {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 900;
+    color: #fff;
+    background: var(--accent);
+    flex-shrink: 0;
+    pointer-events: none;
+  }
+  .gym-plan-item.done .gym-plan-card-action { background: var(--green); }
+  .gym-plan-item.rest .gym-plan-card-action { display: none; }
+  .gym-plan-item.done .gym-plan-card-name {
+    color: var(--done-color);
+    text-decoration: line-through;
+  }
   .tag.custom-workout-tag {
     position: relative;
     padding-right: 24px;
@@ -1323,10 +1399,10 @@
 
   <!-- ══ 健身饮食 ══ -->
   <div class="page" id="page-fitness">
+    <div id="gymTaskList" class="gym-plan-list gym-plan-list-top" style="display:none"></div>
     <div class="gym-section">
       <div id="gymPlanPhase">
         <div class="card-label section-title"><span class="icon-title"><i data-lucide="dumbbell" class="ui-icon small"></i><span>今日训练计划</span></span></div>
-        <div id="gymTaskList" class="gym-plan-list" style="display:none"></div>
         <div class="tags-grid" id="tagsGrid">
           <button class="tag rest-tag" data-name="休息" onclick="toggleRestOrTag(this)"><span class="emoji-label"><span class="tag-emoji">😴</span><span>休息</span></span></button>
           <button class="tag" data-name="胸" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">💪</span><span>胸</span></span></button>
@@ -2112,7 +2188,7 @@
     const name=getWorkoutTagName(btn);
     workoutItems=workoutItems.filter(i=>!isRestWorkoutName(i.name));
     const idx=workoutItems.findIndex(i=>i.name===name);
-    if(idx===-1) workoutItems.push({name,done:false});
+    if(idx===-1) workoutItems.unshift({name,done:false});
     else workoutItems.splice(idx,1);
     onWorkoutChanged();
   }
@@ -2133,7 +2209,7 @@
     document.getElementById('tagsGrid').appendChild(b);
     i.value='';
     workoutItems=workoutItems.filter(i=>!isRestWorkoutName(i.name));
-    if(!workoutItems.some(w=>w.name===v)) workoutItems.push({name:v,done:false});
+    if(!workoutItems.some(w=>w.name===v)) workoutItems.unshift({name:v,done:false});
     onWorkoutChanged();
   }
   function addCustomFood(){
@@ -2174,12 +2250,21 @@
     list.innerHTML='';
     workoutItems.forEach((item,i)=>{
       const isRest=isRestWorkoutName(item.name);
+      const emoji = WORKOUT_EMOJI[isRest?'休息':item.name] || '🏋️';
       const div=document.createElement('div');
       div.className='gym-plan-item '+(isRest?'rest':(item.done?'done':'pending'));
       if(!isRest){
         div.onclick=()=>{ workoutItems[i].done=!workoutItems[i].done; onWorkoutChanged(); };
       }
-      div.innerHTML=`<div class="gym-plan-text">${workoutLabel(isRest?'休息':item.name)}</div>${isRest?'':`<div class="gym-plan-hint">${item.done?'（点击取消训练）':'（点击完成训练）'}</div><div class="gym-plan-state">${item.done?'已完成':'未完成'}</div>`}`;
+      div.innerHTML=`
+        <div class="gym-plan-card-left">
+          <div class="gym-plan-card-badge">${emoji}</div>
+          <div class="gym-plan-card-meta">
+            <div class="gym-plan-card-name">${isRest?'休息':item.name}</div>
+            <div class="gym-plan-card-sub">${isRest?'休息模式':(item.done?'点击取消训练':'点击完成训练')}</div>
+          </div>
+        </div>
+        <div class="gym-plan-card-action">${item.done?'✓':'▶'}</div>`;
       list.appendChild(div);
     });
     renderLucideIcons();
