@@ -339,13 +339,33 @@
   .task-text { flex: 1; font-size: 15px; line-height: 1.4; }
   .task-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; margin-left:auto; }
   .task-delete {
-    width: 22px; height: 22px; border-radius: 50%;
-    border: 1.5px solid var(--border); background: transparent;
-    color: var(--muted); font-size: 14px; line-height: 1;
+    width: 26px;
+    height: 26px;
+    border-radius: 9px;
+    border: 1.5px solid rgba(232,67,67,0.42);
+    background: rgba(30,21,21,0.92);
+    color: #ff6666;
+    line-height: 1;
     display:flex; align-items:center; justify-content:center;
-    cursor:pointer; transition: all 0.18s;
+    cursor:pointer;
+    transition: all 0.18s;
+    box-shadow:
+      0 0 0 1px rgba(232,67,67,0.14) inset,
+      0 0 10px rgba(232,67,67,0.28);
   }
-  .task-delete:hover { border-color: var(--red); color: var(--red); background: var(--red-soft); }
+  .task-delete .ui-icon {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.2;
+    color: #ff6666;
+  }
+  .task-delete:hover {
+    border-color: #ff6767;
+    background: rgba(42,24,24,0.95);
+    box-shadow:
+      0 0 0 1px rgba(232,67,67,0.2) inset,
+      0 0 16px rgba(232,67,67,0.4);
+  }
   .task-item.done .task-delete { opacity: 0.6; }
   .days-late { font-size: 11px; color: var(--red); font-weight: 700; margin-left: 6px; flex-shrink: 0; font-family: 'Montserrat', sans-serif; }
 
@@ -1120,7 +1140,7 @@
     .progress-card { border-radius: 14px; padding: 16px; }
     .task-item { padding: 12px 13px; gap: 10px; }
     .task-text { font-size: 16px; }
-    .task-delete { width: 24px; height: 24px; }
+    .task-delete { width: 26px; height: 26px; }
     .date-btn, .meal-btn, .pri-btn, .tag, .food-expand-btn, .events-add-btn, .events-date-btn, .events-add-text, .comment-send-btn, .add-btn, .finish-btn, .food-save-btn, .gym-start-btn, .gym-done-btn {
       min-height: 42px;
     }
@@ -2240,7 +2260,7 @@
         <div class="task-status ${t.pri}">${t.done?'✓':''}</div>
         <div class="task-text">${t.text}${!t.done&&t.originDate?`<span class="days-late">已拖${Math.max(1,Math.floor((new Date(todayStr())-new Date(t.originDate))/86400000))}天</span>`:t.daysLate&&!t.done?`<span class="days-late">已拖${t.daysLate}天</span>`:''}</div>
         <div class="task-actions">
-          ${canDelete?`<button class="task-delete" onclick="event.stopPropagation();requestDeleteTask('${t.id}')" aria-label="删除任务">×</button>`:''}
+          ${canDelete?`<button class="task-delete" onclick="event.stopPropagation();requestDeleteTask('${t.id}')" aria-label="删除任务">${icon('trash-2','small')}</button>`:''}
         </div>
       </div>`).join(''); }
     clearTaskInsertHint();
