@@ -530,6 +530,31 @@
   #page-records #calCard.collapsed .cal-toggle .cal-toggle-icon { font-size: 16px; width: 24px; }
 
   /* ── Live page ── */
+  .live-hero { padding: 4px 2px 12px; }
+  .live-hero-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #667a97;
+    margin-bottom: 8px;
+    letter-spacing: 0;
+  }
+  .live-hero-label .icon {
+    color: var(--blue);
+    font-size: 16px;
+    line-height: 1;
+  }
+  .live-hero-date {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 34px;
+    line-height: 1.02;
+    font-weight: 900;
+    letter-spacing: -1px;
+    color: var(--yellow);
+    text-shadow: 0 10px 24px rgba(240,165,0,0.1);
+  }
   .live-card { background: var(--surface); border-radius: 18px; padding: 18px; margin-bottom: 12px; border: 1.5px solid var(--border); }
   .live-name { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 16px; margin-bottom: 4px; }
   .live-pct { font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 900; color: var(--yellow); }
@@ -1193,6 +1218,10 @@
 
   <!-- ══ 今日动态 ══ -->
   <div class="page" id="page-live">
+    <div class="live-hero">
+      <div class="live-hero-label"><span class="icon">↗</span><span>今日实时进度</span></div>
+      <div class="live-hero-date" id="liveHeroDate"></div>
+    </div>
     <div id="liveList"></div>
   </div>
 
@@ -2155,11 +2184,15 @@
   // ══ LIVE ═══════════════════════════════════
   async function loadLive() {
     const list=document.getElementById('liveList');
+    const heroDate=document.getElementById('liveHeroDate');
     list.innerHTML='<div class="loading">加载中…</div>';
     if(liveRefreshTimer) clearInterval(liveRefreshTimer);
     liveRefreshTimer=setInterval(loadLive,30000);
     try {
       const today=todayStr();
+      const liveDate=new Date(today+'T00:00:00');
+      const liveDays=['周日','周一','周二','周三','周四','周五','周六'];
+      if(heroDate) heroDate.textContent=`${liveDate.getMonth()+1}月${liveDate.getDate()}日 · ${liveDays[liveDate.getDay()]}`;
       const yest=new Date(); yest.setDate(yest.getDate()-1);
       const yestStr=`${yest.getFullYear()}-${String(yest.getMonth()+1).padStart(2,'0')}-${String(yest.getDate()).padStart(2,'0')}`;
       const ALL_NAMES=['HH','JLL'];
@@ -2191,10 +2224,6 @@
       const todayNames=new Set(progressRecords.map(r=>r.name));
 
       list.innerHTML='';
-      const hdr=document.createElement('div');
-      hdr.style.cssText='font-family:Montserrat,sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;padding:0 2px';
-      hdr.textContent=`⚡ 今日实时进度 · ${formatDisplay(today)}`;
-      list.appendChild(hdr);
 
       // 渲染今日已有进度的人
       progressRecords.forEach(r=>{
