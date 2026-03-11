@@ -1313,6 +1313,16 @@
       <button class="add-btn" onclick="addTask()"><span class="icon-button-label"><i data-lucide="plus" class="ui-icon small"></i><span>添加到今日计划</span></span></button>
     </div>
 
+    <div class="card">
+      <div class="card-label summary-title"><span class="icon-title"><i data-lucide="square-pen" class="ui-icon small"></i><span>今日心得 / 总结</span></span></div>
+      <textarea class="summary-textarea" id="summaryInput" placeholder="今天怎么样？有什么感受或收获…"></textarea>
+    </div>
+
+    <button class="finish-btn" id="finishBtn" onclick="submitToday()"><span class="icon-button-label"><i data-lucide="check" class="ui-icon small"></i><span>完成今日任务，点击分享</span></span></button>
+  </div>
+
+  <!-- ══ 健身饮食 ══ -->
+  <div class="page" id="page-fitness">
     <div class="gym-section">
       <div id="gymPlanPhase">
         <div class="card-label section-title"><span class="icon-title"><i data-lucide="dumbbell" class="ui-icon small"></i><span>今日训练计划</span></span></div>
@@ -1355,13 +1365,6 @@
         <button class="food-save-btn" id="foodSaveBtn" onclick="saveFoodToDiary()"><span class="icon-button-label"><i data-lucide="notebook-pen" class="ui-icon small"></i><span>记入日记</span></span></button>
       </div>
     </div>
-
-    <div class="card">
-      <div class="card-label summary-title"><span class="icon-title"><i data-lucide="square-pen" class="ui-icon small"></i><span>今日心得 / 总结</span></span></div>
-      <textarea class="summary-textarea" id="summaryInput" placeholder="今天怎么样？有什么感受或收获…"></textarea>
-    </div>
-
-    <button class="finish-btn" id="finishBtn" onclick="submitToday()"><span class="icon-button-label"><i data-lucide="check" class="ui-icon small"></i><span>完成今日任务，点击分享</span></span></button>
   </div>
 
   <!-- ══ 今日动态 ══ -->
@@ -1413,6 +1416,9 @@
 <div class="bottom-nav">
   <button class="bottom-nav-btn active" onclick="showPage('plan')">
     <span class="icon"><i data-lucide="clipboard-list" class="ui-icon nav"></i></span>今日计划
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('fitness')">
+    <span class="icon"><i data-lucide="dumbbell" class="ui-icon nav"></i></span>健身饮食
   </button>
   <button class="bottom-nav-btn" onclick="showPage('live')">
     <span class="icon"><i data-lucide="zap" class="ui-icon nav"></i></span>今日进度
@@ -1666,11 +1672,12 @@
     const current=document.querySelector('.page.active');
     const currentPage=current?current.id.replace('page-',''):'';
     const isSamePage=(currentPage===page);
+    const navIndex={plan:0,fitness:1,live:2,records:3};
     if(page!=='live' && liveRefreshTimer){ clearInterval(liveRefreshTimer); liveRefreshTimer=null; }
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.querySelectorAll('.bottom-nav-btn').forEach(b=>b.classList.remove('active'));
     document.getElementById('page-'+page).classList.add('active');
-    document.querySelectorAll('.bottom-nav-btn')[{plan:0,live:1,records:2}[page]].classList.add('active');
+    document.querySelectorAll('.bottom-nav-btn')[navIndex[page]].classList.add('active');
     if(page==='records') loadRecordsPage();
     if(page==='live') loadLive();
     if(page==='plan' && !isSamePage) { 
@@ -1681,9 +1688,14 @@
       setTimeout(()=>{ try{ renderTasks(); }catch(e){} }, 0);
       requestAnimationFrame(updateFoodCollapseLayout);
     }
+    if(page==='fitness' && !isSamePage) {
+      loadWorkoutState();
+      updateFoodSummary();
+      requestAnimationFrame(updateFoodCollapseLayout);
+    }
     // 移动底栏覆盖指示条
     try{
-      const activeBtn = document.querySelectorAll('.bottom-nav-btn')[{plan:0,live:1,records:2}[page]];
+      const activeBtn = document.querySelectorAll('.bottom-nav-btn')[navIndex[page]];
       positionNavActive(activeBtn);
     }catch(e){}
     if(!isSamePage) window.scrollTo(0,0);
