@@ -1,6 +1,6 @@
 {
   "appId": "io.momannic.jhdailyplan",
-  "appName": "来回日记",
+  "appName": "回来打卡",
   "webDir": "www",
   "server": {
     "url": "https://momannic.github.io/JH-dailyplan/",

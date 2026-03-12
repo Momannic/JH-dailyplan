@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">来回日记</string>
-    <string name="title_activity_main">来回日记</string>
+    <string name="app_name">回来打卡</string>
+    <string name="title_activity_main">回来打卡</string>
     <string name="package_name">io.momannic.jhdailyplan</string>
     <string name="custom_url_scheme">io.momannic.jhdailyplan</string>
 </resources>
