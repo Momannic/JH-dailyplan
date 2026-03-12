@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>来来回回日记</title>
+<meta name="description" content="来来回回日记 · Daily Journal">
+<meta property="og:title" content="来来回回日记">
+<meta property="og:description" content="来来回回日记 · Daily Journal">
+<meta name="twitter:title" content="来来回回日记">
+<meta name="twitter:description" content="来来回回日记 · Daily Journal">
+<meta name="application-name" content="来来回回日记">
+<meta name="apple-mobile-web-app-title" content="来来回回日记">
+<link rel="stylesheet" href="./styles/app.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+<!-- ── Identity overlay ── -->
+<div class="identity-overlay" id="identityOverlay">
+  <div class="identity-panel">
+    <div class="id-title"><span class="id-main">来来回回</span><span class="id-sep">·</span><span class="id-rest">日记</span></div>
+    <div class="id-sub">JLLHH DAILY</div>
+    <div class="id-step" id="identityStep">
+      <div class="id-question" style="margin-bottom:24px">你是谁？</div>
+      <div class="id-btns">
+        <button class="id-btn" id="identityBtnHH" onclick="selectIdentityOption('HH')">HH</button>
+        <button class="id-btn" id="identityBtnJLL" onclick="selectIdentityOption('JLL')">JLL</button>
+      </div>
+      <button class="id-confirm hidden" id="identityConfirmBtn" onclick="confirmIdentity()">开始记录</button>
+    </div>
+  </div>
+</div>
+
+<div class="header">
+  <div class="header-left">
+    <div class="sub">JLLHH DAILY</div>
+    <h1><span>来来回回</span> · 日记</h1>
+  </div>
+  <div class="header-right">
+    <div class="header-date" id="headerDate"></div>
+    <button class="switch-btn" id="switchBtn" onclick="switchIdentity()">切换</button>
+  </div>
+</div>
+
+<!-- ══ 重要日程 banner ══ -->
+<div class="events-banner" id="eventsBanner">
+  <div class="events-bar" onclick="toggleEventsBanner()">
+    <span class="events-bar-icon" style="color:var(--yellow)"><i data-lucide="scroll-text" class="ui-icon small"></i></span>
+    <div class="events-ticker-wrap">
+      <div class="events-ticker" id="eventsTicker">
+        <span class="events-empty">添加重要日程…</span>
+      </div>
+    </div>
+    <span class="events-chevron"><i data-lucide="chevron-down" class="ui-icon small"></i></span>
+  </div>
+  <div class="events-panel">
+    <div class="events-panel-inner">
+      <div id="eventsList"></div>
+      <div class="events-add-row">
+        <button class="events-date-btn" id="eventsDateBtn" onclick="toggleEventsCalendar()">选择日期</button>
+        <input class="events-add-text" id="eventsTextInput" placeholder="事项内容…" onkeydown="if(event.key==='Enter')addEvent()">
+        <button class="events-add-btn" onclick="addEvent()"><span class="icon-button-label"><i data-lucide="plus" class="ui-icon small"></i><span>添加</span></span></button>
+      </div>
+      <!-- 自定义日历（复用 cal-dropdown 样式）-->
+      <div id="eventsCalendar" class="cal-dropdown closed" style="margin-top:8px;max-width:320px">
+        <div class="cal-header" style="margin-bottom:12px">
+          <button class="cal-nav" onclick="event.stopPropagation();eventsCalPrev()"><i data-lucide="chevron-left" class="ui-icon small"></i></button>
+          <div class="cal-title" id="eventsCalTitle"></div>
+          <button class="cal-nav" onclick="event.stopPropagation();eventsCalNext()"><i data-lucide="chevron-right" class="ui-icon small"></i></button>
+        </div>
+        <div class="cal-grid" id="eventsCalGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- ══ 今日计划 ══ -->
+  <div class="page active" id="page-plan">
+    <div class="progress-card">
+      <div class="date-row">
+        <button class="date-btn active" id="dateBtnToday" onclick="selectPlanDate(this,'today')">今天</button>
+        <button class="date-btn" id="dateBtnYesterday" onclick="selectPlanDate(this,'yesterday')">昨天</button>
+        <button class="date-btn" id="dateFakeBtn" onclick="togglePlanCalDropdown()"><span class="icon-button-label"><i data-lucide="calendar-days" class="ui-icon small"></i><span>更多日期</span></span></button>
+      </div>
+      <div id="planCalDropdown" class="cal-dropdown closed">
+        <div class="cal-header" style="margin-bottom:12px">
+          <button class="cal-nav" onclick="event.stopPropagation();planCalPrevMonth()"><i data-lucide="chevron-left" class="ui-icon small"></i></button>
+          <div class="cal-title" id="planCalTitle"></div>
+          <button class="cal-nav" onclick="event.stopPropagation();planCalNextMonth()"><i data-lucide="chevron-right" class="ui-icon small"></i></button>
+        </div>
+        <div class="cal-grid" id="planCalGrid"></div>
+      </div>
+      <div class="progress-top">
+        <div class="progress-label" id="progressLabel">今日完成度</div>
+        <div class="progress-pct-big" id="progressPctBig">0%</div>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+      </div>
+      <div class="progress-sub" id="progressSub">今天还没有任务，加油！</div>
+    </div>
+
+    <div id="taskList"></div>
+
+    <div class="add-card">
+      <div class="add-card-title"><span class="icon-title"><i data-lucide="plus" class="ui-icon small"></i><span>添加任务</span></span></div>
+      <input class="add-input" id="taskInput" placeholder="今天要做什么…" onkeydown="if(event.key==='Enter')addTask()">
+      <div class="priority-row">
+        <button class="pri-btn high active" onclick="selectPri(this,'high')"><span class="icon-button-label"><span class="pri-swatch high"></span><span>很重要</span></span></button>
+        <button class="pri-btn mid" onclick="selectPri(this,'mid')"><span class="icon-button-label"><span class="pri-swatch mid"></span><span>一般吧</span></span></button>
+        <button class="pri-btn low" onclick="selectPri(this,'low')"><span class="icon-button-label"><span class="pri-swatch low"></span><span>不着急</span></span></button>
+      </div>
+      <button class="add-btn" onclick="addTask()"><span class="icon-button-label"><i data-lucide="circle-plus" class="ui-icon small"></i><span>添加计划</span></span></button>
+    </div>
+
+    <div class="card">
+      <div class="card-label summary-title"><span class="icon-title"><i data-lucide="square-pen" class="ui-icon small"></i><span>今日心得 / 总结</span></span></div>
+      <textarea class="summary-textarea" id="summaryInput" placeholder="今天怎么样？有什么感受或收获…"></textarea>
+      <button class="finish-btn" id="finishBtn" onclick="submitToday()"><span class="icon-button-label"><i data-lucide="share-2" class="ui-icon small"></i><span>完成今日任务，点击分享</span></span></button>
+    </div>
+  </div>
+
+  <!-- ══ 健身饮食 ══ -->
+  <div class="page" id="page-fitness">
+    <div id="gymTaskList" class="gym-plan-list gym-plan-list-top" style="display:none"></div>
+    <div class="gym-section">
+      <div id="gymPlanPhase">
+        <div class="card-label section-title"><span class="icon-title"><i data-lucide="dumbbell" class="ui-icon small"></i><span>今日训练计划</span></span></div>
+        <div class="tags-grid" id="tagsGrid">
+          <button class="tag rest-tag" data-name="休息" onclick="toggleRestOrTag(this)"><span class="emoji-label"><span class="tag-emoji">😴</span><span>休息</span></span></button>
+          <button class="tag" data-name="胸" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">💪</span><span>胸</span></span></button>
+          <button class="tag" data-name="背" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🏋️</span><span>背</span></span></button>
+          <button class="tag" data-name="腿" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🦵</span><span>腿</span></span></button>
+          <button class="tag" data-name="臀" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🦵</span><span>臀</span></span></button>
+          <button class="tag" data-name="肩" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">💪</span><span>肩</span></span></button>
+          <button class="tag" data-name="腹" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🔥</span><span>腹</span></span></button>
+          <button class="tag" data-name="三头" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">💪</span><span>三头</span></span></button>
+          <button class="tag" data-name="二头" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">💪</span><span>二头</span></span></button>
+          <button class="tag" data-name="热身" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🏃</span><span>热身</span></span></button>
+          <button class="tag" data-name="爬坡" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">⛰️</span><span>爬坡</span></span></button>
+          <button class="tag" data-name="短跑" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🏃</span><span>短跑</span></span></button>
+          <button class="tag" data-name="长跑" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🏃</span><span>长跑</span></span></button>
+        </div>
+        <div class="add-tag-row">
+          <input class="add-tag-input" id="newTagInput" placeholder="自定义动作…" onkeydown="if(event.key==='Enter')addCustomTag()">
+          <button class="add-tag-btn" onclick="addCustomTag()"><span class="icon-button-label"><i data-lucide="plus" class="ui-icon small"></i><span>添加</span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="gym-section food-section">
+      <div class="sub-label section-title"><span class="icon-title"><i data-lucide="utensils-crossed" class="ui-icon small"></i><span>今日饮食</span></span></div>
+      <div class="sub-label" style="margin-top:-4px">直接填写今天吃了什么</div>
+      <div id="foodCategoryArea">
+        <div class="add-tag-row" style="margin-top:8px">
+          <input class="add-tag-input" id="newFoodInput" placeholder="例如：鸡胸肉、米饭、香蕉…" onkeydown="if(event.key==='Enter')addCustomFood()">
+          <button class="add-tag-btn" onclick="addCustomFood()"><span class="icon-button-label"><i data-lucide="plus" class="ui-icon small"></i><span>添加</span></span></button>
+        </div>
+        <!-- 已选食物汇总 -->
+        <div id="foodSelectedSummary" style="display:none;margin-top:10px;padding:8px 10px;background:var(--surface2);border-radius:10px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:Montserrat,sans-serif;letter-spacing:1px">已填</div>
+          <div id="foodSelectedTags" class="tags-grid" style="gap:6px"></div>
+        </div>
+        <button class="food-save-btn" id="foodSaveBtn" onclick="saveFoodToDiary()"><span class="icon-button-label"><i data-lucide="notebook-pen" class="ui-icon small"></i><span>记入日记</span></span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 今日动态 ══ -->
+  <div class="page" id="page-live">
+    <div id="liveList"></div>
+  </div>
+
+  <!-- ══ 日记记录 ══ -->
+  <div class="page" id="page-records">
+    <!-- 日历 -->
+    <div class="card collapsed" id="calCard">
+      <div class="cal-toggle" onclick="toggleCalCard()">
+        <div style="width:28px"></div>
+        <div class="cal-toggle-label"><span class="icon-title"><i data-lucide="calendar-days" class="ui-icon small"></i><span>日记日历</span></span></div>
+        <div class="cal-toggle-icon" id="calToggleIcon"><i data-lucide="chevron-down" class="ui-icon small"></i></div>
+      </div>
+      <div class="cal-body">
+        <div class="cal-header">
+          <button class="cal-nav" onclick="event.stopPropagation();calPrevMonth()"><i data-lucide="chevron-left" class="ui-icon small"></i></button>
+          <div class="cal-title" id="calTitle"></div>
+          <button class="cal-nav" onclick="event.stopPropagation();calNextMonth()"><i data-lucide="chevron-right" class="ui-icon small"></i></button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <!-- 图例 -->
+        <div style="display:flex;gap:14px;margin-top:12px;justify-content:center">
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-family:'Montserrat',sans-serif">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--green)"></div>HH打卡
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-family:'Montserrat',sans-serif">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--pink)"></div>JLL打卡
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-family:'Montserrat',sans-serif">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--border)"></div>未打卡
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 选中日期详情已移除：使用下方已发布日记作为详情展示 -->
+
+    <div style="margin-top:12px">
+      <button class="export-btn" id="exportBtn" style="display:none" onclick="exportCSV()"><span class="icon-button-label"><i data-lucide="download" class="ui-icon small"></i><span>导出备份</span></span></button>
+      <div id="feedList"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="bottom-nav">
+  <button class="bottom-nav-btn active" onclick="showPage('plan')">
+    <span class="icon"><i data-lucide="clipboard-list" class="ui-icon nav"></i></span>今日计划
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('fitness')">
+    <span class="icon"><i data-lucide="dumbbell" class="ui-icon nav"></i></span>健身饮食
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('live')">
+    <span class="icon"><i data-lucide="zap" class="ui-icon nav"></i></span>今日进度
+  </button>
+  <button class="bottom-nav-btn" onclick="showPage('records')">
+    <span class="icon"><i data-lucide="book-open" class="ui-icon nav"></i></span>日记
+  </button>
+</div>
+
+<div class="confirm-overlay hidden" id="deleteConfirmOverlay" onclick="if(event.target===this) closeDeleteConfirm()">
+  <div class="confirm-box" onclick="event.stopPropagation()">
+    <div class="confirm-title">确定删除吗？</div>
+    <div class="confirm-actions">
+      <button class="confirm-btn confirm-cancel" onclick="closeDeleteConfirm()">取消</button>
+      <button class="confirm-btn confirm-ok" onclick="confirmDeleteTask()">确定</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./scripts/config.js"></script>
+<script src="./scripts/app.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  renderLucideIcons();
+</script>
+</body>
+</html>
