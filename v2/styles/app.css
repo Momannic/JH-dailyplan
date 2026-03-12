@@ -3291,15 +3291,7 @@
   }
 
   .bottom-nav .nav-active {
-    top: 0;
-    bottom: 0;
-    border-radius: 26px 26px 0 0;
-    background:
-      linear-gradient(180deg, rgba(var(--page-primary-rgb), 0.22) 0%, rgba(var(--page-primary-rgb), 0.08) 100%);
-    border: 1px solid rgba(var(--page-primary-rgb), 0.14);
-    border-bottom: none;
-    pointer-events: none;
-    z-index: 0;
+    display: none !important;
   }
 
   .bottom-nav-btn {
@@ -3310,6 +3302,12 @@
     font-weight: 700;
     position: relative;
     z-index: 2;
+    border-radius: 26px 26px 0 0;
+    transition:
+      color 180ms ease,
+      transform 180ms ease,
+      background 220ms ease,
+      box-shadow 220ms ease;
   }
 
   .bottom-nav-btn .icon {
@@ -3324,6 +3322,37 @@
 
   .bottom-nav-btn.active .icon {
     transform: translateY(-2px) scale(1.06);
+  }
+
+  .bottom-nav-btn.active {
+    background:
+      linear-gradient(180deg, rgba(var(--page-primary-rgb), 0.22) 0%, rgba(var(--page-primary-rgb), 0.08) 100%);
+    box-shadow:
+      0 -8px 30px var(--page-nav-glow),
+      inset 0 1px 0 rgba(255,255,255,0.06),
+      0 0 0 1px rgba(var(--page-primary-rgb), 0.12);
+  }
+
+  .bottom-nav-btn.active::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at top center, rgba(var(--page-primary-rgb), 0.2), transparent 68%);
+    pointer-events: none;
+  }
+
+  .page button,
+  .page input,
+  .page textarea,
+  .page select,
+  .header button,
+  .events-banner button,
+  .events-banner input,
+  .bottom-nav button {
+    position: relative;
+    z-index: 5;
+    pointer-events: auto;
   }
 
   @media (max-width: 520px) {
