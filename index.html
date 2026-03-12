@@ -452,8 +452,23 @@
   .progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
   .progress-label { color: #f7f4ef; font-size: 13px; font-weight: 500; }
   .progress-pct-big { font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 900; color: var(--yellow); line-height: 1; }
-  .progress-bar-bg { height: 6px; background: #2e2a28; border-radius: 3px; overflow: hidden; }
-  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--yellow), #f5c842); border-radius: 3px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); }
+  .progress-bar-bg { height: 8px; background: #2e2a28; border-radius: 999px; overflow: hidden; position: relative; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--yellow), #f5c842); border-radius: 999px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); position: relative; overflow: hidden; }
+  .progress-bar-fill.progress-live::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -40%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+    filter: blur(0.3px);
+    animation: progressLiveSweep 1.9s linear infinite;
+  }
+  @keyframes progressLiveSweep {
+    from { left: -40%; }
+    to { left: 120%; }
+  }
   .progress-sub { font-family: 'Montserrat', sans-serif; font-size: 11px; color: #9a9088; margin-top: 8px; }
 
   /* ── Tasks ── */
@@ -675,9 +690,9 @@
   /* 日选中详情已移除，使用下方已发布日记列表展示 */
 
   /* ── Date separator in feed ── */
-  .date-separator { display: flex; align-items: center; gap: 10px; margin: 20px 0 12px; }
+  .date-separator { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px 0 12px; }
   .date-separator-line { display: none; }
-  .date-separator-label { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1px; white-space: nowrap; }
+  .date-separator-label { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1px; white-space: nowrap; text-align: center; }
   .date-separator.past .date-separator-label { color: var(--done-color); }
   .date-separator.past .date-separator-line { background: #ece8e0; }
 
@@ -1862,6 +1877,50 @@
   .feed-task:not(.done) .feed-task-dot.mid { background: var(--priority-mid) !important; }
   .feed-task:not(.done) .feed-task-dot.low { background: var(--green) !important; }
 
+  .feed-tasks.feed-tasks-stack {
+    position: relative;
+    transition: max-height 300ms cubic-bezier(0.2, 0.9, 0.2, 1), padding-bottom 300ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  }
+  .feed-tasks.feed-tasks-stack.collapsed {
+    max-height: 168px;
+    overflow: hidden;
+    padding-bottom: 6px;
+  }
+  .feed-tasks.feed-tasks-stack.collapsed .feed-task {
+    transform-origin: center top;
+    transition: transform 300ms cubic-bezier(0.2, 0.9, 0.2, 1), opacity 300ms cubic-bezier(0.2, 0.9, 0.2, 1), margin-top 300ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  }
+  .feed-tasks.feed-tasks-stack.collapsed .feed-task:nth-child(2) {
+    margin-top: -44px !important;
+    transform: translateY(10px) scale(0.985);
+    opacity: 0.9;
+    z-index: 3;
+  }
+  .feed-tasks.feed-tasks-stack.collapsed .feed-task:nth-child(3) {
+    margin-top: -44px !important;
+    transform: translateY(20px) scale(0.97);
+    opacity: 0.75;
+    z-index: 2;
+  }
+  .feed-tasks.feed-tasks-stack.collapsed .feed-task:nth-child(n+4) { display: none !important; }
+  .feed-stack-toggle {
+    margin: 4px 0 6px;
+    width: 100%;
+    border: 1.25px dashed var(--border);
+    background: #fff;
+    color: var(--muted);
+    border-radius: 10px;
+    min-height: 34px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'Noto Sans SC', sans-serif;
+    transition: transform 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  }
+  .feed-stack-toggle:active { transform: scale(0.985); }
+  .feed-stack-toggle .icon-button-label { justify-content: center; }
+  .feed-stack-toggle:hover { border-color: var(--yellow); color: var(--yellow); }
+
 </style>
 <!-- flatpickr for consistent date picker across browsers -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -1956,7 +2015,7 @@
     <div id="taskList"></div>
 
     <div class="add-card">
-      <div class="add-card-title"><span class="icon-title"><i data-lucide="circle-plus" class="ui-icon small"></i><span>添加任务</span></span></div>
+      <div class="add-card-title"><span class="icon-title"><i data-lucide="circle-plus" class="ui-icon small"></i><span>添加计划</span></span></div>
       <input class="add-input" id="taskInput" placeholder="今天要做什么…" onkeydown="if(event.key==='Enter')addTask()">
       <div class="priority-row">
         <button class="pri-btn high active" onclick="selectPri(this,'high')"><span class="icon-button-label"><span class="pri-swatch high"></span><span>很重要</span></span></button>
@@ -1967,7 +2026,7 @@
     </div>
 
     <div class="card">
-      <div class="card-label summary-title"><span class="icon-title"><i data-lucide="square-pen" class="ui-icon small"></i><span>今日心得 / 总结</span></span></div>
+      <div class="card-label summary-title"><span class="icon-title"><i data-lucide="square-pen" class="ui-icon small"></i><span>分享日记</span></span></div>
       <textarea class="summary-textarea" id="summaryInput" placeholder="今天怎么样？有什么感受或收获…"></textarea>
       <button class="finish-btn" id="finishBtn" onclick="submitToday()"><span class="icon-button-label"><i data-lucide="share-2" class="ui-icon small"></i><span>完成今日任务，点击分享</span></span></button>
     </div>
@@ -1978,7 +2037,7 @@
     <div id="gymTaskList" class="gym-plan-list gym-plan-list-top" style="display:none"></div>
     <div class="gym-section">
       <div id="gymPlanPhase">
-        <div class="card-label section-title"><span class="icon-title"><i data-lucide="dumbbell" class="ui-icon small"></i><span>今日训练计划</span></span></div>
+        <div class="card-label section-title"><span class="icon-title"><i data-lucide="dumbbell" class="ui-icon small"></i><span>今日训练</span></span></div>
         <div class="tags-grid" id="tagsGrid">
           <button class="tag rest-tag" data-name="休息" onclick="toggleRestOrTag(this)"><span class="emoji-label"><span class="tag-emoji">😴</span><span>休息</span></span></button>
           <button class="tag" data-name="胸" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">💪</span><span>胸</span></span></button>
@@ -1996,7 +2055,7 @@
         </div>
         <div class="add-tag-row">
           <input class="add-tag-input" id="newTagInput" placeholder="自定义动作…" onkeydown="if(event.key==='Enter')addCustomTag()">
-          <button class="add-tag-btn" onclick="addCustomTag()"><span class="icon-button-label"><i data-lucide="plus" class="ui-icon small"></i><span>添加</span></span></button>
+          <button class="add-tag-btn" onclick="addCustomTag()"><span class="icon-button-label"><i data-lucide="circle-plus" class="ui-icon small"></i><span>添加</span></span></button>
         </div>
       </div>
     </div>
@@ -2007,7 +2066,7 @@
       <div id="foodCategoryArea">
         <div class="add-tag-row" style="margin-top:8px">
           <input class="add-tag-input" id="newFoodInput" placeholder="例如：鸡胸肉、米饭、香蕉…" onkeydown="if(event.key==='Enter')addCustomFood()">
-          <button class="add-tag-btn" onclick="addCustomFood()"><span class="icon-button-label"><i data-lucide="plus" class="ui-icon small"></i><span>添加</span></span></button>
+          <button class="add-tag-btn" onclick="addCustomFood()"><span class="icon-button-label"><i data-lucide="circle-plus" class="ui-icon small"></i><span>添加</span></span></button>
         </div>
         <!-- 已选食物汇总 -->
         <div id="foodSelectedSummary" style="display:none;margin-top:10px;padding:8px 10px;background:var(--surface2);border-radius:10px">
@@ -2058,7 +2117,6 @@
     <!-- 选中日期详情已移除：使用下方已发布日记作为详情展示 -->
 
     <div style="margin-top:12px">
-      <button class="export-btn" id="exportBtn" style="display:none" onclick="exportCSV()"><span class="icon-button-label"><i data-lucide="download" class="ui-icon small"></i><span>导出备份</span></span></button>
       <div id="feedList"></div>
     </div>
   </div>
@@ -2855,10 +2913,12 @@
     const total=tasks.length, done=tasks.filter(t=>t.done).length;
     const pct=total===0?0:Math.round(done/total*100);
     const color=progressColorByPct(pct);
+    const progressBarEl=document.getElementById('progressBar');
     document.getElementById('progressPctBig').textContent = pct+'%';
     document.getElementById('progressPctBig').style.color = color;
-    document.getElementById('progressBar').style.width=pct+'%';
-    document.getElementById('progressBar').style.background=`linear-gradient(90deg, ${color}, ${color})`;
+    progressBarEl.style.width=pct+'%';
+    progressBarEl.style.background=`linear-gradient(90deg, ${color}, ${color})`;
+    progressBarEl.classList.toggle('progress-live', pct>0 && pct<100);
     document.getElementById('progressSub').textContent=
       total===0?'今天还没有任务，加油！':
       pct===100?'全部完成！今天非常棒':
@@ -3479,7 +3539,6 @@
       allLogs.forEach(r=>{ if(!calDates[r.date]) calDates[r.date]=[]; if(!calDates[r.date].includes(r.name)) calDates[r.date].push(r.name); });
       renderCalendar();
       renderFeed();
-      if(allLogs.length) document.getElementById('exportBtn').style.display='block';
     } catch(e){
       console.error('loadRecordsPage error:', e);
       document.getElementById('feedList').innerHTML=`<div class="empty-state"><div class="state-icon-wrap">${icon('circle-alert','state')}</div><p>加载失败，请检查网络<br><small style="font-size:11px;opacity:0.6">${e.message}</small></p></div>`;
@@ -3672,18 +3731,21 @@
   function renderFeedCard(r,container,isPastDay=false){
     const div=document.createElement('div'); div.className='feed-card'+(isPastDay?' past':''); div.id=`feed-${r.id}`;
     const tasks=r.tasks||[], done=tasks.filter(t=>t.done).length, total=tasks.length;
+    const sortedTasks=[...tasks].sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;return priOrder[a.pri]-priOrder[b.pri];});
+    const stackId=`fts-${String(r.id||'').replace(/[^a-zA-Z0-9_-]/g,'-')}`;
     const pct=total===0?0:Math.round(done/total*100);
     const summaries=r.summaries&&r.summaries.length?r.summaries:(r.summary?[{text:r.summary,time:''}]:[]);
     const canEditDiary = !!myName && myName===r.name;
     const tasksHtml=tasks.length?`
       <div class="feed-section-title"><span class="icon-title">${icon('clipboard-list','small')}<span>计划 ${done}/${total} · ${pct}%</span></span></div>
-      <div class="feed-tasks">${[...tasks].sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;return priOrder[a.pri]-priOrder[b.pri];}).map(t=>`
+      <div class="feed-tasks feed-tasks-stack collapsed" id="${stackId}">${sortedTasks.map(t=>`
         <div class="feed-task ${t.done?'done':''}">
           <div class="feed-task-dot ${t.pri}"></div>
           <span>${t.text}</span>
           ${t.done?`<span class="feed-task-status">已完成</span>`:''}
         </div>`).join('')}
-      </div>`:'';
+      </div>
+      ${sortedTasks.length>1?`<button class="feed-stack-toggle" onclick="toggleFeedTaskStack('${stackId}', this)"><span class="icon-button-label">${icon('chevrons-down','small')}<span>展开任务</span></span></button>`:''}`:'';
     const workoutNorm=normalizeWorkout(r.workout_tags||[]);
     const isRest=workoutNorm.some(w=>isRestWorkoutName(w.name));
     const workoutHtml=workoutNorm.length?`
@@ -3746,6 +3808,20 @@
         </div>
       </div>`;
     container.appendChild(div);
+  }
+
+  function toggleFeedTaskStack(stackId, btn){
+    const stack=document.getElementById(stackId);
+    if(!stack) return;
+    const isCollapsed=stack.classList.contains('collapsed');
+    if(isCollapsed){
+      stack.classList.remove('collapsed');
+      if(btn) btn.innerHTML=`<span class="icon-button-label">${icon('chevrons-up','small')}<span>收起任务</span></span>`;
+    } else {
+      stack.classList.add('collapsed');
+      if(btn) btn.innerHTML=`<span class="icon-button-label">${icon('chevrons-down','small')}<span>展开任务</span></span>`;
+    }
+    renderLucideIcons();
   }
 
   async function toggleReaction(logId,emoji){
