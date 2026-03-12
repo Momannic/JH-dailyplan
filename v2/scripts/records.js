@@ -91,9 +91,15 @@ function createNavActive(){
 function positionNavActive(target){
   const nav=document.querySelector('.bottom-nav'); const bar=nav&&nav.querySelector('.nav-active'); if(!nav||!bar||!target) return;
   const nRect=nav.getBoundingClientRect(), tRect=target.getBoundingClientRect();
-  const left = tRect.left - nRect.left; const width = tRect.width;
+  const inset = 8;
+  const left = (tRect.left - nRect.left) + inset;
+  const width = Math.max(0, tRect.width - inset * 2);
   bar.style.width = width + 'px';
+  bar.style.setProperty('--nav-x', `${left}px`);
   bar.style.transform = `translateX(${left}px)`;
+  bar.classList.remove('nav-bounce');
+  void bar.offsetWidth;
+  bar.classList.add('nav-bounce');
 }
 
 function openDatePicker(e){
