@@ -3496,24 +3496,24 @@
   }
 
   body[data-theme="fitness"] {
-    --page-primary: #27b36a;
-    --page-strong: #27b36a;
-    --page-primary-rgb: 39, 179, 106;
-    --page-strong-rgb: 39, 179, 106;
+    --page-primary: #16a34a;
+    --page-strong: #16a34a;
+    --page-primary-rgb: 22, 163, 74;
+    --page-strong-rgb: 22, 163, 74;
   }
 
   body[data-theme="live"] {
-    --page-primary: #3a86ff;
-    --page-strong: #3a86ff;
-    --page-primary-rgb: 58, 134, 255;
-    --page-strong-rgb: 58, 134, 255;
+    --page-primary: #2563eb;
+    --page-strong: #2563eb;
+    --page-primary-rgb: 37, 99, 235;
+    --page-strong-rgb: 37, 99, 235;
   }
 
   body[data-theme="records"] {
-    --page-primary: #8b5cf6;
-    --page-strong: #8b5cf6;
-    --page-primary-rgb: 139, 92, 246;
-    --page-strong-rgb: 139, 92, 246;
+    --page-primary: #7c3aed;
+    --page-strong: #7c3aed;
+    --page-primary-rgb: 124, 58, 237;
+    --page-strong-rgb: 124, 58, 237;
   }
 
   body {
@@ -3759,6 +3759,11 @@
     padding: 0 10px !important;
     border-radius: 999px !important;
     color: #dfe5ef !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
     transition: background 180ms ease, color 180ms ease, flex-grow 220ms ease !important;
   }
 
@@ -3766,6 +3771,10 @@
     width: 38px !important;
     height: 38px !important;
     background: transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
   }
 
   .bottom-nav-btn .ui-icon.nav {
@@ -3784,6 +3793,7 @@
   }
 
   .nav-label {
+    display: inline-block !important;
     max-width: 0;
     opacity: 0;
     overflow: hidden;
