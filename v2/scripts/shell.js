@@ -86,7 +86,7 @@ function updateProgressLabel() {
       dateLabel = `${d.getMonth()+1}月${d.getDate()}日`;
     }
   }
-  document.getElementById('progressLabel').innerHTML = myName ? `<span style="color:var(--yellow);font-weight:800;font-family:'Montserrat',sans-serif">${myName}</span> ${dateLabel}完成度` : `${dateLabel}完成度`;
+  document.getElementById('progressLabel').innerHTML = myName ? `<span style="color:var(--page-strong);font-weight:800;font-family:'Montserrat',sans-serif">${myName}</span> ${dateLabel}完成度` : `${dateLabel}完成度`;
 }
 function triggerMainEnterMotion(){
   document.body.classList.remove('main-entering');
@@ -138,6 +138,7 @@ function showPage(page) {
   document.querySelectorAll('.bottom-nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   document.querySelectorAll('.bottom-nav-btn')[navIndex[page]].classList.add('active');
+  applyPageTheme(page);
   if(page==='records') loadRecordsPage();
   if(page==='live') loadLive();
   if(page==='plan' && !isSamePage) { 
@@ -159,6 +160,16 @@ function showPage(page) {
     positionNavActive(activeBtn);
   }catch(e){}
   if(!isSamePage) window.scrollTo(0,0);
+}
+
+function applyPageTheme(page){
+  const themeMap = {
+    plan: 'plan',
+    fitness: 'fitness',
+    live: 'live',
+    records: 'records'
+  };
+  document.body.dataset.theme = themeMap[page] || 'plan';
 }
 
 function applyNativeAppClass(){
