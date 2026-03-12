@@ -4099,7 +4099,7 @@
 
   /* ── Plan progress card layout correction ──────────────────────────── */
   #page-plan .progress-card {
-    background: #d3b22a !important;
+    background: var(--page-primary) !important;
     border: none !important;
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) 128px !important;
@@ -4164,7 +4164,7 @@
     margin: 0 !important;
     padding: 12px 14px !important;
     border-radius: 24px !important;
-    background: rgba(15, 21, 26, 0.16) !important;
+    background: rgba(15, 21, 26, 0.14) !important;
     border: none !important;
     color: #eef3fb !important;
     font-size: 16px !important;
@@ -4193,7 +4193,7 @@
       grid-template-columns: minmax(0, 1fr) 110px !important;
       column-gap: 14px !important;
       row-gap: 16px !important;
-      background: #cfad22 !important;
+      background: var(--page-primary) !important;
     }
 
     #page-plan .progress-label {
