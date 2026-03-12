@@ -979,7 +979,8 @@
     align-items: center;
     justify-content: center;
     gap: 0;
-    transition: background 180ms ease, color 180ms ease, flex-grow 220ms ease, transform 180ms ease;
+    transition: background-color 140ms ease, color 140ms ease, transform 140ms ease;
+    will-change: transform;
   }
   .bottom-nav-btn .icon {
     width: 22px;
@@ -1004,18 +1005,21 @@
     margin-left: 0;
     color: inherit;
     line-height: 1;
-    transition: max-width 220ms ease, opacity 140ms ease, margin-left 220ms ease;
+    transform: translateX(-4px);
+    transition: opacity 120ms ease, transform 140ms ease;
   }
   .bottom-nav-btn.active {
-    flex-grow: 1.45;
+    flex-grow: 1;
     background: var(--yellow);
     color: #111111;
-    gap: 8px;
+    gap: 6px;
     font-weight: 800;
   }
   .bottom-nav-btn.active .nav-label {
     max-width: 88px;
     opacity: 1;
+    margin-left: 4px;
+    transform: translateX(0);
   }
   .bottom-nav-btn.active .ui-icon.nav { color: #111111; }
   /* ── Gym checklist ── */
@@ -2349,38 +2353,55 @@
 
   // ── Page nav ───────────────────────────────
   let liveRefreshTimer = null;
+  const navIndex = { plan:0, fitness:1, live:2, records:3 };
+  const pageCache = {};
+  const navButtons = Array.from(document.querySelectorAll('.bottom-nav-btn'));
+  let pageSwitchRaf = null;
+  let currentPageName = ((document.querySelector('.page.active') || {}).id || 'page-plan').replace('page-','');
+
+  function getPageNode(page){
+    if(!pageCache[page]) pageCache[page] = document.getElementById('page-'+page);
+    return pageCache[page];
+  }
+
   function showPage(page) {
-    const current=document.querySelector('.page.active');
-    const currentPage=current?current.id.replace('page-',''):'';
-    const isSamePage=(currentPage===page);
-    const navIndex={plan:0,fitness:1,live:2,records:3};
-    if(page!=='live' && liveRefreshTimer){ clearInterval(liveRefreshTimer); liveRefreshTimer=null; }
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.querySelectorAll('.bottom-nav-btn').forEach(b=>b.classList.remove('active'));
-    document.getElementById('page-'+page).classList.add('active');
-    document.querySelectorAll('.bottom-nav-btn')[navIndex[page]].classList.add('active');
+    if(!(page in navIndex)) return;
+    const isSamePage = (currentPageName===page);
+    if(isSamePage){
+      applyPageTheme(page);
+      return;
+    }
+    if(currentPageName==='live' && page!=='live' && liveRefreshTimer){ clearInterval(liveRefreshTimer); liveRefreshTimer=null; }
+    const prevPage = getPageNode(currentPageName);
+    const nextPage = getPageNode(page);
+    if(prevPage) prevPage.classList.remove('active');
+    if(nextPage) nextPage.classList.add('active');
+    const prevBtn = navButtons[navIndex[currentPageName]];
+    const nextBtn = navButtons[navIndex[page]];
+    if(prevBtn) prevBtn.classList.remove('active');
+    if(nextBtn) nextBtn.classList.add('active');
+    currentPageName = page;
     applyPageTheme(page);
-    if(page==='records') loadRecordsPage();
-    if(page==='live') loadLive();
-    if(page==='plan' && !isSamePage) { 
-      // 确保每次进入计划页都刷新任务与日历
-      loadTasks();
-      renderPlanCalendar();
-      // 进一步确保渲染完成后任务列表可见
-      setTimeout(()=>{ try{ renderTasks(); }catch(e){} }, 0);
-      requestAnimationFrame(updateFoodCollapseLayout);
+    if(pageSwitchRaf){
+      cancelAnimationFrame(pageSwitchRaf);
+      pageSwitchRaf = null;
     }
-    if(page==='fitness' && !isSamePage) {
-      loadWorkoutState();
-      updateFoodSummary();
-      requestAnimationFrame(updateFoodCollapseLayout);
-    }
-    // 移动底栏覆盖指示条
-    try{
-      const activeBtn = document.querySelectorAll('.bottom-nav-btn')[navIndex[page]];
-      positionNavActive(activeBtn);
-    }catch(e){}
-    if(!isSamePage) window.scrollTo(0,0);
+    pageSwitchRaf = requestAnimationFrame(()=>{
+      if(page==='records') loadRecordsPage();
+      if(page==='live') loadLive();
+      if(page==='plan') {
+        loadTasks();
+        renderPlanCalendar();
+        requestAnimationFrame(updateFoodCollapseLayout);
+      }
+      if(page==='fitness') {
+        loadWorkoutState();
+        updateFoodSummary();
+        requestAnimationFrame(updateFoodCollapseLayout);
+      }
+      pageSwitchRaf = null;
+    });
+    window.scrollTo(0,0);
   }
 
   function applyPageTheme(page){
@@ -2528,6 +2549,79 @@
     setTimeout(()=>{ positionDateIndicator(fakeBtn); },60);
   }
 
+  function parseTaskTimestamp(value){
+    if(!value) return 0;
+    const ts = Date.parse(value);
+    return Number.isNaN(ts) ? 0 : ts;
+  }
+
+  function isTaskDone(task){
+    if(!task) return false;
+    return task.done === true || task.done === 'true' || task.done === 1 || task.done === '1';
+  }
+
+  function pickBestTaskRows(progressRow, logRow){
+    const progressTasks = progressRow && Array.isArray(progressRow.tasks) ? progressRow.tasks : [];
+    const logTasks = logRow && Array.isArray(logRow.tasks) ? logRow.tasks : [];
+    const progressTs = parseTaskTimestamp(progressRow?.updated_at);
+    const logTs = parseTaskTimestamp(logRow?.updated_at || logRow?.created_at);
+
+    if(progressTasks.length === 0) return logTasks;
+    if(logTasks.length === 0) return progressTasks;
+    return logTs >= progressTs ? logTasks : progressTasks;
+  }
+
+  function getOutstandingCarryTasks(progressRow, logRow){
+    const merged = new Map();
+    const addTask = (task) => {
+      if(!task) return;
+      const key = task.originId || task.id;
+      if(!key) return;
+      const existing = merged.get(key);
+      if(!existing){
+        merged.set(key, {...task, __done: isTaskDone(task)});
+        return;
+      }
+      existing.__done = existing.__done || isTaskDone(task);
+      if(!existing.originDate && task.originDate) existing.originDate = task.originDate;
+      if(!existing.text && task.text) existing.text = task.text;
+      if(!existing.pri && task.pri) existing.pri = task.pri;
+    };
+
+    (progressRow && Array.isArray(progressRow.tasks) ? progressRow.tasks : []).forEach(addTask);
+    (logRow && Array.isArray(logRow.tasks) ? logRow.tasks : []).forEach(addTask);
+
+    return Array.from(merged.values())
+      .filter(item => !item.__done)
+      .map(({ __done, ...task }) => task);
+  }
+
+  async function collectDoneOriginIdsBeforeToday(maxDays=7){
+    const doneOriginIds = new Set();
+    for(let i=1;i<=maxDays;i++){
+      const d=new Date(); d.setDate(d.getDate()-i);
+      const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      try{
+        const [r1, r2] = await Promise.all([
+          fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${dateStr}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}),
+          fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${dateStr}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}})
+        ]);
+        const d1=await r1.json();
+        const d2=await r2.json();
+        [...d1, ...d2].forEach(row=>{
+          const rowTasks = Array.isArray(row?.tasks) ? row.tasks : [];
+          rowTasks.forEach(t=>{
+            if(isTaskDone(t)){
+              const key = t?.originId || t?.id;
+              if(key) doneOriginIds.add(String(key));
+            }
+          });
+        });
+      }catch(e){}
+    }
+    return doneOriginIds;
+  }
+
   async function loadTasks() {
     const reqStartedAt = Date.now();
     if(!myName){ renderTasks(); workoutItems=[]; renderWorkoutUI(); return; }
@@ -2541,39 +2635,44 @@
     tasks=[];
     try {
       if(planDate===todayStr()) {
-        // 今天：先查 daily_progress（最实时）
-        const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${planDate}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+        // 今天：daily_progress + daily_logs 同时查，优先用更新时间更近的一份
+        const [res, res2] = await Promise.all([
+          fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${planDate}&select=tasks,updated_at`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}),
+          fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${planDate}&select=tasks,created_at`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}})
+        ]);
         const records=await res.json();
-        if(records.length>0 && records[0].tasks && records[0].tasks.length>0) {
-          if(lastTaskLocalEditAt > reqStartedAt){ renderTasks(); checkTodayPublished(); await loadWorkoutState(); return; }
-          tasks=records[0].tasks;
-          renderTasks(); checkTodayPublished(); await loadWorkoutState(); return;
-        }
-        // daily_progress 没有，再查 daily_logs（已发布的）
-        const res2=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${planDate}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
         const logs=await res2.json();
-        if(logs.length>0 && logs[0].tasks && logs[0].tasks.length>0) {
+        const bestTasks = pickBestTaskRows(records[0], logs[0]);
+        if(bestTasks.length>0) {
           if(lastTaskLocalEditAt > reqStartedAt){ renderTasks(); checkTodayPublished(); await loadWorkoutState(); return; }
-          tasks=logs[0].tasks;
+          const doneOrigins = await collectDoneOriginIdsBeforeToday(7);
+          const reconciled = bestTasks.filter(t=>{
+            if(isTaskDone(t)) return true;
+            const key = t?.originId || t?.id;
+            return !(key && doneOrigins.has(String(key)));
+          });
+          tasks=reconciled;
+          if(reconciled.length !== bestTasks.length){
+            await syncProgress();
+            await syncTasksToLog();
+          }
           renderTasks(); checkTodayPublished(); await loadWorkoutState(); return;
         }
-        // 今天完全没有记录，从过去7天 Supabase 里找未完成任务顺延
+        // 今天完全没有记录，从过去7天里寻找最近一条有记录的日子并顺延未完成任务
         const carried=[], seen=new Set();
         for(let i=1;i<=7;i++){
           const d=new Date(); d.setDate(d.getDate()-i);
           const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
           try {
             // 优先查 daily_progress（最新勾选状态）
-            const r1=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${dateStr}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+            const r1=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${dateStr}&select=tasks,updated_at`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
             const d1=await r1.json();
-            let dayTasks=d1.length>0?d1[0].tasks:null;
-            if(!dayTasks){
-              const r2=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${dateStr}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-              const d2=await r2.json();
-              dayTasks=d2.length>0?d2[0].tasks:null;
-            }
-            if(dayTasks){
-              dayTasks.filter(t=>!t.done).forEach(t=>{
+            const r2=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${dateStr}&select=tasks,created_at`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+            const d2=await r2.json();
+            const hasDayRecord = d1.length > 0 || d2.length > 0;
+            const dayTasks = getOutstandingCarryTasks(d1[0], d2[0]);
+            if(hasDayRecord){
+              dayTasks.forEach(t=>{
                 const oid=t.originId||t.id;
                 if(!seen.has(oid)){
                   seen.add(oid);
@@ -2584,21 +2683,21 @@
                   carried.push({...t,id:Date.now().toString()+Math.random().toString().slice(2),originId:oid,pri:'high',daysLate,originDate,done:false});
                 }
               });
-              if(carried.length>0) break; // 找到最近一天有记录的就停
+              // 只看最近一个有记录的日期：该天全完成则不顺延，也不再往前追溯
+              break;
             }
           } catch(e){}
         }
         if(carried.length>0){ tasks=carried; syncProgress(); }
       } else {
-        // 历史日期：查 daily_progress 优先，再查 daily_logs
-        const r1=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${planDate}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+        // 历史日期：daily_progress + daily_logs 取更新时间更近的一份
+        const [r1, r2] = await Promise.all([
+          fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${planDate}&select=tasks,updated_at`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}),
+          fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${planDate}&select=tasks,created_at`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}})
+        ]);
         const d1=await r1.json();
-        if(d1.length>0 && d1[0].tasks && d1[0].tasks.length>0){ tasks=d1[0].tasks; }
-        else {
-          const r2=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${planDate}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-          const d2=await r2.json();
-          if(d2.length>0 && d2[0].tasks) tasks=d2[0].tasks;
-        }
+        const d2=await r2.json();
+        tasks = pickBestTaskRows(d1[0], d2[0]);
       }
     } catch(e){ console.warn('loadTasks error', e); }
     if(planDate===todayStr() && lastTaskLocalEditAt > reqStartedAt){ renderTasks(); checkTodayPublished(); await loadWorkoutState(); return; }
@@ -2627,7 +2726,7 @@
   }
 
   function saveTasks() {
-    if(planDate===todayStr() && myName) syncProgress();
+    if(myName) syncProgress();
   }
 
   async function syncProgress() {
@@ -3918,7 +4017,6 @@
     renderPlanCalendar();
     console.log('Async IIFE: after renderPlanCalendar, calling showPage(\'plan\')');
     showPage('plan');
-    setTimeout(()=>{ try{ renderTasks(); }catch(e){} }, 0);
     // 首屏明确检查按钮状态（loadTasks里调用时myName可能还没ready）
     await checkTodayPublished();
   })();
