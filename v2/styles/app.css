@@ -3958,7 +3958,7 @@
     opacity: 1 !important;
     margin-left: 0 !important;
     color: #061015 !important;
-    font-size: 13px !important;
+    font-size: 14px !important;
     font-weight: 800 !important;
     line-height: 1 !important;
     white-space: nowrap !important;
@@ -3975,6 +3975,6 @@
 
     .bottom-nav-btn.active .nav-label {
       max-width: 82px !important;
-      font-size: 12px !important;
+      font-size: 13px !important;
     }
   }
