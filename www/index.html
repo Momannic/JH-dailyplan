@@ -998,6 +998,7 @@
   }
   .bottom-nav-btn .nav-label {
     display: inline-block;
+    min-width: 0;
     max-width: 0;
     opacity: 0;
     overflow: hidden;
@@ -1009,14 +1010,15 @@
     transition: opacity 120ms ease, transform 140ms ease;
   }
   .bottom-nav-btn.active {
-    flex-grow: 1;
+    flex-grow: 1.2;
     background: var(--yellow);
     color: #111111;
     gap: 6px;
     font-weight: 800;
   }
   .bottom-nav-btn.active .nav-label {
-    max-width: 88px;
+    flex-shrink: 0;
+    max-width: 120px;
     opacity: 1;
     margin-left: 4px;
     transform: translateX(0);
@@ -1380,7 +1382,8 @@
     .add-input, .add-tag-input, .summary-textarea, .comment-input { font-size: 16px; }
     .events-bar { padding: 8px 12px; }
     .events-panel-inner { padding: 10px 12px 14px; }
-    .bottom-nav-btn { padding: 8px 8px 10px; font-size: 10px; }
+    .bottom-nav-btn { padding: 8px 6px 10px; font-size: 10px; }
+    .bottom-nav-btn.active { flex-grow: 1.24; }
     .bottom-nav-btn .icon { font-size: 17px; }
   }
 
