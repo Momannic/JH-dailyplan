@@ -2366,8 +2366,6 @@
       // 确保每次进入计划页都刷新任务与日历
       loadTasks();
       renderPlanCalendar();
-      // 进一步确保渲染完成后任务列表可见
-      setTimeout(()=>{ try{ renderTasks(); }catch(e){} }, 0);
       requestAnimationFrame(updateFoodCollapseLayout);
     }
     if(page==='fitness' && !isSamePage) {
@@ -3996,7 +3994,6 @@
     renderPlanCalendar();
     console.log('Async IIFE: after renderPlanCalendar, calling showPage(\'plan\')');
     showPage('plan');
-    setTimeout(()=>{ try{ renderTasks(); }catch(e){} }, 0);
     // 首屏明确检查按钮状态（loadTasks里调用时myName可能还没ready）
     await checkTodayPublished();
   })();
