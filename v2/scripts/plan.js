@@ -357,7 +357,7 @@ function updateProgress() {
   const total=tasks.length, done=tasks.filter(t=>t.done).length;
   const pct=total===0?0:Math.round(done/total*100);
   const color=progressColorByPct(pct);
-  document.getElementById('progressPctBig').textContent = pct+'%';
+  document.getElementById('progressPctBig').innerHTML = `${pct}<span class="pct-sign">%</span>`;
   document.getElementById('progressPctBig').style.color = color;
   document.getElementById('progressBar').style.width=pct+'%';
   document.getElementById('progressBar').style.background=`linear-gradient(90deg, ${color}, ${color})`;
