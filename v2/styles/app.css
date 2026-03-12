@@ -1399,3 +1399,500 @@
     font-weight: 700;
   }
 
+  /* ── V2 Figma-inspired visual theme ───────────────────────── */
+  :root {
+    --bg: #090910;
+    --surface: rgba(17, 18, 27, 0.78);
+    --surface2: rgba(24, 26, 37, 0.82);
+    --text: #f6f2eb;
+    --muted: #9b97ae;
+    --border: rgba(255, 255, 255, 0.1);
+    --red: #ff5f6d;
+    --red-soft: rgba(255, 95, 109, 0.16);
+    --accent: #f0a500;
+    --accent-soft: rgba(240, 165, 0, 0.16);
+    --yellow: #f5b014;
+    --yellow-soft: rgba(245, 176, 20, 0.14);
+    --green: #33c48f;
+    --green-soft: rgba(51, 196, 143, 0.16);
+    --done-color: #918ca3;
+    --blue: #5d86ff;
+    --pink: #f26fa7;
+    --glass-shadow: 0 22px 50px rgba(0, 0, 0, 0.42);
+    --glass-border: rgba(255, 255, 255, 0.11);
+  }
+
+  html {
+    background:
+      radial-gradient(circle at 12% 8%, rgba(240, 165, 0, 0.18), transparent 24%),
+      radial-gradient(circle at 88% 16%, rgba(93, 134, 255, 0.16), transparent 22%),
+      radial-gradient(circle at 70% 82%, rgba(242, 111, 167, 0.16), transparent 24%),
+      linear-gradient(180deg, #090910 0%, #0c0d15 38%, #10111d 100%);
+  }
+
+  body {
+    position: relative;
+    color: var(--text);
+    background: transparent;
+    overflow-x: hidden;
+  }
+
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    inset: auto;
+    pointer-events: none;
+    z-index: -1;
+    border-radius: 999px;
+    filter: blur(72px);
+    opacity: 0.6;
+  }
+
+  body::before {
+    width: 240px;
+    height: 240px;
+    top: 88px;
+    left: -48px;
+    background: rgba(240, 165, 0, 0.22);
+  }
+
+  body::after {
+    width: 280px;
+    height: 280px;
+    right: -90px;
+    bottom: 120px;
+    background: rgba(116, 94, 255, 0.2);
+  }
+
+  .page-wrapper {
+    position: relative;
+    max-width: 500px;
+  }
+
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: linear-gradient(180deg, rgba(9, 9, 16, 0.94), rgba(12, 13, 21, 0.82));
+    backdrop-filter: blur(26px);
+    -webkit-backdrop-filter: blur(26px);
+    border-bottom: 1px solid rgba(255, 184, 0, 0.18);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  }
+
+  .header-left .sub {
+    color: rgba(193, 187, 214, 0.72);
+    letter-spacing: 2.8px;
+  }
+
+  .header-left h1 {
+    text-shadow: 0 0 22px rgba(255, 255, 255, 0.08);
+  }
+
+  .header-left h1 span {
+    text-shadow: 0 0 26px rgba(240, 165, 0, 0.45);
+  }
+
+  .header-date {
+    color: rgba(217, 212, 234, 0.76);
+  }
+
+  .switch-btn {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.03);
+    color: #ffd05b;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+
+  .switch-btn:hover {
+    border-color: rgba(255, 208, 91, 0.52);
+    background: rgba(255, 208, 91, 0.08);
+  }
+
+  .events-banner {
+    position: sticky;
+    top: calc(74px + var(--safe-top));
+    z-index: 30;
+    width: min(100%, 500px);
+    margin: 0 auto;
+    background: rgba(9, 10, 17, 0.74);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.26);
+  }
+
+  .events-bar {
+    min-height: 48px;
+    align-items: center;
+  }
+
+  .events-bar-icon,
+  .events-chevron {
+    color: #ffd058;
+  }
+
+  .events-ticker-item {
+    color: rgba(246, 242, 235, 0.94);
+  }
+
+  .events-ticker-item .date-tag {
+    background: linear-gradient(135deg, #f8c400, #ff9d00);
+    color: #15110d;
+    box-shadow: 0 4px 12px rgba(240, 165, 0, 0.28);
+  }
+
+  .card,
+  .add-card,
+  .gym-section,
+  .live-card,
+  .feed-card,
+  .progress-card {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+      rgba(16, 18, 28, 0.72);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .card,
+  .add-card,
+  .gym-section,
+  .live-card,
+  .feed-card {
+    border-radius: 24px;
+  }
+
+  .progress-card {
+    border-radius: 28px;
+    background:
+      radial-gradient(circle at right top, rgba(240, 165, 0, 0.18), transparent 38%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+      rgba(11, 12, 20, 0.84);
+    border-color: rgba(255, 184, 0, 0.16);
+    box-shadow:
+      0 26px 56px rgba(0, 0, 0, 0.46),
+      0 0 0 1px rgba(255, 184, 0, 0.08) inset,
+      0 0 48px rgba(240, 165, 0, 0.08);
+  }
+
+  #page-fitness .gym-section {
+    background:
+      radial-gradient(circle at right top, rgba(51, 196, 143, 0.13), transparent 34%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+      rgba(11, 14, 22, 0.8);
+    border-color: rgba(69, 214, 164, 0.16);
+  }
+
+  #page-records .card,
+  #page-records .feed-card {
+    background:
+      radial-gradient(circle at right top, rgba(134, 106, 255, 0.12), transparent 36%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+      rgba(12, 13, 21, 0.8);
+    border-color: rgba(167, 146, 255, 0.16);
+  }
+
+  .card-label,
+  .add-card-title,
+  .feed-section-title,
+  .sub-label,
+  .summary-title,
+  .section-title {
+    color: rgba(218, 212, 236, 0.76);
+  }
+
+  .task-item,
+  .gym-plan-item,
+  .feed-summary,
+  .feed-workout-card {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .task-item:hover,
+  .gym-plan-item:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+    transform: translateY(-1px);
+  }
+
+  .task-item.done {
+    background: rgba(255, 255, 255, 0.028);
+    opacity: 0.76;
+  }
+
+  .task-item.done .task-text {
+    color: #9892aa;
+  }
+
+  .task-text,
+  .feed-task,
+  .feed-summary,
+  .comment-text,
+  .gym-plan-card-name,
+  .gym-plan-card-sub,
+  .add-input,
+  .add-tag-input,
+  .summary-textarea,
+  .comment-input,
+  .events-add-text {
+    color: var(--text);
+  }
+
+  .days-late {
+    color: #ff7f87;
+  }
+
+  .add-input,
+  .add-tag-input,
+  .summary-textarea,
+  .comment-input,
+  .events-add-text {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .add-input::placeholder,
+  .add-tag-input::placeholder,
+  .summary-textarea::placeholder,
+  .comment-input::placeholder,
+  .events-add-text::placeholder {
+    color: rgba(180, 173, 200, 0.62);
+  }
+
+  .pri-btn,
+  .date-btn,
+  .date-input-fake,
+  .tag,
+  .reaction-btn,
+  .meal-btn,
+  .switch-btn,
+  .events-date-btn {
+    background: rgba(255, 255, 255, 0.035);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(240, 236, 248, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .date-row .date-active {
+    background: linear-gradient(135deg, rgba(255, 197, 61, 0.22), rgba(255, 160, 0, 0.14));
+    box-shadow:
+      0 10px 24px rgba(240, 165, 0, 0.2),
+      inset 0 0 0 1px rgba(255, 199, 61, 0.1);
+  }
+
+  .progress-card .date-btn.active,
+  .progress-card .date-input-fake.active,
+  .date-btn.active,
+  .date-input-fake.active {
+    color: #ffd05b;
+    border-color: rgba(255, 208, 91, 0.2);
+  }
+
+  .tag:hover,
+  .reaction-btn:hover,
+  .pri-btn:hover,
+  .date-btn:hover,
+  .events-date-btn:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .tag.selected {
+    background: linear-gradient(135deg, rgba(26, 24, 17, 0.92), rgba(20, 18, 14, 0.92));
+    border-color: rgba(255, 196, 54, 0.36);
+    box-shadow:
+      0 12px 24px rgba(0, 0, 0, 0.24),
+      0 0 26px rgba(240, 165, 0, 0.12);
+  }
+
+  .food-tag.selected {
+    background: linear-gradient(135deg, rgba(36, 80, 63, 0.95), rgba(29, 94, 68, 0.95)) !important;
+    border-color: rgba(51, 196, 143, 0.26) !important;
+    box-shadow: 0 0 26px rgba(51, 196, 143, 0.14);
+  }
+
+  .add-btn,
+  .finish-btn,
+  .food-save-btn,
+  .comment-send-btn,
+  .events-add-btn,
+  .add-tag-btn {
+    background: linear-gradient(135deg, #161311 0%, #1e1813 100%);
+    color: #ffd05b;
+    border: 1px solid rgba(255, 192, 42, 0.18);
+    box-shadow:
+      0 18px 34px rgba(0, 0, 0, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .add-btn:hover,
+  .finish-btn:hover,
+  .food-save-btn:hover,
+  .comment-send-btn:hover,
+  .events-add-btn:hover,
+  .add-tag-btn:hover {
+    filter: brightness(1.06);
+    box-shadow:
+      0 18px 38px rgba(0, 0, 0, 0.34),
+      0 0 28px rgba(240, 165, 0, 0.12);
+  }
+
+  .task-delete {
+    background: rgba(36, 15, 18, 0.76);
+    border-color: rgba(255, 95, 109, 0.32);
+    box-shadow:
+      0 0 0 1px rgba(255, 95, 109, 0.12) inset,
+      0 0 18px rgba(255, 95, 109, 0.18);
+  }
+
+  .progress-label,
+  .progress-sub,
+  .feed-date,
+  .comment-time {
+    color: rgba(217, 212, 234, 0.72);
+  }
+
+  .progress-bar-bg {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .live-card {
+    background:
+      radial-gradient(circle at right top, rgba(255, 137, 76, 0.1), transparent 38%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.018)),
+      rgba(14, 16, 24, 0.82);
+    border-color: rgba(255, 255, 255, 0.09);
+  }
+
+  .live-refresh {
+    color: rgba(185, 180, 203, 0.7);
+  }
+
+  .feed-card.past {
+    opacity: 0.74;
+  }
+
+  .feed-summary {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+      rgba(28, 23, 17, 0.52);
+    border-left-color: rgba(255, 194, 71, 0.62);
+  }
+
+  .feed-workout-card {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
+      rgba(11, 12, 18, 0.72);
+  }
+
+  .feed-workout-state,
+  .feed-task-status {
+    font-weight: 700;
+  }
+
+  .reaction-btn {
+    min-width: 56px;
+    justify-content: center;
+  }
+
+  .reaction-btn.reacted {
+    background: rgba(255, 196, 54, 0.12);
+    border-color: rgba(255, 196, 54, 0.28);
+    box-shadow: 0 0 18px rgba(255, 196, 54, 0.08);
+  }
+
+  .comment-send-btn {
+    min-width: 72px;
+  }
+
+  .confirm-box,
+  .diary-more-menu,
+  .comment-del-confirm,
+  .diary-delete-confirm {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+      rgba(14, 16, 25, 0.94);
+    color: var(--text);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 44px rgba(0, 0, 0, 0.38);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+  }
+
+  .bottom-nav {
+    background: rgba(8, 9, 14, 0.86);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -18px 42px rgba(0, 0, 0, 0.28);
+  }
+
+  .bottom-nav .nav-active {
+    background:
+      radial-gradient(circle at center, rgba(255, 192, 42, 0.22), rgba(255, 192, 42, 0.1) 54%, transparent 100%);
+    box-shadow:
+      0 -8px 30px rgba(255, 196, 54, 0.26),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .bottom-nav-btn {
+    color: rgba(235, 230, 246, 0.7);
+  }
+
+  .bottom-nav-btn.active {
+    color: #ffd05b;
+  }
+
+  .empty-state {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.018)),
+      rgba(16, 18, 28, 0.72);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    color: rgba(223, 219, 236, 0.82);
+    box-shadow: var(--glass-shadow);
+  }
+
+  .cal-dropdown,
+  .card .cal-body {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+      rgba(12, 14, 22, 0.9);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .cal-day:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .cal-day.selected {
+    background: linear-gradient(135deg, rgba(255, 196, 54, 0.16), rgba(255, 157, 0, 0.18));
+    color: #ffd05b;
+  }
+
+  @media (max-width: 520px) {
+    .header {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .events-banner {
+      width: 100%;
+    }
+
+    .card,
+    .add-card,
+    .gym-section,
+    .live-card,
+    .feed-card,
+    .progress-card {
+      border-radius: 20px;
+    }
+  }
