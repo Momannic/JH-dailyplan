@@ -157,7 +157,9 @@ function showPage(page) {
   // 移动底栏覆盖指示条
   try{
     const activeBtn = document.querySelectorAll('.bottom-nav-btn')[navIndex[page]];
-    positionNavActive(activeBtn);
+    requestAnimationFrame(()=>positionNavActive(activeBtn));
+    setTimeout(()=>positionNavActive(activeBtn), 40);
+    setTimeout(()=>positionNavActive(activeBtn), 160);
   }catch(e){}
   if(!isSamePage) window.scrollTo(0,0);
 }

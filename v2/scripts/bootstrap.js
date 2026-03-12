@@ -28,6 +28,10 @@ setTimeout(()=>{
   if(activeNavBtn) positionNavActive(activeNavBtn);
 }, 60);
 setTimeout(()=>{
+  const activeNavBtn=document.querySelector('.bottom-nav-btn.active');
+  if(activeNavBtn) positionNavActive(activeNavBtn);
+}, 220);
+setTimeout(()=>{
   const active = document.querySelector('.date-row .date-btn.active') || document.getElementById('dateFakeBtn');
   if(active) positionDateIndicator(active);
   updateFoodCollapseLayout();
