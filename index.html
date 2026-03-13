@@ -548,7 +548,7 @@
   .confirm-ok { background:var(--red); color:#fff; }
 
   /* ── Add task ── */
-  .add-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1.5px solid var(--border); }
+  .add-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-top: 12px; margin-bottom: 12px; border: 1.5px solid var(--border); }
   .add-card-title { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: 0; text-transform: none; margin-bottom: 12px; }
   .add-input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 15px; font-family: 'Noto Sans SC', sans-serif; outline: none; margin-bottom: 10px; }
   .add-input:focus { border-color: var(--text); }
@@ -632,8 +632,9 @@
   .summary-textarea { width: 100%; padding: 14px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 15px; font-family: 'Noto Sans SC', sans-serif; resize: none; outline: none; line-height: 1.7; min-height: 100px; margin-bottom: 12px; }
   .summary-textarea:focus { border-color: var(--text); }
   .summary-textarea::placeholder { color: var(--muted); }
-  .finish-btn { width: 100%; padding: 13px; border-radius: 12px; border: none; background: var(--text); color: var(--yellow); font-size: 15px; font-weight: 700; font-family: 'Noto Sans SC', sans-serif; cursor: pointer; transition: all 0.2s; margin-bottom: 12px; }
+  .finish-btn { width: 100%; padding: 13px; border-radius: 12px; border: none; background: var(--text); color: var(--yellow); font-size: 15px; font-weight: 700; font-family: 'Noto Sans SC', sans-serif; cursor: pointer; transition: all 0.2s; margin-bottom: 0; }
   .finish-btn.success { background: var(--green); color: white; }
+  .summary-card { padding: 16px; }
 
   /* Press feedback for touch/mobile */
   button,
@@ -2042,7 +2043,7 @@
       <button class="add-btn" onclick="addTask()"><span class="icon-button-label"><i data-lucide="circle-plus" class="ui-icon small"></i><span>添加计划</span></span></button>
     </div>
 
-    <div class="card">
+    <div class="card summary-card">
       <div class="card-label summary-title"><span class="icon-title"><i data-lucide="square-pen" class="ui-icon small"></i><span>分享日记</span></span></div>
       <textarea class="summary-textarea" id="summaryInput" placeholder="今天怎么样？有什么感受或收获…"></textarea>
       <button class="finish-btn" id="finishBtn" onclick="submitToday()"><span class="icon-button-label"><i data-lucide="share-2" class="ui-icon small"></i><span>完成今日任务，点击分享</span></span></button>
