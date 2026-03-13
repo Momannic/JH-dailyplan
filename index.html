@@ -1334,12 +1334,14 @@
     background: var(--text);
     overflow: hidden;
     width:100%;
-    border-top: 2px solid rgba(240,165,0,0.4);
+    border-top: none;
     position: sticky;
     top: 0;
     z-index: 120;
     box-shadow: 0 6px 16px rgba(0,0,0,0.18);
     padding-top: 0;
+    margin-top: -1px;
+    transform: translateZ(0);
   }
   .events-bar { display:flex; align-items:center; gap:10px; min-height:44px; padding: 9px 20px; cursor:pointer; touch-action: pan-y; }
   .events-bar-icon {
