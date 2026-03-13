@@ -1197,39 +1197,39 @@
   .gym-plan-item.pending .gym-plan-card-sub { color: rgba(26,22,20,0.72); }
   .gym-plan-item.rest .gym-plan-card-name,
   .gym-plan-item.rest .gym-plan-card-sub { color: #fff; }
-  .gym-plan-item {
-    padding-top: 18px;
+  .gym-plan-card-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
   }
   .gym-plan-delete {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 26px;
-    height: 26px;
+    width: 32px;
+    height: 32px;
     border-radius: 999px;
     border: none;
-    background: rgba(17,17,17,0.08);
-    color: rgba(17,17,17,0.52);
+    background: rgba(232,76,92,0.10);
+    color: rgba(232,76,92,0.72);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: transform 0.14s ease, background-color 0.14s ease, color 0.14s ease;
-    z-index: 2;
+    flex-shrink: 0;
   }
   .gym-plan-delete .ui-icon {
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
     stroke-width: 2.1;
   }
   .gym-plan-delete:hover {
-    background: rgba(17,17,17,0.12);
-    color: rgba(17,17,17,0.72);
+    background: rgba(232,76,92,0.16);
+    color: rgba(210,54,70,0.86);
   }
   .gym-plan-delete:active { transform: scale(0.96); }
   .gym-plan-item.rest .gym-plan-delete {
-    background: rgba(255,255,255,0.16);
-    color: rgba(255,255,255,0.82);
+    background: rgba(255,255,255,0.14);
+    color: rgba(255,214,214,0.95);
   }
   .gym-plan-card-action {
     min-width: 86px;
@@ -3251,7 +3251,9 @@
             <div class="gym-plan-card-sub">${isRest?'休息模式':(item.done?'点击取消训练':'点击完成训练')}</div>
           </div>
         </div>
-        <div class="gym-plan-card-action">${item.done?'已完成':'未完成'}</div>`;
+        <div class="gym-plan-card-right">
+          <div class="gym-plan-card-action">${item.done?'已完成':'未完成'}</div>
+        </div>`;
       const deleteBtn=document.createElement('button');
       deleteBtn.type='button';
       deleteBtn.className='gym-plan-delete';
@@ -3261,7 +3263,7 @@
         event.stopPropagation();
         deleteWorkoutItem(item.name);
       };
-      div.appendChild(deleteBtn);
+      div.querySelector('.gym-plan-card-right')?.appendChild(deleteBtn);
       list.appendChild(div);
     });
     clearWorkoutInsertHint();
