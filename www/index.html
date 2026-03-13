@@ -12,6 +12,7 @@
 <meta name="application-name" content="来来回回日记">
 <meta name="apple-mobile-web-app-title" content="来来回回日记">
 <link rel="manifest" href="./manifest.json">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iconoir-icons/iconoir@main/css/iconoir.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
 
@@ -624,6 +625,10 @@
     stroke-linejoin:round;
     vertical-align:middle;
   }
+  .workout-icon[class*='iconoir-'] {
+    stroke: none;
+    line-height: 1;
+  }
   .tag-workout-icon { width:15px; height:15px; stroke-width:2; }
   .workout-badge-icon { width:30px; height:30px; stroke-width:2.1; }
   .emoji-label { display:inline-flex; align-items:center; gap:6px; }
@@ -1158,6 +1163,13 @@
     min-width: 0;
     flex: 1;
   }
+  .gym-plan-item { position: relative; }
+  .gym-plan-card-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
   .gym-plan-card-badge {
     width: 58px;
     height: 58px;
@@ -1197,12 +1209,6 @@
   .gym-plan-item.pending .gym-plan-card-sub { color: rgba(26,22,20,0.72); }
   .gym-plan-item.rest .gym-plan-card-name,
   .gym-plan-item.rest .gym-plan-card-sub { color: #fff; }
-  .gym-plan-card-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-  }
   .gym-plan-delete {
     width: 32px;
     height: 32px;
@@ -1422,7 +1428,7 @@
   .events-date-btn {
     padding:9px 12px;
     border-radius:10px;
-    border:1.5px solid rgba(240,165,0,0.45);
+    border:1.5px solid var(--yellow);
     background:#1a1a1a;
     color:var(--yellow);
     font-size:12px;
@@ -2261,24 +2267,30 @@
     if(trimmed==='爬坡' || trimmed==='短跑' || trimmed==='长跑' || trimmed==='有氧') return '有氧';
     return trimmed;
   }
-  const WORKOUT_ICON_PATHS = {
-    '休息': `<path d="M4.5 5.5 7.8 11"/><path d="M19.5 6.2 16.3 10.8"/><path d="M7.8 11c2.7 2 5.9 2.8 8.5 2.5"/><path d="M7.9 11.2c1.8 4.4 5.1 7.2 8.6 8.3"/><path d="M16.2 10.8c-1.4 3.6-4.5 6.9-8.7 8.1"/><path d="M10.1 12.7c.7-1.2 1.7-1.8 3-1.8"/><path d="M9.1 18.7 10.4 14l2.1-2.5"/><path d="M15.2 10.3a1.7 1.7 0 1 1 3.4 0"/>`,
-    '胸': `<path d="M9 3.5h6v2.7c0 .7.4 1.3 1 1.6 1.9.8 3.5 2.1 3.5 4.4v8.3H4.5v-8.3c0-2.3 1.6-3.6 3.5-4.4.6-.3 1-.9 1-1.6z"/><path d="M8.4 9.4c0 2 1.3 3.4 3.3 3.4"/><path d="M15.6 9.4c0 2-1.3 3.4-3.3 3.4"/><circle cx="10.1" cy="10.9" r=".45"/><circle cx="13.9" cy="10.9" r=".45"/>`,
-    '背': `<path d="M9 3.5h6v2.2c0 .7.5 1.3 1.2 1.5 2 .6 4.3 2 4.3 4.8v8.5H3.5V12c0-2.8 2.3-4.2 4.3-4.8.7-.2 1.2-.8 1.2-1.5z"/><path d="M9 9.5c0 2.3-1.1 4-3 5.3"/><path d="M15 9.5c0 2.3 1.1 4 3 5.3"/><path d="M10 14.5c-.4 1.7-1.2 3-2.5 4"/><path d="M14 14.5c.4 1.7 1.2 3 2.5 4"/><path d="M12 9v11"/>`,
-    '腿': `<path d="M4.5 5.5h6.5"/><path d="M11 5.5c1.4 0 2.5 1.2 2.5 2.6v5.2c0 1.2-.4 2.3-1.2 3.2l-2.2 2.6"/><path d="M7.2 9.3 12 11.2"/><path d="M10.1 19.1c1.5-.4 2.8 0 4 1.4"/><path d="M12.9 16 18.2 20"/>`,
-    '臀': `<path d="M4.8 6.2h14.4"/><path d="M6.6 6.8c0 4.2 1.9 6.7 5.4 8.2"/><path d="M17.4 6.8c0 4.2-1.9 6.7-5.4 8.2"/><path d="M12 14.8v4.7"/><path d="M9.5 14.6c.6 1.1 1.4 1.9 2.5 2.7"/><path d="M14.5 14.6c-.6 1.1-1.4 1.9-2.5 2.7"/><path d="M16.4 10.3c.7-.9 1.5-1 2.1-.2.6.8.3 1.7-.4 2.2l-1.7 1.2-1.7-1.2c-.8-.6-1-1.5-.4-2.2.6-.8 1.4-.7 2.1.2z"/>`,
-    '肩': `<path d="M6 18.8V11c0-3.1 2.4-5.5 5.3-5.5H18v7"/><path d="M6 11.2c.8-2.8 3-4.6 5.7-4.6"/><path d="M10.8 8.2c2 .8 3.7 1.8 5.2 3.2"/><path d="M9.5 10.8c.8-.7 1.8-1.1 3-1.1"/><path d="M5.2 8.2 7 9.4"/><path d="M7.1 6.8 8.1 8.9"/>`,
-    '腹': `<path d="M7.4 18.5v-2.8"/><path d="M16.6 18.5v-2.8"/><path d="M6.2 15c0-4.5 2.2-8.4 5.8-10"/><path d="M17.8 15c0-4.5-2.2-8.4-5.8-10"/><path d="M8.3 10.4c.2 1.2.8 2 1.8 2.6"/><path d="M15.7 10.4c-.2 1.2-.8 2-1.8 2.6"/><path d="M8.8 15.2h.01"/><path d="M15.2 15.2h.01"/><path d="M12 13.4a2.8 2.8 0 1 0 0 .1"/><path d="M12 19h.01"/>`,
-    '三头': `<path d="M3.8 14.2c3.3-2.1 6.9-2.5 10.7-1.8"/><path d="M14.5 12.4c1.2-1.7 1.8-3.8 1.9-6.1"/><path d="M16.4 6.3c1.4-.3 2.7.1 3.3 1.1.7 1.1.6 2.5.1 4.2"/><path d="M20 11.6v5.1c0 2-.7 3.5-2 4.8"/><path d="M18 21.5c-4 .2-7-.7-9-2.8"/><path d="M9 18.7c1.7-.4 3.2-.2 4.8.5"/>`,
-    '二头': `<path d="M4.5 18.8c1.8-5 4.8-8.9 8.8-11.8"/><path d="M13.3 7c1.6.7 3.1 1.7 4.7 3"/><path d="M18 10c.2 2-.2 3.6-1.2 5.1"/><path d="M4.8 18.7c4.2 1.9 8.5 2.2 12.7 1"/><path d="M8.4 18.6c1.7-2 3.7-3 6.2-3.1"/><path d="M13.9 12.2c1 .3 1.8.8 2.6 1.7"/><path d="M13.3 10.2c1.2-.6 2.3-.8 3.7-.6"/><path d="M14.9 13.1 16 11.4"/><path d="M16.5 13.7h2.2"/><path d="M16.1 15.7l1.6 1.1"/>`,
-    '热身': `<circle cx="12" cy="4.5" r="1.8"/><path d="M8 8.8h8"/><path d="M8.3 8.8 6 11.3"/><path d="M15.7 8.8 18 11.3"/><path d="M12 8.8v4.8"/><path d="M7 20v-4.3c0-1.6 1.1-2.7 2.7-2.7h4.6c1.6 0 2.7 1.1 2.7 2.7V20"/><path d="M10 11.3 14 14.5"/><path d="M14 11.3 10 14.5"/>`,
-    '有氧': `<circle cx="17" cy="5.5" r="2.1"/><path d="M7.8 13.3 12 9.2l3.2 1.6"/><path d="M7 18.7l4-3.6"/><path d="M11.2 19.5 15 15"/><path d="M13.2 11.5h4.2"/><path d="M16 17.2c.9-1.3 2.2-1.8 3.6-1.8 1.1 0 1.9.4 2.4 1.1.7.9.4 2.1-.4 2.8L19.7 21l-1.9-1.7c-.9-.8-1.1-2-.4-2.8"/>`,
-    '__default': `<path d="M4.5 10h2.5"/><path d="M17 10h2.5"/><path d="M7 8.5v3"/><path d="M17 8.5v3"/><path d="M7 11.5h10"/><path d="M9.5 14.5h5"/>`
+  const WORKOUT_ICONOIR_CLASSES = {
+    '胸': 'iconoir-gym',
+    '背': 'iconoir-gym',
+    '肩': 'iconoir-gym',
+    '腿': 'iconoir-waist',
+    '臀': 'iconoir-waist',
+    '腹': 'iconoir-waist',
+    '热身': 'iconoir-stretching',
+    '有氧': 'iconoir-treadmill'
+  };
+  const WORKOUT_LUCIDE_NAMES = {
+    '休息': 'moon',
+    '三头': 'biceps-flexed',
+    '二头': 'biceps-flexed',
+    '__default': 'dumbbell'
   };
   function workoutIcon(name, cls='workout-icon'){
     const key=normalizeWorkoutName(name);
-    const paths=WORKOUT_ICON_PATHS[key] || WORKOUT_ICON_PATHS.__default;
-    return `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true">${paths}</svg>`;
+    const iconoirClass=WORKOUT_ICONOIR_CLASSES[key];
+    if(iconoirClass){
+      return `<span class="${cls} ${iconoirClass}" aria-hidden="true"></span>`;
+    }
+    const lucideName=WORKOUT_LUCIDE_NAMES[key] || WORKOUT_LUCIDE_NAMES.__default;
+    return icon(lucideName, cls);
   }
   function workoutLabel(name){
     return `<span class="workout-label"><span>${workoutIcon(name,'workout-icon tag-workout-icon')}</span><span>${name}</span></span>`;
