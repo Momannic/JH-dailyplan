@@ -4067,9 +4067,9 @@
       const n=new Date(), timeStr=`${n.getMonth()+1}/${n.getDate()} ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
       comments.push({name:myName,text,time:timeStr});
       await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${logId}`,{method:'PATCH',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`},body:JSON.stringify({comments})});
-      const idx=allLogs.findIndex(x=>x.id===logId); if(idx>=0) allLogs[idx].comments=comments;
-      const container=document.getElementById('feedList'),oldCard=document.getElementById(`feed-${logId}`),tmp=document.createElement('div');
-      renderFeedCard({...r,comments},tmp,isPast(r.date)&&!isToday(r.date)); container.replaceChild(tmp.firstChild,oldCard);
+      const updated={...r,comments};
+      upsertAllLogsRecord(updated);
+      rerenderLogCard(updated);
       document.getElementById(`ci-${logId}`).value='';
     } catch(e){alert('发送失败，请重试');}
   }
