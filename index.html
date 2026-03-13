@@ -1158,6 +1158,10 @@
     min-width: 0;
     flex: 1;
   }
+  .gym-plan-item {
+    position: relative;
+    padding-top: 18px;
+  }
   .gym-plan-card-badge {
     width: 58px;
     height: 58px;
@@ -1197,6 +1201,37 @@
   .gym-plan-item.pending .gym-plan-card-sub { color: rgba(26,22,20,0.72); }
   .gym-plan-item.rest .gym-plan-card-name,
   .gym-plan-item.rest .gym-plan-card-sub { color: #fff; }
+  .gym-plan-delete {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(17,17,17,0.08);
+    color: rgba(17,17,17,0.52);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.14s ease, background-color 0.14s ease, color 0.14s ease;
+    z-index: 2;
+  }
+  .gym-plan-delete .ui-icon {
+    width: 15px;
+    height: 15px;
+    stroke-width: 2.1;
+  }
+  .gym-plan-delete:hover {
+    background: rgba(17,17,17,0.12);
+    color: rgba(17,17,17,0.72);
+  }
+  .gym-plan-delete:active { transform: scale(0.96); }
+  .gym-plan-item.rest .gym-plan-delete {
+    background: rgba(255,255,255,0.16);
+    color: rgba(255,255,255,0.82);
+  }
   .gym-plan-card-action {
     min-width: 86px;
     height: 38px;
@@ -1229,20 +1264,6 @@
     background: rgba(255,255,255,0.32);
   }
   .gym-plan-item.rest .gym-plan-card-action { display: none; }
-  .tag.custom-workout-tag {
-    position: relative;
-    padding-right: 24px;
-  }
-  .tag.custom-workout-tag::after {
-    content: '×';
-    position: absolute;
-    right: 8px;
-    top: 3px;
-    font-size: 11px;
-    line-height: 1;
-    opacity: 0.75;
-    pointer-events: none;
-  }
   .section-title {
     font-size: 15px !important;
     font-weight: 800 !important;
@@ -3097,9 +3118,7 @@
       workoutItems=[{name:restName,done:false}];
       markWorkoutInsert(restName);
       onWorkoutChanged();
-      return;
     }
-    removeWorkoutItemWithAnim(restName);
   }
   function toggleWorkoutTag(btn){
     const name=getWorkoutTagName(btn);
@@ -3109,15 +3128,11 @@
       workoutItems.push({name,done:false});
       markWorkoutInsert(name);
       onWorkoutChanged();
-      return;
     }
-    removeWorkoutItemWithAnim(name);
   }
   function toggleTag(btn){ if(btn) btn.classList.toggle('selected'); updateFoodSummary(); }
-  function removeCustomWorkoutTag(btn){
-    const name=getWorkoutTagName(btn);
-    btn.remove();
-    if(!workoutItems.some(i=>i.name===name)) return;
+  function deleteWorkoutItem(name){
+    if(!name) return;
     removeWorkoutItemWithAnim(name);
   }
   function addCustomTag(){
@@ -3127,7 +3142,7 @@
     b.className='tag custom-workout-tag';
     b.dataset.name=v;
     b.innerHTML=workoutLabel(v);
-    b.onclick=function(){ removeCustomWorkoutTag(this); };
+    b.onclick=function(){ toggleWorkoutTag(this); };
     document.getElementById('tagsGrid').appendChild(b);
     i.value='';
     workoutItems=workoutItems.filter(i=>!isRestWorkoutName(i.name));
@@ -3238,6 +3253,16 @@
           </div>
         </div>
         <div class="gym-plan-card-action">${item.done?'已完成':'未完成'}</div>`;
+      const deleteBtn=document.createElement('button');
+      deleteBtn.type='button';
+      deleteBtn.className='gym-plan-delete';
+      deleteBtn.setAttribute('aria-label', `删除${isRest?'休息':item.name}`);
+      deleteBtn.innerHTML=icon('circle-x','small');
+      deleteBtn.onclick=(event)=>{
+        event.stopPropagation();
+        deleteWorkoutItem(item.name);
+      };
+      div.appendChild(deleteBtn);
       list.appendChild(div);
     });
     clearWorkoutInsertHint();
