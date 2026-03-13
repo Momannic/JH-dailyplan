@@ -36,6 +36,7 @@
     --pink: #f26fa7;
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --hh-fixed-yellow: #f4be00;
     --ui-font: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei",
       -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
@@ -309,7 +310,7 @@
   .id-btn:hover { border-color: rgba(240,165,0,0.5); color: #f7f4ef; transform: translateY(-2px); }
   #identityBtnHH.active {
     border-color: rgba(240,165,0,0.88);
-    color: var(--yellow);
+    color: var(--hh-fixed-yellow);
     background:
       linear-gradient(180deg, rgba(240,165,0,0.16), rgba(240,165,0,0.05)),
       #242220;
@@ -702,7 +703,7 @@
   .cal-day.empty:hover { background: transparent; }
   .cal-dots { display: flex; gap: 2px; align-items: center; }
   .cal-dot { width: 5px; height: 5px; border-radius: 50%; }
-  .cal-dot.hh { background: var(--green); }
+  .cal-dot.hh { background: var(--hh-fixed-yellow); }
   .cal-dot.jll { background: var(--pink); }
   .cal-dot.none { background: var(--border); }
   .cal-day.selected .cal-dot { opacity: 0.8; }
@@ -2136,13 +2137,10 @@
         <!-- 图例 -->
         <div style="display:flex;gap:14px;margin-top:12px;justify-content:center">
           <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-family:'Montserrat',sans-serif">
-            <div style="width:8px;height:8px;border-radius:50%;background:var(--green)"></div>HH打卡
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--hh-fixed-yellow)"></div>HH打卡
           </div>
           <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-family:'Montserrat',sans-serif">
             <div style="width:8px;height:8px;border-radius:50%;background:var(--pink)"></div>JLL打卡
-          </div>
-          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-family:'Montserrat',sans-serif">
-            <div style="width:8px;height:8px;border-radius:50%;background:var(--border)"></div>未打卡
           </div>
         </div>
       </div>
