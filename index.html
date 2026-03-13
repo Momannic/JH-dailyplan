@@ -612,6 +612,20 @@
   .gym-section { background: var(--surface); border-radius: 16px; padding: 18px; margin-bottom: 12px; border: 1.5px solid var(--border); }
   .tags-grid { display: flex; flex-wrap: wrap; gap: 8px; }
   .tag { padding: 9px 15px; border-radius: 20px; border: 2px solid var(--border); background: transparent; color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.18s; font-family: 'Noto Sans SC', sans-serif; user-select: none; }
+  .workout-label { display:inline-flex; align-items:center; gap:6px; }
+  .workout-icon {
+    display:inline-block;
+    width:1em;
+    height:1em;
+    flex-shrink:0;
+    stroke:currentColor;
+    fill:none;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    vertical-align:middle;
+  }
+  .tag-workout-icon { width:15px; height:15px; stroke-width:2; }
+  .workout-badge-icon { width:30px; height:30px; stroke-width:2.1; }
   .emoji-label { display:inline-flex; align-items:center; gap:6px; }
   .tag-emoji { display:inline-flex; align-items:center; justify-content:center; font-size:15px; line-height:1; }
   .tag:hover { border-color: #bbb; color: var(--text); }
@@ -2074,19 +2088,19 @@
       <div id="gymPlanPhase">
         <div class="card-label section-title"><span class="icon-title"><i data-lucide="dumbbell" class="ui-icon small"></i><span>今日训练</span></span></div>
         <div class="tags-grid" id="tagsGrid">
-          <button class="tag rest-tag" data-name="休息" onclick="toggleRestOrTag(this)"><span class="emoji-label"><span class="tag-emoji">😴</span><span>休息</span></span></button>
-          <button class="tag" data-name="胸" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">💪</span><span>胸</span></span></button>
-          <button class="tag" data-name="背" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🏋️</span><span>背</span></span></button>
-          <button class="tag" data-name="腿" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🦵</span><span>腿</span></span></button>
-          <button class="tag" data-name="臀" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🦵</span><span>臀</span></span></button>
-          <button class="tag" data-name="肩" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">💪</span><span>肩</span></span></button>
-          <button class="tag" data-name="腹" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🔥</span><span>腹</span></span></button>
-          <button class="tag" data-name="三头" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">💪</span><span>三头</span></span></button>
-          <button class="tag" data-name="二头" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">💪</span><span>二头</span></span></button>
-          <button class="tag" data-name="热身" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🏃</span><span>热身</span></span></button>
-          <button class="tag" data-name="爬坡" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">⛰️</span><span>爬坡</span></span></button>
-          <button class="tag" data-name="短跑" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🏃</span><span>短跑</span></span></button>
-          <button class="tag" data-name="长跑" onclick="toggleWorkoutTag(this)"><span class="emoji-label"><span class="tag-emoji">🏃</span><span>长跑</span></span></button>
+          <button class="tag rest-tag" data-name="休息" onclick="toggleRestOrTag(this)">休息</button>
+          <button class="tag" data-name="胸" onclick="toggleWorkoutTag(this)">胸</button>
+          <button class="tag" data-name="背" onclick="toggleWorkoutTag(this)">背</button>
+          <button class="tag" data-name="腿" onclick="toggleWorkoutTag(this)">腿</button>
+          <button class="tag" data-name="臀" onclick="toggleWorkoutTag(this)">臀</button>
+          <button class="tag" data-name="肩" onclick="toggleWorkoutTag(this)">肩</button>
+          <button class="tag" data-name="腹" onclick="toggleWorkoutTag(this)">腹</button>
+          <button class="tag" data-name="三头" onclick="toggleWorkoutTag(this)">三头</button>
+          <button class="tag" data-name="二头" onclick="toggleWorkoutTag(this)">二头</button>
+          <button class="tag" data-name="热身" onclick="toggleWorkoutTag(this)">热身</button>
+          <button class="tag" data-name="爬坡" onclick="toggleWorkoutTag(this)">爬坡</button>
+          <button class="tag" data-name="短跑" onclick="toggleWorkoutTag(this)">短跑</button>
+          <button class="tag" data-name="长跑" onclick="toggleWorkoutTag(this)">长跑</button>
         </div>
         <div class="add-tag-row">
           <input class="add-tag-input" id="newTagInput" placeholder="自定义动作…" onkeydown="if(event.key==='Enter')addCustomTag()">
@@ -2223,25 +2237,42 @@
   function isRestWorkoutName(name){
     return name === '休息' || name === '\uD83D\uDE34 休息';
   }
-  const WORKOUT_EMOJI = {
-    '休息':'😴',
-    '胸':'💪',
-    '背':'🏋️',
-    '腿':'🦵',
-    '臀':'🦵',
-    '肩':'💪',
-    '腹':'🔥',
-    '三头':'💪',
-    '二头':'💪',
-    '热身':'🏃',
-    '爬坡':'⛰️',
-    '短跑':'🏃',
-    '长跑':'🏃'
+  const WORKOUT_ICON_PATHS = {
+    '休息': `<path d="M20.5 13a8.5 8.5 0 1 1-9.5-9.5 6.5 6.5 0 0 0 9.5 9.5z"/>`,
+    '胸': `<path d="M2.5 9.5h2v5h-2z"/><path d="M19.5 9.5h2v5h-2z"/><path d="M4.5 12h15"/><path d="M7.5 9.5v5"/><path d="M16.5 9.5v5"/>`,
+    '背': `<path d="M3 6h18"/><path d="M7 6v4"/><path d="M17 6v4"/><path d="M9 13l3-3 3 3"/><path d="M12 10v8"/>`,
+    '腿': `<path d="M8 4v6l-3 4"/><path d="M16 4v6l3 4"/><path d="M9 10h6"/><path d="M7 20h4"/><path d="M13 20h4"/>`,
+    '臀': `<path d="M4 15c2-5 14-5 16 0"/><path d="M6 15v4"/><path d="M18 15v4"/><path d="M10 19h4"/>`,
+    '肩': `<path d="M9.5 7a2.5 2.5 0 1 1 5 0"/><path d="M7 10h10v8a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/>`,
+    '腹': `<path d="M9 3h6"/><path d="M8 3l-2 8 2 10h8l2-10-2-8z"/><path d="M10 11h4"/><path d="M9 15h6"/>`,
+    '三头': `<path d="M8 7v6l-3 3"/><path d="M13 7v9"/><path d="M6 20h8c3 0 5-2 5-5"/>`,
+    '二头': `<path d="M7 14c1-3 2.5-5 5-5 2 0 3 1 3 3v2"/><path d="M5 16c0 2 2 4 5 4h4c2 0 4-2 4-4"/>`,
+    '热身': `<circle cx="12" cy="5" r="2"/><path d="M12 7v5"/><path d="M12 10l-4 3"/><path d="M12 10l4 3"/><path d="M8 21l2-5"/><path d="M16 21l-2-5"/>`,
+    '爬坡': `<path d="M3 19h18"/><path d="M5 19l6-8 4 4 4-6"/><path d="M14 7h4v4"/>`,
+    '短跑': `<circle cx="16" cy="5" r="2"/><path d="M8 12l4-2 2 2 3-1"/><path d="M6 18l3-3"/><path d="M11 19l3-3"/><path d="M14 14l4 3"/>`,
+    '长跑': `<circle cx="15" cy="5" r="2"/><path d="M8 11l4-2 3 2"/><path d="M6 16h5l3-3"/><path d="M11 21l2-4"/><path d="M16 21l-1-4"/>`,
+    '__default': `<path d="M2.5 9.5h2v5h-2z"/><path d="M19.5 9.5h2v5h-2z"/><path d="M4.5 12h15"/><path d="M7.5 9.5v5"/><path d="M16.5 9.5v5"/>`
   };
+  function workoutIcon(name, cls='workout-icon'){
+    const key=isRestWorkoutName(name)?'休息':name;
+    const paths=WORKOUT_ICON_PATHS[key] || WORKOUT_ICON_PATHS.__default;
+    return `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true">${paths}</svg>`;
+  }
   function workoutLabel(name){
-    const mark = WORKOUT_EMOJI[name];
-    if(!mark) return name;
-    return `<span class="emoji-label"><span class="tag-emoji">${mark}</span><span>${name}</span></span>`;
+    return `<span class="workout-label"><span>${workoutIcon(name,'workout-icon tag-workout-icon')}</span><span>${name}</span></span>`;
+  }
+  function hydrateWorkoutTagLabels(){
+    const tags=document.querySelectorAll('#tagsGrid .tag');
+    tags.forEach(tag=>{
+      const name=getWorkoutTagName(tag);
+      if(!name) return;
+      tag.dataset.name=name;
+      if(tag.classList.contains('custom-workout-tag')){
+        tag.textContent=name;
+        return;
+      }
+      tag.innerHTML=workoutLabel(name);
+    });
   }
   function getWorkoutTagName(btn){
     return (btn?.dataset?.name || btn?.textContent || '').trim();
@@ -2436,6 +2467,7 @@
     if(btn) btn.textContent = myName || 'HH';
   }
   updateHeaderDateMeta();
+  hydrateWorkoutTagLabels();
 
   // ── Page nav ───────────────────────────────
   let liveRefreshTimer = null;
@@ -3083,7 +3115,7 @@
   }
   function toggleTag(btn){ if(btn) btn.classList.toggle('selected'); updateFoodSummary(); }
   function removeCustomWorkoutTag(btn){
-    const name=btn.textContent.trim();
+    const name=getWorkoutTagName(btn);
     btn.remove();
     if(!workoutItems.some(i=>i.name===name)) return;
     removeWorkoutItemWithAnim(name);
@@ -3093,7 +3125,8 @@
     if(!v) return;
     const b=document.createElement('button');
     b.className='tag custom-workout-tag';
-    b.textContent=v;
+    b.dataset.name=v;
+    b.innerHTML=workoutLabel(v);
     b.onclick=function(){ removeCustomWorkoutTag(this); };
     document.getElementById('tagsGrid').appendChild(b);
     i.value='';
@@ -3177,7 +3210,7 @@
     list.innerHTML='';
     workoutItems.forEach((item,i)=>{
       const isRest=isRestWorkoutName(item.name);
-      const emoji = WORKOUT_EMOJI[isRest?'休息':item.name] || '🏋️';
+      const iconSvg = workoutIcon(isRest?'休息':item.name, 'workout-icon workout-badge-icon');
       const div=document.createElement('div');
       const animClass = (
         workoutTransitionHint &&
@@ -3198,7 +3231,7 @@
       }
       div.innerHTML=`
         <div class="gym-plan-card-left">
-          <div class="gym-plan-card-badge">${emoji}</div>
+          <div class="gym-plan-card-badge">${iconSvg}</div>
           <div class="gym-plan-card-meta">
             <div class="gym-plan-card-name">${isRest?'休息':item.name}</div>
             <div class="gym-plan-card-sub">${isRest?'休息模式':(item.done?'点击取消训练':'点击完成训练')}</div>
