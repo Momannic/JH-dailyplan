@@ -636,6 +636,25 @@
   .finish-btn.success { background: var(--green); color: white; }
   .summary-card { padding: 16px; }
 
+  /* 统一今日计划两个卡片的垂直节奏 */
+  #page-plan .add-card,
+  #page-plan .summary-card {
+    padding: 20px;
+    margin-top: 14px;
+    margin-bottom: 14px;
+  }
+  #page-plan .add-card .add-card-title,
+  #page-plan .summary-card .card-label {
+    margin-bottom: 16px;
+  }
+  #page-plan .add-card .add-input,
+  #page-plan .summary-card .summary-textarea {
+    margin-bottom: 14px;
+  }
+  #page-plan .add-card .priority-row {
+    margin-bottom: 14px;
+  }
+
   /* Press feedback for touch/mobile */
   button,
   .gym-plan-item {
@@ -1915,29 +1934,7 @@
   .feed-tasks.feed-tasks-stack.collapsed .feed-task:nth-child(2) > * { opacity: 0; }
   .feed-tasks.feed-tasks-stack.collapsed .feed-task:nth-child(3) > * { opacity: 0; }
   .feed-tasks.feed-tasks-stack.collapsed .feed-task:nth-child(n+4) { display: none !important; }
-  .feed-stack-toggle-wrap { text-align: center; margin: 10px 0 6px; }
-  .feed-stack-toggle {
-    margin: 0;
-    width: auto;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 6px 12px;
-    border: 1.25px dashed var(--border);
-    background: transparent;
-    color: var(--muted);
-    border-radius: 999px;
-    min-height: 30px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 700;
-    font-family: 'Noto Sans SC', sans-serif;
-    transition: transform 0.18s ease, border-color 0.18s ease, color 0.18s ease;
-  }
-  .feed-stack-toggle:active { transform: scale(0.985); }
-  .feed-stack-toggle .icon-button-label { justify-content: center; gap: 4px; }
-  .feed-stack-toggle:hover { border-color: var(--yellow); color: var(--yellow); }
+  .feed-tasks.feed-tasks-stack { cursor: pointer; }
 
 </style>
 <!-- flatpickr for consistent date picker across browsers -->
@@ -3757,14 +3754,13 @@
     const canEditDiary = !!myName && myName===r.name;
     const tasksHtml=tasks.length?`
       <div class="feed-section-title"><span class="icon-title">${icon('clipboard-list','small')}<span>计划 ${done}/${total} · ${pct}%</span></span></div>
-      <div class="feed-tasks ${useTaskStack?'feed-tasks-stack collapsed':''}" id="${stackId}">${sortedTasks.map(t=>`
+      <div class="feed-tasks ${useTaskStack?'feed-tasks-stack collapsed':''}" id="${stackId}" ${useTaskStack?`onclick="toggleFeedTaskStack('${stackId}', event)"`:''}>${sortedTasks.map(t=>`
         <div class="feed-task ${t.done?'done':''}">
           <div class="feed-task-dot ${t.pri}"></div>
           <span>${t.text}</span>
           ${t.done?`<span class="feed-task-status">已完成</span>`:''}
         </div>`).join('')}
-      </div>
-      ${useTaskStack?`<div class="feed-stack-toggle-wrap"><button class="feed-stack-toggle" onclick="toggleFeedTaskStack('${stackId}', this)"><span class="icon-button-label">${icon('chevrons-down','small')}<span>展开任务</span></span></button></div>`:''}`:'';
+      </div>`:'';
     const workoutNorm=normalizeWorkout(r.workout_tags||[]);
     const isRest=workoutNorm.some(w=>isRestWorkoutName(w.name));
     const workoutHtml=workoutNorm.length?`
@@ -3829,18 +3825,18 @@
     container.appendChild(div);
   }
 
-  function toggleFeedTaskStack(stackId, btn){
+  function toggleFeedTaskStack(stackId, evt){
     const stack=document.getElementById(stackId);
     if(!stack) return;
+    if(!stack.classList.contains('feed-tasks-stack')) return;
     const isCollapsed=stack.classList.contains('collapsed');
     if(isCollapsed){
       stack.classList.remove('collapsed');
-      if(btn) btn.innerHTML=`<span class="icon-button-label">${icon('chevrons-up','small')}<span>收起任务</span></span>`;
-    } else {
-      stack.classList.add('collapsed');
-      if(btn) btn.innerHTML=`<span class="icon-button-label">${icon('chevrons-down','small')}<span>展开任务</span></span>`;
+      return;
     }
-    renderLucideIcons();
+    if(evt && evt.target && evt.target.closest('.feed-task')){
+      stack.classList.add('collapsed');
+    }
   }
 
   async function toggleReaction(logId,emoji){
