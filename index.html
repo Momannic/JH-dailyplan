@@ -388,6 +388,82 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
+    flex-shrink: 0;
+  }
+  .notice-bubble {
+    position: fixed;
+    right: 16px;
+    bottom: calc(var(--safe-bottom) + 92px);
+    min-width: 120px;
+    max-width: 220px;
+    min-height: 38px;
+    border-radius: 14px;
+    background: var(--yellow);
+    color: #111111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 12px;
+    overflow: hidden;
+    transition: color 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
+    cursor: pointer;
+    z-index: 170;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .notice-bubble.hidden {
+    opacity: 0;
+    transform: translateY(14px) scale(0.92);
+    pointer-events: none;
+  }
+  .notice-bubble::after {
+    content: '';
+    position: absolute;
+    right: 20px;
+    bottom: -7px;
+    width: 14px;
+    height: 14px;
+    background: var(--yellow);
+    transform: rotate(45deg);
+    border-radius: 2px;
+  }
+  .header-notice-icon {
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .header-notice-text {
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'Noto Sans SC', sans-serif;
+    line-height: 1.2;
+  }
+  .header-notice-meta {
+    width: 14px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: -2px;
+  }
+  @keyframes noticeBubblePop {
+    0% { opacity: 0; transform: translateY(16px) scale(0.9); }
+    68% { opacity: 1; transform: translateY(-2px) scale(1.03); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .notice-bubble.pop-in {
+    animation: noticeBubblePop 320ms cubic-bezier(0.2,0.9,0.2,1);
   }
   .header-weekday { font-size: 13px; line-height: 1; font-weight: 400; color: rgba(255,255,255,0.7); }
   .header-date-main {
@@ -398,7 +474,7 @@
     letter-spacing: -0.5px;
     color: var(--yellow);
   }
-  .header-right { display: flex; align-items: center; }
+  .header-right { display: flex; align-items: center; flex-shrink: 0; }
   .switch-btn {
     padding: 7px 14px;
     min-height: 34px;
@@ -2193,6 +2269,12 @@
 
 </div>
 
+<div class="notice-bubble hidden" id="headerNotice" onclick="dismissHeaderNotice()">
+  <span class="header-notice-icon"><i data-lucide="bell-ring" class="ui-icon small"></i></span>
+  <span class="header-notice-text" id="headerNoticeText"></span>
+  <span class="header-notice-meta" id="headerNoticeMeta"><i data-lucide="dot" class="ui-icon small"></i></span>
+</div>
+
 <div class="bottom-nav">
   <button class="bottom-nav-btn active" onclick="showPage('plan')">
     <span class="icon"><i data-lucide="clipboard-list" class="ui-icon nav"></i></span><span class="nav-label">今日计划</span>
@@ -2342,6 +2424,9 @@
   // ── Identity ──────────────────────────────
   let myName = localStorage.getItem('jh-identity') || '';
   let pendingIdentity = myName || '';
+  let activeNotification = null;
+  let notificationTimer = null;
+  let latestNotificationToken = 0;
 
   function selectIdentityOption(name) {
     pendingIdentity = name;
@@ -2405,6 +2490,7 @@
     const recordsPage=document.getElementById('page-records');
     if(livePage&&livePage.classList.contains('active')) loadLive();
     if(recordsPage&&recordsPage.classList.contains('active')) loadRecordsPage();
+    loadHeaderNotices();
     // 重新拉取新身份的今日任务
     loadTasks();
   }
@@ -2415,6 +2501,7 @@
         selectIdentityOption(myName);
       }
       updateHeaderDateMeta();
+      loadHeaderNotices();
       renderLucideIcons();
   }
   function updateProgressLabel() {
@@ -2450,6 +2537,7 @@
         const activePage = (document.querySelector('.page.active') || {}).id || '';
         if (activePage === 'page-live') await loadLive();
         if (activePage === 'page-records') await loadRecordsPage();
+        await loadHeaderNotices();
       } catch (e) {
         console.warn('realtime refresh error', e);
       }
@@ -2499,6 +2587,182 @@
   function updateHeaderIdentity(){
     const btn=document.getElementById('switchBtn');
     if(btn) btn.textContent = myName || 'HH';
+  }
+  function getOtherIdentity(){
+    if(myName==='HH') return 'JLL';
+    if(myName==='JLL') return 'HH';
+    return '';
+  }
+  function parseNoticeTime(dateStr, timeStr, fallback=0){
+    if(timeStr){
+      const m=String(timeStr).match(/^(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})$/);
+      if(m){
+        const year=(dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) ? Number(dateStr.slice(0,4)) : new Date().getFullYear();
+        const parsed=new Date(year, Number(m[1])-1, Number(m[2]), Number(m[3]), Number(m[4]), 0, 0).getTime();
+        if(!Number.isNaN(parsed)) return parsed;
+      }
+    }
+    if(fallback){
+      const parsedFallback=new Date(fallback).getTime();
+      if(!Number.isNaN(parsedFallback)) return parsedFallback;
+    }
+    if(dateStr){
+      const parsedDate=new Date(`${dateStr}T23:59:59`).getTime();
+      if(!Number.isNaN(parsedDate)) return parsedDate;
+    }
+    return 0;
+  }
+  function isSameLocalDay(ts){
+    if(!ts) return false;
+    const d=new Date(ts);
+    const now=new Date();
+    return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth() && d.getDate()===now.getDate();
+  }
+  function getNoticeReadKey(){
+    return `jh-notice-read-${myName||'anon'}`;
+  }
+  function getNoticeReadTs(){
+    return Number(localStorage.getItem(getNoticeReadKey()) || 0);
+  }
+  function setNoticeReadTs(ts){
+    localStorage.setItem(getNoticeReadKey(), String(ts||Date.now()));
+  }
+  function getNoticeReadSigKey(){
+    return `jh-notice-read-sig-${myName||'anon'}`;
+  }
+  function getNoticeReadSig(){
+    return localStorage.getItem(getNoticeReadSigKey()) || '';
+  }
+  function setNoticeReadSig(sig){
+    localStorage.setItem(getNoticeReadSigKey(), sig || '');
+  }
+  function getNoticeCandidatesFromLogs(logs){
+    const other=getOtherIdentity();
+    if(!other || !Array.isArray(logs)) return [];
+    const readTs=getNoticeReadTs();
+    const readSig=getNoticeReadSig();
+    const items=[];
+    logs.forEach(record=>{
+      if(!record || typeof record!=='object') return;
+      const createdAt=record.created_at || 0;
+      const summaries=record.summaries&&record.summaries.length?record.summaries:(record.summary?[{text:record.summary,time:''}]:[]);
+      if(record.name===other && summaries.length){
+        const latestSummary=summaries[summaries.length-1] || {};
+        const ts=parseNoticeTime(record.date, latestSummary.time, createdAt);
+        items.push({
+          type:'diary',
+          ts,
+          text: `${other}发布了新日记`,
+          icon:'notebook-pen',
+          sig:`diary:${record.id}:${latestSummary.time||''}:${latestSummary.text||''}`
+        });
+      }
+      if(record.name===myName){
+        const comments=Array.isArray(record.comments)?record.comments:Object.entries(record.comments||{}).map(([name,text])=>({name,text,time:''}));
+        comments.forEach(comment=>{
+          if(comment && comment.name===other){
+            const ts=parseNoticeTime(record.date, comment.time, createdAt);
+            items.push({
+              type:'comment',
+              ts,
+              text: `${other}发布了新评论`,
+              icon:'message-circle',
+              sig:`comment:${record.id}:${comment.time||''}:${comment.text||''}`
+            });
+          }
+        });
+        const usersMap=getReactionUsersMap(record.reactions||{});
+        REACTIONS.forEach(reaction=>{
+          const users=Array.isArray(usersMap[reaction.key]) ? usersMap[reaction.key] : [];
+          if(users.includes(other)){
+            const ts=parseNoticeTime(record.date, '', createdAt);
+            items.push({
+              type:`reaction-${reaction.key}`,
+              ts,
+              text: `${other}点了你的`,
+              icon: reaction.icon,
+              sig:`reaction:${record.id}:${reaction.key}:${other}:${users.length}`
+            });
+          }
+        });
+      }
+    });
+    return items
+      .filter(item=>item.ts && isSameLocalDay(item.ts))
+      .filter(item=>item.type.startsWith('reaction-') ? item.sig!==readSig : item.ts>readTs)
+      .sort((a,b)=>b.ts-a.ts);
+  }
+  function renderHeaderNotice(){
+    const box=document.getElementById('headerNotice');
+    const text=document.getElementById('headerNoticeText');
+    const meta=document.getElementById('headerNoticeMeta');
+    if(!box || !text || !meta) return;
+    if(!activeNotification){
+      text.textContent='';
+      box.classList.add('hidden');
+      meta.innerHTML=icon('dot','small');
+      renderLucideIcons();
+      return;
+    }
+    text.textContent=activeNotification.text;
+    box.classList.remove('hidden');
+    meta.innerHTML=icon(activeNotification.icon || 'bell-ring','small');
+    renderLucideIcons();
+  }
+  function startHeaderNoticeDismissTimer(){
+    if(notificationTimer){
+      clearTimeout(notificationTimer);
+      notificationTimer=null;
+    }
+    if(!activeNotification) return;
+    notificationTimer=setTimeout(()=>{
+      dismissHeaderNotice();
+    }, 10000);
+  }
+  function dismissHeaderNotice(){
+    if(activeNotification?.sig){
+      setNoticeReadSig(activeNotification.sig);
+    }
+    if(activeNotification && activeNotification.ts){
+      setNoticeReadTs(activeNotification.ts);
+    }
+    activeNotification=null;
+    renderHeaderNotice();
+    if(notificationTimer){
+      clearTimeout(notificationTimer);
+      notificationTimer=null;
+    }
+  }
+  function setHeaderNotices(items){
+    const prevTs=activeNotification?.ts || 0;
+    activeNotification=Array.isArray(items) && items.length ? items[0] : null;
+    renderHeaderNotice();
+    const box=document.getElementById('headerNotice');
+    if(activeNotification && activeNotification.ts!==prevTs && box){
+      box.classList.remove('pop-in');
+      void box.offsetWidth;
+      box.classList.add('pop-in');
+      setTimeout(()=>box.classList.remove('pop-in'), 360);
+    }
+    startHeaderNoticeDismissTimer();
+  }
+  async function loadHeaderNotices(){
+    const token=++latestNotificationToken;
+    if(!myName){
+      setHeaderNotices([]);
+      return;
+    }
+    try{
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?order=date.desc,created_at.desc&limit=80`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const logs=await res.json();
+      if(token!==latestNotificationToken) return;
+      setHeaderNotices(getNoticeCandidatesFromLogs(logs));
+    }catch(e){
+      if(token!==latestNotificationToken) return;
+      console.warn('loadHeaderNotices failed', e);
+      setHeaderNotices([]);
+    }
   }
   updateHeaderDateMeta();
   hydrateWorkoutTagLabels();
@@ -3429,6 +3693,7 @@
       }
       if(document.getElementById('page-records').classList.contains('active')) loadRecordsPage();
       checkTodayPublished();
+      loadHeaderNotices();
     }catch(e){
       if(btn){ btn.disabled=false; btn.innerHTML=`<span class="icon-button-label">${icon('notebook-pen','small')}<span>记入日记</span></span>`; }
       alert('保存失败，请重试\n'+e.message);
@@ -3496,6 +3761,7 @@
       if(!res.ok) throw new Error(await res.text());
       document.getElementById('summaryInput').value='';
       btn.innerHTML=`<span class="icon-button-label">${icon('check','small')}<span>已分享</span></span>`; btn.classList.add('success'); renderLucideIcons();
+      loadHeaderNotices();
       setTimeout(()=>{ btn.classList.remove('success'); btn.disabled=false; checkTodayPublished(); },2000);
     } catch(e){ btn.disabled=false; checkTodayPublished(); alert('发布失败，请重试\n'+e.message); console.error(e); }
   }
@@ -3649,6 +3915,7 @@
       const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?order=date.desc,created_at.desc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
       if(!res.ok) throw new Error('HTTP '+res.status);
       allLogs=await res.json();
+      setHeaderNotices(getNoticeCandidatesFromLogs(allLogs));
       // 建立日期→打卡人映射
       calDates={};
       allLogs.forEach(r=>{ if(!calDates[r.date]) calDates[r.date]=[]; if(!calDates[r.date].includes(r.name)) calDates[r.date].push(r.name); });
@@ -3963,6 +4230,7 @@
       const idx=allLogs.findIndex(x=>x.id===logId); if(idx>=0) allLogs[idx].reactions=reactions;
       const container=document.getElementById('feedList'),oldCard=document.getElementById(`feed-${logId}`),tmp=document.createElement('div');
       renderFeedCard({...r,reactions},tmp,isPast(r.date)&&!isToday(r.date)); container.replaceChild(tmp.firstChild,oldCard);
+      loadHeaderNotices();
       renderLucideIcons();
     } catch(e){console.error(e);}
   }
@@ -4031,6 +4299,7 @@
       const updated={...r,summaries,summary:''};
       upsertAllLogsRecord(updated);
       rerenderLogCard(updated);
+      loadHeaderNotices();
     }catch(e){ alert('编辑失败，请重试'); }
   }
   function autoResizeDiaryTextarea(el){
@@ -4065,6 +4334,7 @@
       const updated={...r,summaries,summary:''};
       upsertAllLogsRecord(updated);
       rerenderLogCard(updated);
+      loadHeaderNotices();
     }catch(e){ alert('删除失败，请重试'); }
   }
 
@@ -4083,6 +4353,7 @@
       upsertAllLogsRecord(updated);
       rerenderLogCard(updated);
       document.getElementById(`ci-${logId}`).value='';
+      loadHeaderNotices();
     } catch(e){alert('发送失败，请重试');}
   }
 
@@ -4113,6 +4384,7 @@
       const updated={...r,comments};
       upsertAllLogsRecord(updated);
       rerenderLogCard(updated);
+      loadHeaderNotices();
     }catch(e){ alert('删除评论失败，请重试'); }
   }
 
