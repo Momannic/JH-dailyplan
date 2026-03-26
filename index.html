@@ -963,7 +963,7 @@
     top: 4px;
     bottom: 4px;
     left: 4px;
-    width: calc(50% - 4px);
+    width: calc(50% - 6px);
     border-radius: 999px;
     background: var(--pink);
     transform: translateX(0);
@@ -1063,7 +1063,8 @@
   .comment-input { flex: 1; padding: 9px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; font-family: 'Noto Sans SC', sans-serif; outline: none; }
   .comment-input:focus { border-color: var(--text); }
   .comment-input::placeholder { color: var(--muted); }
-  .comment-send-btn { padding: 9px 16px; border-radius: 20px; border: none; background: var(--text); color: var(--yellow); font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans SC', sans-serif; }
+  .comment-send-btn { padding: 9px 16px; min-width: 56px; min-height: 42px; border-radius: 20px; border: none; background: var(--text); color: var(--yellow); font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans SC', sans-serif; display:flex; align-items:center; justify-content:center; }
+  .comment-send-btn .ui-icon.small { width: 18px; height: 18px; }
 
   .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
   .empty-state .state-icon-wrap { display:flex; justify-content:center; margin-bottom:10px; color:var(--muted); }
@@ -4390,7 +4391,7 @@
       <div class="feed-comment-section">${commentsHtml}
         <div class="comment-input-row">
           <input class="comment-input" id="ci-${r.id}" placeholder="留下评论…">
-          <button class="comment-send-btn" onclick="sendComment('${r.id}')">发送</button>
+          <button class="comment-send-btn" onclick="sendComment('${r.id}')" aria-label="发送评论">${icon('send','small')}</button>
         </div>
       </div>`;
     container.appendChild(div);
