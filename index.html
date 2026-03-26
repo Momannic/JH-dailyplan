@@ -946,6 +946,81 @@
     color:#7b746d;
   }
   .feed-reactions { display: flex; gap: 8px; margin-top: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+  .records-feed-switch {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: #f2ede7;
+    margin: 0 0 12px;
+    overflow: hidden;
+  }
+  .records-feed-switch.hidden { display: none !important; }
+  .records-feed-switch-indicator {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    border-radius: 999px;
+    background: var(--pink);
+    transform: translateX(0);
+    transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), background-color 280ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 280ms cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.10);
+    pointer-events: none;
+  }
+  .records-feed-switch.view-hh .records-feed-switch-indicator {
+    background: var(--hh-fixed-yellow);
+    transform: translateX(calc(100% + 4px));
+  }
+  .records-feed-switch-btn {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    height: 40px;
+    border: 0;
+    background: transparent;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #6f665f;
+    cursor: pointer;
+  }
+  .records-feed-switch-btn .ui-icon.small { width: 15px; height: 15px; }
+  .records-feed-switch.view-jll .records-feed-switch-btn[data-feed-name="JLL"],
+  .records-feed-switch.view-hh .records-feed-switch-btn[data-feed-name="HH"] {
+    color: #1a1614;
+  }
+  .records-feed-switch:not(.view-jll) .records-feed-switch-btn[data-feed-name="JLL"] { color: var(--pink); }
+  .records-feed-switch:not(.view-hh) .records-feed-switch-btn[data-feed-name="HH"] { color: var(--hh-fixed-yellow); }
+  .feed-switch-stage {
+    position: relative;
+    min-height: 120px;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .feed-switch-stage.animating {
+    pointer-events: none;
+  }
+  .feed-switch-stage.swiping #feedList {
+    transition: none !important;
+  }
+  .feed-switch-stage.snap-back #feedList {
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .feed-fade-enter {
+    animation: feedToggleIn 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @keyframes feedToggleIn {
+    0% { opacity: 0; transform: translateY(8px) scale(0.985); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
   .reaction-btn { padding: 8px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: transparent; font-size: 16px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; font-family: 'Noto Sans SC', sans-serif; }
   .reaction-btn:hover { transform: scale(1.08); border-color: #bbb; }
   .reaction-btn.reacted { border-color: var(--yellow); background: var(--yellow-soft); }
@@ -2211,7 +2286,6 @@
 
     <div class="gym-section food-section">
       <div class="sub-label section-title"><span class="icon-title"><i data-lucide="utensils-crossed" class="ui-icon small"></i><span>今日饮食</span></span></div>
-      <div class="sub-label" style="margin-top:-4px">直接填写今天吃了什么</div>
       <div id="foodCategoryArea">
         <div class="add-tag-row" style="margin-top:8px">
           <input class="add-tag-input" id="newFoodInput" placeholder="例如：鸡胸肉、米饭、香蕉…" onkeydown="if(event.key==='Enter')addCustomFood()">
@@ -2263,7 +2337,14 @@
     <!-- 选中日期详情已移除：使用下方已发布日记作为详情展示 -->
 
     <div style="margin-top:12px">
-      <div id="feedList"></div>
+      <div class="records-feed-switch hidden view-jll" id="recordsFeedSwitch">
+        <div class="records-feed-switch-indicator"></div>
+        <button class="records-feed-switch-btn" data-feed-name="JLL" onclick="switchRecordsFeed('JLL')"><i data-lucide="rose" class="ui-icon small"></i><span>JLL</span></button>
+        <button class="records-feed-switch-btn" data-feed-name="HH" onclick="switchRecordsFeed('HH')"><i data-lucide="hat-glasses" class="ui-icon small"></i><span>HH</span></button>
+      </div>
+      <div class="feed-switch-stage" id="feedSwitchStage">
+        <div id="feedList"></div>
+      </div>
     </div>
   </div>
 
@@ -2533,11 +2614,13 @@
     realtimeRefreshTimer = setTimeout(async () => {
       try {
         if (!myName) return;
-        await loadTasks();
         const activePage = (document.querySelector('.page.active') || {}).id || '';
-        if (activePage === 'page-live') await loadLive();
-        if (activePage === 'page-records') await loadRecordsPage();
-        await loadHeaderNotices();
+        await Promise.all([
+          loadTasks(),
+          activePage === 'page-live' ? loadLive() : Promise.resolve(),
+          activePage === 'page-records' ? loadRecordsPage() : Promise.resolve(),
+          loadHeaderNotices()
+        ]);
       } catch (e) {
         console.warn('realtime refresh error', e);
       }
@@ -2753,7 +2836,8 @@
       return;
     }
     try{
-      const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?order=date.desc,created_at.desc&limit=80`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+      const today=todayStr();
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?date=eq.${today}&order=created_at.desc&limit=20`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
       if(!res.ok) throw new Error(`HTTP ${res.status}`);
       const logs=await res.json();
       if(token!==latestNotificationToken) return;
@@ -2769,7 +2853,8 @@
 
   // ── Page nav ───────────────────────────────
   let liveRefreshTimer = null;
-  function showPage(page) {
+  function showPage(page, options={}) {
+    const { skipLoad = false } = options || {};
     const current=document.querySelector('.page.active');
     const currentPage=current?current.id.replace('page-',''):'';
     const isSamePage=(currentPage===page);
@@ -2780,15 +2865,15 @@
     document.getElementById('page-'+page).classList.add('active');
     document.querySelectorAll('.bottom-nav-btn')[navIndex[page]].classList.add('active');
     applyPageTheme(page);
-    if(page==='records') loadRecordsPage();
-    if(page==='live') loadLive();
-    if(page==='plan' && !isSamePage) { 
+    if(page==='records' && !skipLoad) loadRecordsPage();
+    if(page==='live' && !skipLoad) loadLive();
+    if(page==='plan' && !isSamePage && !skipLoad) { 
       // 确保每次进入计划页都刷新任务与日历
       loadTasks();
       renderPlanCalendar();
       requestAnimationFrame(updateFoodCollapseLayout);
     }
-    if(page==='fitness' && !isSamePage) {
+    if(page==='fitness' && !isSamePage && !skipLoad) {
       loadWorkoutState();
       updateFoodSummary();
       requestAnimationFrame(updateFoodCollapseLayout);
@@ -2993,29 +3078,43 @@
       .map(({ __done, ...task }) => task);
   }
 
+  function dateStrDaysAgo(days){
+    const d=new Date();
+    d.setDate(d.getDate()-days);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  async function fetchTaskRowsBetween(startDate, endDate){
+    const headers={'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`};
+    const [progressRes, logsRes] = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/daily_progress?name=eq.${encodeURIComponent(myName)}&date=gte.${startDate}&date=lt.${endDate}&select=date,tasks,updated_at&order=date.desc`,{headers}),
+      fetch(`${SUPABASE_URL}/rest/v1/daily_logs?name=eq.${encodeURIComponent(myName)}&date=gte.${startDate}&date=lt.${endDate}&select=date,tasks,created_at&order=date.desc`,{headers})
+    ]);
+    const progressRows=progressRes.ok ? await progressRes.json() : [];
+    const logRows=logsRes.ok ? await logsRes.json() : [];
+    const progressByDate={};
+    const logsByDate={};
+    progressRows.forEach(row=>{ if(row && row.date) progressByDate[row.date]=row; });
+    logRows.forEach(row=>{ if(row && row.date) logsByDate[row.date]=row; });
+    return { progressByDate, logsByDate };
+  }
+
   async function collectDoneOriginIdsBeforeToday(maxDays=7){
     const doneOriginIds = new Set();
-    for(let i=1;i<=maxDays;i++){
-      const d=new Date(); d.setDate(d.getDate()-i);
-      const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-      try{
-        const [r1, r2] = await Promise.all([
-          fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${dateStr}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}}),
-          fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${dateStr}&select=tasks`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}})
-        ]);
-        const d1=await r1.json();
-        const d2=await r2.json();
-        [...d1, ...d2].forEach(row=>{
-          const rowTasks = Array.isArray(row?.tasks) ? row.tasks : [];
-          rowTasks.forEach(t=>{
-            if(isTaskDone(t)){
-              const key = t?.originId || t?.id;
-              if(key) doneOriginIds.add(String(key));
-            }
-          });
+    const startDate=dateStrDaysAgo(maxDays);
+    const endDate=todayStr();
+    try{
+      const { progressByDate, logsByDate } = await fetchTaskRowsBetween(startDate, endDate);
+      [...Object.values(progressByDate), ...Object.values(logsByDate)].forEach(row=>{
+        const rowTasks = Array.isArray(row?.tasks) ? row.tasks : [];
+        rowTasks.forEach(t=>{
+          if(isTaskDone(t)){
+            const key = t?.originId || t?.id;
+            if(key) doneOriginIds.add(String(key));
+          }
         });
-      }catch(e){}
-    }
+      });
+    }catch(e){}
     return doneOriginIds;
   }
 
@@ -3026,7 +3125,7 @@
     if(planDate===todayStr() && (Date.now()-lastTaskLocalEditAt)<1500){
       renderTasks();
       checkTodayPublished();
-      await loadWorkoutState();
+      loadWorkoutState();
       return;
     }
     tasks=[];
@@ -3041,7 +3140,7 @@
         const logs=await res2.json();
         const bestTasks = pickBestTaskRows(records[0], logs[0]);
         if(bestTasks.length>0) {
-          if(lastTaskLocalEditAt > reqStartedAt){ renderTasks(); checkTodayPublished(); await loadWorkoutState(); return; }
+          if(lastTaskLocalEditAt > reqStartedAt){ renderTasks(); checkTodayPublished(); loadWorkoutState(); return; }
           const doneOrigins = await collectDoneOriginIdsBeforeToday(7);
           const reconciled = bestTasks.filter(t=>{
             if(isTaskDone(t)) return true;
@@ -3053,38 +3152,32 @@
             await syncProgress();
             await syncTasksToLog();
           }
-          renderTasks(); checkTodayPublished(); await loadWorkoutState(); return;
+          renderTasks(); checkTodayPublished(); loadWorkoutState(); return;
         }
         // 今天完全没有记录，从过去7天里寻找最近一条有记录的日子并顺延未完成任务
         const carried=[], seen=new Set();
-        for(let i=1;i<=7;i++){
-          const d=new Date(); d.setDate(d.getDate()-i);
-          const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-          try {
-            // 优先查 daily_progress（最新勾选状态）
-            const r1=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${dateStr}&select=tasks,updated_at`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-            const d1=await r1.json();
-            const r2=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${dateStr}&select=tasks,created_at`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-            const d2=await r2.json();
-            const hasDayRecord = d1.length > 0 || d2.length > 0;
-            const dayTasks = getOutstandingCarryTasks(d1[0], d2[0]);
+        try{
+          const { progressByDate, logsByDate } = await fetchTaskRowsBetween(dateStrDaysAgo(7), todayStr());
+          for(let i=1;i<=7;i++){
+            const dateStr=dateStrDaysAgo(i);
+            const progressRow=progressByDate[dateStr];
+            const logRow=logsByDate[dateStr];
+            const hasDayRecord = !!progressRow || !!logRow;
+            const dayTasks = getOutstandingCarryTasks(progressRow, logRow);
             if(hasDayRecord){
               dayTasks.forEach(t=>{
                 const oid=t.originId||t.id;
                 if(!seen.has(oid)){
                   seen.add(oid);
-                  const od=new Date(); od.setDate(od.getDate()-i);
-                  const fallbackOrigin=`${od.getFullYear()}-${String(od.getMonth()+1).padStart(2,'0')}-${String(od.getDate()).padStart(2,'0')}`;
-                  const originDate=t.originDate||fallbackOrigin;
+                  const originDate=t.originDate||dateStr;
                   const daysLate=Math.max(1, Math.floor((new Date(todayStr())-new Date(originDate))/86400000));
                   carried.push({...t,id:Date.now().toString()+Math.random().toString().slice(2),originId:oid,pri:'high',daysLate,originDate,done:false});
                 }
               });
-              // 只看最近一个有记录的日期：该天全完成则不顺延，也不再往前追溯
               break;
             }
-          } catch(e){}
-        }
+          }
+        } catch(e){}
         if(carried.length>0){ tasks=carried; syncProgress(); }
       } else {
         // 历史日期：daily_progress + daily_logs 取更新时间更近的一份
@@ -3097,24 +3190,25 @@
         tasks = pickBestTaskRows(d1[0], d2[0]);
       }
     } catch(e){ console.warn('loadTasks error', e); }
-    if(planDate===todayStr() && lastTaskLocalEditAt > reqStartedAt){ renderTasks(); checkTodayPublished(); await loadWorkoutState(); return; }
+    if(planDate===todayStr() && lastTaskLocalEditAt > reqStartedAt){ renderTasks(); checkTodayPublished(); loadWorkoutState(); return; }
     renderTasks();
     checkTodayPublished();
-    await loadWorkoutState();
+    loadWorkoutState();
   }
 
   async function loadWorkoutState(){
     if(!myName){ workoutItems=[]; renderWorkoutUI(); return; }
     try{
       let loaded=[];
-      const r1=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${planDate}&select=workout_tags`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-      const d1=await r1.json();
+      const headers={'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`};
+      const [progressRes, logRes] = await Promise.allSettled([
+        fetch(`${SUPABASE_URL}/rest/v1/daily_progress?id=eq.${myName}-${planDate}&select=workout_tags`,{headers}),
+        fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${planDate}&select=workout_tags`,{headers})
+      ]);
+      const d1=(progressRes.status==='fulfilled' && progressRes.value.ok) ? await progressRes.value.json() : [];
+      const d2=(logRes.status==='fulfilled' && logRes.value.ok) ? await logRes.value.json() : [];
       if(d1.length>0 && d1[0].workout_tags) loaded=normalizeWorkout(d1[0].workout_tags);
-      else {
-        const r2=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?id=eq.${myName}-${planDate}&select=workout_tags`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-        const d2=await r2.json();
-        if(d2.length>0 && d2[0].workout_tags) loaded=normalizeWorkout(d2[0].workout_tags);
-      }
+      else if(d2.length>0 && d2[0].workout_tags) loaded=normalizeWorkout(d2[0].workout_tags);
       workoutItems=loaded;
       workoutLogged=workoutItems.some(i=>i.done);
       isResting=workoutItems.some(i=>isRestWorkoutName(i.name));
@@ -3903,24 +3997,47 @@
   // ══ CALENDAR + RECORDS ════════════════════
   let calYear, calMonth, allLogs=[], calDates={};
   let selectedCalDate = null;
+  let selectedFeedName = null;
+  let recordsSwipeState = { active:false, engaged:false, startX:0, startY:0, dx:0 };
+
+  function getMonthRange(year, month){
+    const start=`${year}-${String(month+1).padStart(2,'0')}-01`;
+    const nextMonth=new Date(year, month+1, 1);
+    const end=`${nextMonth.getFullYear()}-${String(nextMonth.getMonth()+1).padStart(2,'0')}-${String(nextMonth.getDate()).padStart(2,'0')}`;
+    return { start, end };
+  }
+
+  async function loadCalendarMonthDates(){
+    const { start, end } = getMonthRange(calYear, calMonth);
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?date=gte.${start}&date=lt.${end}&select=date,name`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const rows=await res.json();
+    calDates={};
+    rows.forEach(r=>{ if(!calDates[r.date]) calDates[r.date]=[]; if(!calDates[r.date].includes(r.name)) calDates[r.date].push(r.name); });
+  }
+
+  async function loadFeedForDate(dateStr){
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?date=eq.${dateStr}&order=created_at.desc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    allLogs=await res.json();
+    renderFeed();
+  }
 
   async function loadRecordsPage() {
     const now=new Date();
     // 保留当前月份视图，默认显示今天
     if(!calYear){ calYear=now.getFullYear(); calMonth=now.getMonth(); }
     selectedCalDate=todayStr();
+    if(myName && ['JLL','HH'].includes(myName)) selectedFeedName=myName;
     // 显示 loading
     document.getElementById('feedList').innerHTML='<div class="loading">加载中…</div>';
+    bindRecordsSwipe();
     try {
-      const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_logs?order=date.desc,created_at.desc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-      if(!res.ok) throw new Error('HTTP '+res.status);
-      allLogs=await res.json();
-      setHeaderNotices(getNoticeCandidatesFromLogs(allLogs));
-      // 建立日期→打卡人映射
-      calDates={};
-      allLogs.forEach(r=>{ if(!calDates[r.date]) calDates[r.date]=[]; if(!calDates[r.date].includes(r.name)) calDates[r.date].push(r.name); });
+      await Promise.all([
+        loadCalendarMonthDates(),
+        loadFeedForDate(selectedCalDate)
+      ]);
       renderCalendar();
-      renderFeed();
     } catch(e){
       console.error('loadRecordsPage error:', e);
       document.getElementById('feedList').innerHTML=`<div class="empty-state"><div class="state-icon-wrap">${icon('circle-alert','state')}</div><p>加载失败，请检查网络<br><small style="font-size:11px;opacity:0.6">${e.message}</small></p></div>`;
@@ -3958,8 +4075,8 @@
     }
   }
 
-  function calPrevMonth(){ calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); }
-  function calNextMonth(){ calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar(); }
+  async function calPrevMonth(){ calMonth--; if(calMonth<0){calMonth=11;calYear--;} await loadCalendarMonthDates(); renderCalendar(); }
+  async function calNextMonth(){ calMonth++; if(calMonth>11){calMonth=0;calYear++;} await loadCalendarMonthDates(); renderCalendar(); }
 
   function toggleCalCard(){
     const card = document.getElementById('calCard'); if(!card) return;
@@ -4008,90 +4125,176 @@
     input.focus(); input.click();
   }
 
-  function selectCalDate(dateStr) {
+  async function selectCalDate(dateStr) {
     selectedCalDate = dateStr;
     // 同步日历月份到选中日期
     const d=new Date(dateStr+'T00:00:00'); calYear=d.getFullYear(); calMonth=d.getMonth();
+    await loadCalendarMonthDates();
     renderCalendar();
-    renderFeed();
+    try{
+      document.getElementById('feedList').innerHTML='<div class="loading">加载中…</div>';
+      await loadFeedForDate(dateStr);
+    }catch(e){
+      document.getElementById('feedList').innerHTML=`<div class="empty-state"><div class="state-icon-wrap">${icon('circle-alert','state')}</div><p>加载失败，请检查网络<br><small style="font-size:11px;opacity:0.6">${e.message}</small></p></div>`;
+      renderLucideIcons();
+    }
     // 滚动到已发布日记列表
     const feed = document.getElementById('feedList');
     if(feed) feed.scrollIntoView({behavior:'smooth', block:'start'});
   }
 
-  function renderFeed() {
-    const list=document.getElementById('feedList'); list.innerHTML='';
-    if(!allLogs.length){ list.innerHTML=`<div class="empty-state"><div class="state-icon-wrap">${icon('book-open','state')}</div><p>还没有日记<br>完成今日计划后发布吧！</p></div>`; renderLucideIcons(); return; }
-    // 按日期分组
-    const byDate={};
-    allLogs.forEach(r=>{ if(!byDate[r.date]) byDate[r.date]=[]; byDate[r.date].push(r); });
-    const sortedDates=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
 
-    // 如果选择了特定日期，则仅显示该日期的记录；若无则提示没有发布
-    if(selectedCalDate){
-      const date=selectedCalDate;
-      const recordsForDate=byDate[date]||[];
-      if(!recordsForDate.length){
-        list.innerHTML=`<div class="empty-state"><div class="state-icon-wrap">${icon('inbox','state')}</div><p>没有发布的日记记录</p></div>`;
-        renderLucideIcons();
+
+  function isRecordsSwipeBlockedTarget(target){
+    return !!(target && target.closest && target.closest('input, textarea, button, a, .comment-input-row, .feed-reactions, .diary-more-wrap, .comment-item, .diary-editor, .feed-task'));
+  }
+
+  function getRecordsSwipeStage(){
+    return document.getElementById('feedSwitchStage');
+  }
+
+  function resetRecordsSwipeVisual(withSnap=false){
+    const stage=getRecordsSwipeStage();
+    const list=document.getElementById('feedList');
+    if(!stage || !list) return;
+    stage.classList.remove('swiping');
+    stage.classList.toggle('snap-back', !!withSnap);
+    list.style.transform='translateX(0px)';
+    list.style.opacity='1';
+    if(withSnap){
+      setTimeout(()=>stage.classList.remove('snap-back'),240);
+    }
+  }
+
+  function applyRecordsSwipeVisual(dx){
+    const stage=getRecordsSwipeStage();
+    const list=document.getElementById('feedList');
+    if(!stage || !list) return;
+    const limited=Math.max(-96, Math.min(96, dx));
+    const opacity=1 - Math.min(Math.abs(limited)/220, 0.18);
+    stage.classList.add('swiping');
+    list.style.transform=`translateX(${limited}px)`;
+    list.style.opacity=String(opacity);
+  }
+
+  function handleRecordsSwipeStart(evt){
+    const touch=evt.touches ? evt.touches[0] : evt;
+    if(!touch || isRecordsSwipeBlockedTarget(evt.target)) return;
+    recordsSwipeState = { active:true, engaged:false, startX:touch.clientX, startY:touch.clientY, dx:0 };
+  }
+
+  function handleRecordsSwipeMove(evt){
+    if(!recordsSwipeState.active) return;
+    const touch=evt.touches ? evt.touches[0] : evt;
+    if(!touch) return;
+    const dx=touch.clientX-recordsSwipeState.startX;
+    const dy=touch.clientY-recordsSwipeState.startY;
+    if(!recordsSwipeState.engaged){
+      if(Math.abs(dx) < 10) return;
+      if(Math.abs(dx) <= Math.abs(dy)){
+        recordsSwipeState.active=false;
         return;
       }
-      const sep=document.createElement('div'); sep.className='date-separator'+(isPast(date)&&!isToday(date)?' past':'');
-      sep.innerHTML=`<div class="date-separator-line"></div><div class="date-separator-label">${formatDisplay(date)}</div><div class="date-separator-line"></div>`;
-      list.appendChild(sep);
-      recordsForDate.forEach(r=>renderFeedCard(r,list,isPast(date)&&!isToday(date)));
-      // 仅当选中的是今天时，才尝试后台刷新今天任务
-      const todayKey=todayStr();
-      if(date===todayKey){
-        (async ()=>{
-          try {
-            const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?date=eq.${todayKey}&order=updated_at.desc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
-            const records=await res.json();
-            if(records.length>0){
-              const byName={}; records.forEach(r=>{ if(!byName[r.name]) byName[r.name]=r; });
-              recordsForDate.forEach(originalRecord=>{
-                if(byName[originalRecord.name]){
-                  const updatedRecord={...originalRecord, tasks:byName[originalRecord.name].tasks};
-                  const oldCard=document.getElementById(`feed-${originalRecord.id}`);
-                  if(oldCard){ const tmp=document.createElement('div'); renderFeedCard(updatedRecord,tmp,false); oldCard.parentNode.replaceChild(tmp.firstChild,oldCard); renderLucideIcons(); }
-                }
-              });
-            }
-          }catch(e){ console.warn('无法加载今天的最新任务', e); }
-        })();
-      }
-      renderLucideIcons();
-      return;
+      recordsSwipeState.engaged=true;
     }
-    
-    // 没有选中日期时，默认只显示今天
-    const todayKey=todayStr();
-    const todayRecords=byDate[todayKey]||[];
-    if(!todayRecords.length){
-      list.innerHTML=`<div class="empty-state"><div class="state-icon-wrap">${icon('notebook-pen','state')}</div><p>今天还没有日记<br>完成今日计划后发布吧！</p></div>`;
-      renderLucideIcons();
-      return;
-    }
-    const sep=document.createElement('div'); sep.className='date-separator';
-    sep.innerHTML=`<div class="date-separator-line"></div><div class="date-separator-label">${formatDisplay(todayKey)}</div><div class="date-separator-line"></div>`;
-    list.appendChild(sep);
-    todayRecords.forEach(r=>renderFeedCard(r,list,false));
+    recordsSwipeState.dx=dx;
+    applyRecordsSwipeVisual(dx);
+    if(evt.cancelable) evt.preventDefault();
+  }
 
-    // 后台刷新今天最新任务
-    const todayKey2=todayKey;
-    if(byDate[todayKey2]) {
+  function handleRecordsSwipeEnd(){
+    if(!recordsSwipeState.active){
+      resetRecordsSwipeVisual(false);
+      return;
+    }
+    const dx=recordsSwipeState.dx || 0;
+    const threshold=64;
+    recordsSwipeState.active=false;
+    recordsSwipeState.engaged=false;
+    recordsSwipeState.dx=0;
+    if(dx <= -threshold && selectedFeedName !== 'HH'){
+      resetRecordsSwipeVisual(false);
+      switchRecordsFeed('HH');
+      return;
+    }
+    if(dx >= threshold && selectedFeedName !== 'JLL'){
+      resetRecordsSwipeVisual(false);
+      switchRecordsFeed('JLL');
+      return;
+    }
+    resetRecordsSwipeVisual(true);
+  }
+
+  function bindRecordsSwipe(){
+    const stage=getRecordsSwipeStage();
+    if(!stage || stage.dataset.swipeBound==='1') return;
+    stage.dataset.swipeBound='1';
+    stage.addEventListener('touchstart', handleRecordsSwipeStart, {passive:true});
+    stage.addEventListener('touchmove', handleRecordsSwipeMove, {passive:false});
+    stage.addEventListener('touchend', handleRecordsSwipeEnd, {passive:true});
+    stage.addEventListener('touchcancel', handleRecordsSwipeEnd, {passive:true});
+  }
+
+  function getDiaryFeedDefaultName(records){
+    if(selectedFeedName && ['JLL','HH'].includes(selectedFeedName)) return selectedFeedName;
+    if(myName && ['JLL','HH'].includes(myName)) return myName;
+    if((records||[]).some(r=>r.name==='JLL')) return 'JLL';
+    if((records||[]).some(r=>r.name==='HH')) return 'HH';
+    return 'JLL';
+  }
+
+  function updateRecordsFeedSwitch(records){
+    const wrap=document.getElementById('recordsFeedSwitch');
+    if(!wrap) return;
+    selectedFeedName = getDiaryFeedDefaultName(records);
+    wrap.classList.remove('view-jll','view-hh','hidden');
+    wrap.classList.add(selectedFeedName==='HH'?'view-hh':'view-jll');
+    renderLucideIcons();
+  }
+
+  function switchRecordsFeed(name){
+    if(!['JLL','HH'].includes(name) || selectedFeedName===name) return;
+    selectedFeedName=name;
+    const wrap=document.getElementById('recordsFeedSwitch');
+    const stage=document.getElementById('feedSwitchStage');
+    if(wrap){
+      wrap.classList.toggle('view-jll', name==='JLL');
+      wrap.classList.toggle('view-hh', name==='HH');
+    }
+    if(stage){
+      stage.classList.remove('animating');
+      void stage.offsetWidth;
+      stage.classList.add('animating');
+    }
+    renderFeed(true);
+    setTimeout(()=>stage&&stage.classList.remove('animating'),280);
+  }
+
+  function renderFeed(withAnimation=false) {
+    const list=document.getElementById('feedList'); list.innerHTML='';
+    const date=selectedCalDate||todayStr();
+    updateRecordsFeedSwitch(allLogs);
+    const recordsForDate=allLogs.filter(r=>!selectedFeedName || r.name===selectedFeedName);
+    if(!recordsForDate.length){
+      const emptyOwner = selectedFeedName || '这一天';
+      list.innerHTML=`<div class="empty-state ${withAnimation?'feed-fade-enter':''}"><div class="state-icon-wrap">${icon(date===todayStr()?'notebook-pen':'inbox','state')}</div><p>${date===todayStr()?`${emptyOwner}今天还没有日记<br>完成今日计划后发布吧！`:`${emptyOwner}在这一天没有发布日记`}</p></div>`;
+      renderLucideIcons();
+      return;
+    }
+    const sep=document.createElement('div'); sep.className='date-separator'+(isPast(date)&&!isToday(date)?' past':'') + (withAnimation?' feed-fade-enter':'');
+    sep.innerHTML=`<div class="date-separator-line"></div><div class="date-separator-label">${formatDisplay(date)}</div><div class="date-separator-line"></div>`;
+    list.appendChild(sep);
+    recordsForDate.forEach(r=>renderFeedCard(r,list,isPast(date)&&!isToday(date),withAnimation));
+
+    if(date===todayStr()) {
       (async ()=>{
         try {
-          const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?date=eq.${todayKey2}&order=updated_at.desc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
+          const res=await fetch(`${SUPABASE_URL}/rest/v1/daily_progress?date=eq.${date}&order=updated_at.desc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});
           const records=await res.json();
           if(records.length>0) {
-            // 更新每个人今天的日记卡片
             const byName={};
-            records.forEach(r=>{ 
-              if(!byName[r.name]) byName[r.name]=r; 
-            });
-            // 找到原始的日记记录并更新任务数据
-            byDate[todayKey2].forEach(originalRecord=>{
+            records.forEach(r=>{ if(!byName[r.name]) byName[r.name]=r; });
+            recordsForDate.forEach(originalRecord=>{
               if(byName[originalRecord.name]) {
                 const updatedRecord={...originalRecord, tasks:byName[originalRecord.name].tasks};
                 const oldCard=document.getElementById(`feed-${originalRecord.id}`);
@@ -4108,10 +4311,11 @@
       })();
     }
     renderLucideIcons();
+    bindRecordsSwipe();
   }
 
-  function renderFeedCard(r,container,isPastDay=false){
-    const div=document.createElement('div'); div.className='feed-card'+(isPastDay?' past':''); div.id=`feed-${r.id}`;
+  function renderFeedCard(r,container,isPastDay=false,withAnimation=false){
+    const div=document.createElement('div'); div.className='feed-card'+(isPastDay?' past':'')+(withAnimation?' feed-fade-enter':''); div.id=`feed-${r.id}`;
     const tasks=r.tasks||[], done=tasks.filter(t=>t.done).length, total=tasks.length;
     const sortedTasks=[...tasks].sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;return priOrder[a.pri]-priOrder[b.pri];});
     const useTaskStack = sortedTasks.length > 1;
@@ -4456,7 +4660,7 @@
     console.log('Async IIFE: after loadTasks, before renderPlanCalendar');
     renderPlanCalendar();
     console.log('Async IIFE: after renderPlanCalendar, calling showPage(\'plan\')');
-    showPage('plan');
+    showPage('plan',{skipLoad:true});
     // 首屏明确检查按钮状态（loadTasks里调用时myName可能还没ready）
     await checkTodayPublished();
   })();
